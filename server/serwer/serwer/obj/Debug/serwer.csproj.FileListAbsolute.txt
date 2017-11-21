@@ -69,7 +69,7 @@ C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\Debug\serwer.csproj
 C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\Debug\serwer.csproj.CoreCompileInputs.cache
 C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\Debug\serwer.dll
 C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\Debug\serwer.pdb
-C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\bin\imageRelayNative.dll
-C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\bin\imageRelay.dll
-C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\bin\MWArray.dll
-C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\bin\MWArray.xml
+C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\Debug\Interop.MLApp.dll
+C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\Debug\serwer.csproj.ResolveComReference.cache
+C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\Debug\serwer.Migrations.Init.resources
+C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\Debug\serwer.csproj.GenerateResource.Cache

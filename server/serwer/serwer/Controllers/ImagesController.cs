@@ -33,12 +33,14 @@ namespace serwer.Controllers
 
                     MLApp.MLApp matlab = new MLApp.MLApp();
 
-                    matlab.Execute(@"cd c:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\MatlabScripts"); // move Matlab shell context to the directory specified here
-                    string storageDirectory = "C:\\Users\\grycz\\Desktop\\masterThesis\\server\\serwer\\serwer\\Storage\\";
+                    matlab.Execute(@"cd C:\Users\grycz\Desktop\deploy\MatlabScripts"); // move Matlab shell context to the directory specified here
+                    string storageDirectory = "C:\\Users\\grycz\\Desktop\\deploy\\Storage\\";
                     string processedImageName = "negative.jpg";
 
                     object result = null; // output data
                     matlab.Feval("imageNegative", 0, out result, storageDirectory + hardcodedImageFileName, storageDirectory + processedImageName);
+
+                    matlab.Quit();
 
                 }
                 ViewBag.Message = "File Uploaded Successfully!!";
@@ -49,7 +51,7 @@ namespace serwer.Controllers
                 Console.WriteLine("BŁĄD");
                 Console.WriteLine();
                 Console.WriteLine(e);
-                ViewBag.Message = "File upload failed!!";
+                ViewBag.Message = e.ToString();// "File upload failed!!";
 
                 return View();
             }
