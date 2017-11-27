@@ -289,6 +289,11 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Migrations\201711212137458_Init.resx">
+      <DependentUpon>201711212137458_Init.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <COMReference Include="MLApp">
       <Guid>{C36E46AB-6A81-457B-9F91-A7719A06287F}</Guid>
       <VersionMajor>1</VersionMajor>
@@ -298,11 +303,6 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201711212137458_Init.resx">
-      <DependentUpon>201711212137458_Init.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
