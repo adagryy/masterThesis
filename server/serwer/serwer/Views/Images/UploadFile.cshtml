@@ -1,4 +1,6 @@
-﻿@{
+﻿@using serwer.Models
+@model UploadFileViewModel
+@{
     ViewBag.Title = "Załaduj obraz";
 }
 
@@ -7,8 +9,29 @@
 @using (Html.BeginForm("UploadFile", "Images", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
-    <div>
-        @*@Html.TextBox("file", "", new { type = "file" }) <br />*@
+    <div>        
+
+        <div class="form-group">
+            @Html.Label("Algorytm obróbki", new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @*<div class="dropdown">
+                    <button class="btn btn dropdown-toggle" type="button" data-toggle="dropdown">
+                        <i>Wybierz algorytm</i> 
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        @{
+                            foreach (var item in Model.algorithms)
+                            {
+                                <li><a href="#">@item</a></li>
+                            }
+                        }                        
+                    </ul>
+                </div>*@
+                @Html.DropDownListFor(d => d.selectedAlgorithm, new SelectList(Model.algorithms.Items, "Value", "Text", Model.algorithms.SelectedValue), new { @class = "btn btn-default" })
+            </div>
+        </div>
+        
         <div class="form-group">
             @Html.Label("Plik", new { @class = "col-md-2 control-label" })
             <div class="col-md-10">
@@ -16,7 +39,6 @@
             </div>
         </div>
 
-        @*<input type="submit" value="Upload" />*@
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 <input type="submit" value="Prześlij na serwer" class="btn btn-primary" />
@@ -32,16 +54,6 @@
         }      
 
     </div>
- 
-    if (File.Exists(Server.MapPath("~/Storage/images.jpg")))
-    {
-        <img src="@Url.Content("/Storage/images.jpg")" />
-    }
-    if (File.Exists(Server.MapPath("~/Storage/negative.jpg")))
-    {
-        <img src="@Url.Content("/Storage/negative.jpg")" />
-    }
-
 
 }
-  
+

@@ -1,8 +1,8 @@
-function [ negativeOfImage ] = imageNegative( imageSource, imageDestination )
+function [ ] = imageNegative( imageSource, imageDestination )
     % Calculates and returns negative of a given image
     
-    I = imread(imageSource);
-    negativeOfImage = imcomplement(im2double(I)); % calculates here a negative of given image
-    imwrite(negativeOfImage, imageDestination);
+    I = im2double(imread(imageSource));
+    I = imcomplement(I); % calculates here a negative of given image
+    imwrite(I, imageDestination);
 end
 

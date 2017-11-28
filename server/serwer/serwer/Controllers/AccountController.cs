@@ -9,6 +9,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using serwer.Models;
+using System.IO;
 
 namespace serwer.Controllers
 {
@@ -157,7 +158,14 @@ namespace serwer.Controllers
                 if (result.Succeeded)
                 {
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
-                    
+
+                    string storageDirectory = Server.MapPath("~/Storage/" + model.UserName);
+
+                    if (!Directory.Exists(storageDirectory)) // if personal directory for every user does not exists, here it is created
+                    {
+                        Directory.CreateDirectory(storageDirectory);
+                    }
+
                     // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
                     // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);

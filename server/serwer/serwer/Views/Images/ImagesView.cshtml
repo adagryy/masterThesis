@@ -1,0 +1,59 @@
+﻿
+@{
+    ViewBag.Title = "ImagesView";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{     
+    <div class="container-fluid">
+        <div class="row">
+            <br />
+            @Html.ActionLink("Ponownie ładuj obraz", "uploadFile", "Images", null, new { @class = "btn btn-primary btn-lg" })
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container-fluid">
+        <div class="row">
+            @{ 
+                if (ViewBag.Message != null)
+                {
+                    <div class="alert alert-success">
+                        <p>@ViewBag.Message</p>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+
+        if (File.Exists(Server.MapPath("~/Storage/" + User.Identity.Name + "/images.jpg")))
+        {
+    <div class="container-fluid">
+        <div class="row">
+            <p><h2>Obraz orginalny</h2></p>
+            @{
+                // DateTimeOffset.Now.ToUnixTimeMilliseconds() is used to prevent caching images in browsers
+                // this "imPath" - path to the personal original image
+                string imPath = Url.Content("/Storage/" + User.Identity.Name + "/images.jpg") + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            }
+            <img class="img-responsive col-sm-8" src="@imPath" />
+        </div>
+    </div>
+    }
+    if (File.Exists(Server.MapPath("~/Storage/" + User.Identity.Name + "/negative.jpg")))
+    {
+        <div class="container-fluid">
+            <div class="row">
+                <p><h2>Obraz przetworzony</h2></p>
+                @{
+                    // DateTimeOffset.Now.ToUnixTimeMilliseconds() is used to prevent caching images in browsers
+                    // this "imPath" - path to the personal processed image
+                    string imPath = Url.Content("/Storage/" + User.Identity.Name + "/negative.jpg") + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                }
+                <img class="img-responsive col-sm-8" src="@imPath" />
+            </div>
+        </div>
+    }
+}
