@@ -1,23 +1,47 @@
 ﻿@{
-    ViewBag.Title = "UploadFile Test";
+    ViewBag.Title = "Załaduj obraz";
 }
 
-<h2>UploadFiled</h2>
+<h2>Załaduj obraz</h2>
 
-@using (Html.BeginForm("UploadFile", "Images", FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm("UploadFile", "Images", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
 {
-
+    @Html.AntiForgeryToken()
     <div>
-        @Html.TextBox("file", "", new { type = "file" }) <br />
+        @*@Html.TextBox("file", "", new { type = "file" }) <br />*@
+        <div class="form-group">
+            @Html.Label("Plik", new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.TextBox("file", "", new { @type = "file", @class = "form-control" })
+            </div>
+        </div>
 
-        <input type="submit" value="Upload" />
-
-        @ViewBag.Message
+        @*<input type="submit" value="Upload" />*@
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Prześlij na serwer" class="btn btn-primary" />
+            </div>
+        </div>
+        @{
+            if (ViewBag.Message != null)
+            {
+                <div class="alert alert-success">
+                    <p>@ViewBag.Message</p>
+                </div>
+            }
+        }      
 
     </div>
+ 
+    if (File.Exists(Server.MapPath("~/Storage/images.jpg")))
+    {
+        <img src="@Url.Content("/Storage/images.jpg")" />
+    }
+    if (File.Exists(Server.MapPath("~/Storage/negative.jpg")))
+    {
+        <img src="@Url.Content("/Storage/negative.jpg")" />
+    }
 
-    @*<img src="~/Storage/images.jpg" alt="Sample Image" width="25%" style="align-content: center" />*@
-    <img src="@Url.Content("/Storage/images.jpg")" />
-    <img src="@Url.Content("/Storage/negative.jpg")" />
+
 }
   
