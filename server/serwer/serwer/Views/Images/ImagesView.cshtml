@@ -1,10 +1,13 @@
 ﻿
+@model serwer.Models.ImagesDownloadDetails
+
 @{
     ViewBag.Title = "ImagesView";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
 }
 
-@{     
+@{
     <div class="container-fluid">
         <div class="row">
             <br />
@@ -16,7 +19,7 @@
 
     <div class="container-fluid">
         <div class="row">
-            @{ 
+            @{
                 if (ViewBag.Message != null)
                 {
                     <div class="alert alert-success">
@@ -27,33 +30,39 @@
         </div>
     </div>
 
-
-        if (File.Exists(Server.MapPath("~/Storage/" + User.Identity.Name + "/images.jpg")))
-        {
-    <div class="container-fluid">
-        <div class="row">
-            <p><h2>Obraz orginalny</h2></p>
-            @{
-                // DateTimeOffset.Now.ToUnixTimeMilliseconds() is used to prevent caching images in browsers
-                // this "imPath" - path to the personal original image
-                string imPath = Url.Content("/Storage/" + User.Identity.Name + "/images.jpg") + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            }
-            <img class="img-responsive col-sm-8" src="@imPath" />
-        </div>
-    </div>
-    }
-    if (File.Exists(Server.MapPath("~/Storage/" + User.Identity.Name + "/negative.jpg")))
-    {
-        <div class="container-fluid">
-            <div class="row">
-                <p><h2>Obraz przetworzony</h2></p>
-                @{
-                    // DateTimeOffset.Now.ToUnixTimeMilliseconds() is used to prevent caching images in browsers
-                    // this "imPath" - path to the personal processed image
-                    string imPath = Url.Content("/Storage/" + User.Identity.Name + "/negative.jpg") + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                }
-                <img class="img-responsive col-sm-8" src="@imPath" />
-            </div>
-        </div>
-    }
+                foreach (string file in Model.items)
+                {
+                    <div class="container-fluid">
+                        <div class="row">
+                            @{
+                                string imPath = "";
+                                if (file.Equals(serwer.Config.ServerConfigurator.originalImageName + Model.originalImageExtension))
+                                {
+                                    <p>
+                                        <h2>Obraz orginalny</h2>
+                                        @*@Html.ActionLink("Pobierz", "Download", "Images", new { ImageName = "images.jpg" }) this syntax not working, so be cerreful*@
+                                        @Html.ActionLink("Pobierz", "Download", "Images", routeValues: new { ImageName = @file.ToString() }, htmlAttributes: new { @class = "btn btn-success btn-lg" })
+                                    </p>
+                                    imPath = Url.Content("/Storage/" + User.Identity.Name + "/" + file) + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                                }
+                                else if (file.Equals(serwer.Config.ServerConfigurator.processedImageName + Model.processedImageExtension))
+                                {
+                                    <p>
+                                        <h2>Obraz przetworzony</h2>
+                                        @*@Html.ActionLink("Pobierz", "Download", "Images", new { ImageName = "images.jpg" }) this syntax not working, so be cerreful*@
+                                        @Html.ActionLink("Pobierz", "Download", "Images", routeValues: new { ImageName = @file.ToString() }, htmlAttributes: new { @class = "btn btn-success btn-lg" })
+                                    </p>
+                                    imPath = Url.Content("/Storage/" + User.Identity.Name + "/" + file) + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                                }
+                                else
+                                {
+                                    // DateTimeOffset.Now.ToUnixTimeMilliseconds() is used to prevent caching images in browsers
+                                    // this "imPath" - path to the personal original image
+                                    imPath = Url.Content("/Storage/" + User.Identity.Name + "/" + file) + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                                }
+                                <img class="img-responsive col-sm-8" src="@imPath" />
+                            }
+                        </div>
+                    </div>
+                                }
 }

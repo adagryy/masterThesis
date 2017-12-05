@@ -10,6 +10,7 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using serwer.Models;
 using System.IO;
+using System.Threading;
 
 namespace serwer.Controllers
 {
@@ -74,7 +75,14 @@ namespace serwer.Controllers
                 return View(model);
             }
 
+            //Thread.Sleep(4000);
+
             var user = UserManager.FindByEmail(model.Email); // find the user associated with an email
+            if(user == null)
+            {
+                ModelState.AddModelError("", "Błąd logowania. Podany adres email nie został znaleziony w systemie");
+                return View(model);
+            }
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
             var result = await SignInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, shouldLockout: false);

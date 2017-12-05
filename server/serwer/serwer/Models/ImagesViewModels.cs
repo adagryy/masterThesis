@@ -11,4 +11,11 @@ namespace serwer.Models
         public SelectList algorithms { get; set; }
         public string selectedAlgorithm { get; set; }
     }
+
+    public class ImagesDownloadDetails
+    {
+        public List<string> items { get; set; }
+        public string originalImageExtension { get; set; }
+        public string processedImageExtension { get; set; }
+    }
 }
