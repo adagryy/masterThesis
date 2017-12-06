@@ -197,6 +197,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\MatlabProcessingDataThreaded.cs" />
     <Compile Include="Migrations\201711212137458_Init.cs" />
     <Compile Include="Migrations\201711212137458_Init.Designer.cs">
       <DependentUpon>201711212137458_Init.cs</DependentUpon>

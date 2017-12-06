@@ -17,5 +17,6 @@ namespace serwer.Models
         public List<string> items { get; set; }
         public string originalImageExtension { get; set; }
         public string processedImageExtension { get; set; }
+        public string removeImagePath { get; set; }
     }
 }
