@@ -15,6 +15,8 @@ namespace serwer.Config
                                                              // [...] It it the path, where there are personal folders with original and processed images
         public const string matlabScriptsPath = "~/MatlabScripts/"; // As above: VERY VERY important is a slash character ("/") at the end of this string. Tilde means relative path to the directory. 
                                                                     // It is a path to the folder which stores choosable by user matlab scripts used for image processing.
+        public const string afterProcessingDataFileName = "processingResults"; // filename of a file into which matlab scripts will save informations about detected objects on image.
+        public const string afterProcessingDataFileExtension = ".json"; // VERY VERY important is a dot on the beginning of this string. It is an extension (default: json) into which matlab scripts will save informations about detected objects on image.
 
     }
 }

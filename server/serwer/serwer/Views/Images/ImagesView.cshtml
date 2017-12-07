@@ -46,7 +46,7 @@
                             @using (@Html.BeginForm("RemoveImage", "Images", FormMethod.Post, new { @class = "", role = "form", enctype = "multipart/form-data" }))
                             {
                                 @Html.AntiForgeryToken()
-                                Model.removeImagePath = serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + file.ToString();    
+                                Model.removeImagePath = serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file.ToString();    
                                             
                                 @Html.HiddenFor(r => r.removeImagePath)
                                             
@@ -65,7 +65,7 @@
                             @using (@Html.BeginForm("RemoveImage", "Images", FormMethod.Post, new { @class = "", role = "form", enctype = "multipart/form-data" }))
                             {
                                 @Html.AntiForgeryToken()
-                                Model.removeImagePath = serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + file.ToString();
+                                Model.removeImagePath = serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file.ToString();
 
                                 @Html.HiddenFor(r => r.removeImagePath)
 

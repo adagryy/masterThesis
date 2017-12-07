@@ -1,0 +1,2 @@
+Należy pamiętać o ustawieniu HTTPS
+Chyba niepotrzebne przekierowanie z HTTP -> HTTPS

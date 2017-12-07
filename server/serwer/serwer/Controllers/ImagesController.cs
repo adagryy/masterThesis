@@ -80,7 +80,10 @@ namespace serwer.Controllers
                     // Create object which will be passed to new Thread for image processing
                     MatlabProcessingDataThreaded matlabProcessingDataThreaded = new MatlabProcessingDataThreaded(
                             storageDirectory, // Directory in which there are stored images for reading to processing. This path is user personalised, eg. "~/Storage/testuser/"
-                            storageDirectory, // Directory in which there are saved images after processing by Matlab. It can be the same directory as the images storing directory
+                            storageDirectory, // Directory in which there is saved an image after processing by Matlab. It can be the same directory as the images storing directory
+                            storageDirectory, // Directory in which there is saved an JSON file created by Matlab during image processing.
+                            ServerConfigurator.afterProcessingDataFileName, // Filename of the above file
+                            ServerConfigurator.afterProcessingDataFileExtension, // File extension of the above file
                             originalFileName,  // Filename of image, which will be processed
                             processedFileName,  // Filename after processing
                             model.selectedAlgorithm, // Tells to Matlab, which algorithm to use for image processing
@@ -108,20 +111,30 @@ namespace serwer.Controllers
         // any shared variables problems
         private void processImageWithinNewThread(MatlabProcessingDataThreaded matlabProcessingDataThreaded)
         {
-            Thread.Sleep(10000); // for testing.
+            try
+            {
+                Thread.Sleep(4000); // for testing.
 
-            // For more information see official MathWorks doccumentation on how to use MLApp Matlab object reference
-            MLApp.MLApp matlab = new MLApp.MLApp();
-            matlab.Execute("cd " + matlabProcessingDataThreaded.MatlabScriptsDirectory); // move Matlab shell context to the directory specified here, e. g. "cd F:\\Resources\\processImage.m"
-            object result = null; // output data
-            matlab.Feval(
-                    matlabProcessingDataThreaded.SelectedProcessingAlgorithm, // The name of algoritm which will be used for processing
-                    0, // Number of output arguments
-                    out result, // Output data
-                    matlabProcessingDataThreaded.ImageSource + matlabProcessingDataThreaded.OriginalFileName, // Parameter #1 to matlab algorithm (source image path with filename)
-                    matlabProcessingDataThreaded.ImageDestination + matlabProcessingDataThreaded.ProcessedFileName // Parameter #2 to matlab algorithm (destination image path with filename)
-                );
-            matlab.Quit();
+                // For more information see official MathWorks doccumentation on how to use MLApp Matlab object reference
+                MLApp.MLApp matlab = new MLApp.MLApp();
+                matlab.Execute("cd " + matlabProcessingDataThreaded.MatlabScriptsDirectory); // move Matlab shell context to the directory specified here, e. g. "cd F:\\Resources\\processImage.m"
+                object result = null; // output data
+                matlab.Feval(
+                        matlabProcessingDataThreaded.SelectedProcessingAlgorithm, // The name of algoritm which will be used for processing
+                        0, // Number of output arguments
+                        out result, // Output data
+                        matlabProcessingDataThreaded.ImageSource + matlabProcessingDataThreaded.OriginalFileName, // Parameter #1 to matlab algorithm (source image path with filename)
+                        matlabProcessingDataThreaded.ImageDestination + matlabProcessingDataThreaded.ProcessedFileName, // Parameter #2 to matlab algorithm (destination image path with filename)
+                        matlabProcessingDataThreaded.AfterProcessingFileDestination + matlabProcessingDataThreaded.AfterProcessingFileName + matlabProcessingDataThreaded.AfterProcessingFileExtension // Parameter #3 to matlab algorithm (full destination path where to save JSON data)
+                    );
+                matlab.Quit();
+            }
+            catch (System.Runtime.InteropServices.COMException e)
+            {
+                ViewBag.MatlabProcessingError = "Error processing image on the server. Probably incorrect uage of matlab function available on the server";
+            }
+            catch (Exception) { ViewBag.MatlabProcessingError = "Unknown image processing error"; }
+
         }
 
         [HttpGet]
