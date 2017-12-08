@@ -18,5 +18,6 @@ namespace serwer.Models
         public string originalImageExtension { get; set; }
         public string processedImageExtension { get; set; }
         public string removeImagePath { get; set; }
+        public string processedImageDataInJSON { get; set; }
     }
 }

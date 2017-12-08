@@ -7,6 +7,7 @@ using serwer.Config;
 using System.Collections.Generic;
 using System.Threading;
 using serwer.Helpers;
+using Newtonsoft.Json;
 
 namespace serwer.Controllers
 {
@@ -61,14 +62,16 @@ namespace serwer.Controllers
                     string user = User.Identity.Name; // fetches the user login, which is currently logged in. It is used to decide into which directory the image should be saved
                     
                     string fileName = Path.GetFileName(file.FileName); 
-                    string storageDirectory = Server.MapPath(ServerConfigurator.imageStoragePath + user + "/"); // directory into which we will save the original image
+                    string storageImageSourceDirectory = Server.MapPath(ServerConfigurator.imageStoragePath + user + "/"); // directory into which we will save the original image
+                    string storageImageDestinationDirectory = Server.MapPath(ServerConfigurator.imageStoragePath + user + "/"); // directory into which we will save the original image
+                    string storageAfterPOrocessingJSONFileNameDirectory = Server.MapPath(ServerConfigurator.imageStoragePath + user + "/"); // directory into which we will save the original image
 
                     string originalFileName = ServerConfigurator.originalImageName + Path.GetExtension(file.FileName); // name of file which is used to save the uploaded image on the server
                     string processedFileName = ServerConfigurator.processedImageName + Path.GetExtension(file.FileName); // name of file which will be used to save image after processing
 
                     string matlabScriptsDirectory = Server.MapPath(ServerConfigurator.matlabScriptsPath); // in this directory are stored all matlab scripts
 
-                    string path = Path.Combine(storageDirectory, originalFileName); // path for save uploaded image to server disk
+                    string path = Path.Combine(storageImageSourceDirectory, originalFileName); // path for save uploaded image to server disk
                     file.SaveAs(path);                    
 
                     if (!System.IO.File.Exists(matlabScriptsDirectory + model.selectedAlgorithm + ".m")) // Check if given algorithm exists on the server
@@ -79,9 +82,9 @@ namespace serwer.Controllers
 
                     // Create object which will be passed to new Thread for image processing
                     MatlabProcessingDataThreaded matlabProcessingDataThreaded = new MatlabProcessingDataThreaded(
-                            storageDirectory, // Directory in which there are stored images for reading to processing. This path is user personalised, eg. "~/Storage/testuser/"
-                            storageDirectory, // Directory in which there is saved an image after processing by Matlab. It can be the same directory as the images storing directory
-                            storageDirectory, // Directory in which there is saved an JSON file created by Matlab during image processing.
+                            storageImageSourceDirectory, // Directory in which there are stored images for reading to processing. This path is user personalised, eg. "~/Storage/testuser/"
+                            storageImageDestinationDirectory, // Directory in which there is saved an image after processing by Matlab. It may be the same directory as the images storing directory
+                            storageAfterPOrocessingJSONFileNameDirectory, // Directory in which there is saved an JSON file created by Matlab during image processing. It may be the same directory as the images storing directory
                             ServerConfigurator.afterProcessingDataFileName, // Filename of the above file
                             ServerConfigurator.afterProcessingDataFileExtension, // File extension of the above file
                             originalFileName,  // Filename of image, which will be processed
@@ -113,8 +116,6 @@ namespace serwer.Controllers
         {
             try
             {
-                Thread.Sleep(4000); // for testing.
-
                 // For more information see official MathWorks doccumentation on how to use MLApp Matlab object reference
                 MLApp.MLApp matlab = new MLApp.MLApp();
                 matlab.Execute("cd " + matlabProcessingDataThreaded.MatlabScriptsDirectory); // move Matlab shell context to the directory specified here, e. g. "cd F:\\Resources\\processImage.m"
@@ -177,6 +178,7 @@ namespace serwer.Controllers
             FileInfo[] fileNames = dir.GetFiles("*.*"); // list all files in personal directory 
 
             imagesDownloadDetails.items = new List<string>();
+            imagesDownloadDetails.processedImageDataInJSON = null; // initialize with null. Null is treated as not-to-display in the view (when null - then it won't be displayed in the view)
 
             foreach (var file in fileNames)
             {
@@ -188,6 +190,24 @@ namespace serwer.Controllers
                 if (file.Name.StartsWith(ServerConfigurator.processedImageName))
                 {
                     imagesDownloadDetails.processedImageExtension = file.Extension; // saving extension of processed image. Extension is saved with dot at the beginning, i.e ".jpg"
+                }
+                if (file.Name.StartsWith(ServerConfigurator.afterProcessingDataFileName)) // read JSON file which is stored on the server to pass data into View
+                {
+                    StreamReader r = null;
+                    try
+                    {
+                        r = new StreamReader(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file));
+                        string JSONFormattedData = r.ReadToEnd();
+                        r.Close();
+                        JsonConvert.DeserializeObject(JSONFormattedData); // try to deserialize JSON from file - if it is invalid - then exception will be thrown and "JSONFormattedData" string won't be passed into view
+                        imagesDownloadDetails.processedImageDataInJSON = JSONFormattedData;                        
+                    }
+                    //catch (ArgumentException) { }
+                    //catch (FileNotFoundException) { }
+                    //catch (DirectoryNotFoundException) { }
+                    //catch (IOException) { }
+                    catch (OutOfMemoryException) { r.Close(); }
+                    catch (Exception e) { r.Close(); }
                 }
             }
 

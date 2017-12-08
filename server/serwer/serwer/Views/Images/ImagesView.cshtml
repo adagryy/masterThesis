@@ -55,6 +55,15 @@
                                 
                         </p>
                         imPath = Url.Content(serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file) + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                        <div class="row">
+                            <img class="img-responsive col-sm-8" src="@imPath" />
+                        </div>
+                        if (!File.Exists(Server.MapPath(serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + serwer.Config.ServerConfigurator.processedImageName + Model.processedImageExtension)))
+                        {
+                            <br />
+                            <p><h4> Trwa przetwarzanie obrazu. Proszę odświeżyć stronę.Obraz wyświetli się po zakończeniu przetwarzania poniżej.</h4></p>
+                        }
+
                     }
                     else if (file.Equals(serwer.Config.ServerConfigurator.processedImageName + Model.processedImageExtension))
                     {
@@ -73,19 +82,42 @@
                             }    
                         </p>
                         imPath = Url.Content(serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file) + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                        <div class="row">
+                            <img class="img-responsive col-sm-8" src="@imPath" />
+                        </div>
+                    }
+                    else if (file.Equals(serwer.Config.ServerConfigurator.afterProcessingDataFileName + serwer.Config.ServerConfigurator.afterProcessingDataFileExtension) && Model.processedImageDataInJSON != null)
+                    {
+                        <p>
+                            <h2>Dane z przetworzonego obrazu</h2>
+
+                            @{
+                                // Below it displays whole content of JSON file
+                                dynamic stuff = Newtonsoft.Json.JsonConvert.DeserializeObject(Model.processedImageDataInJSON);
+                                foreach (var stuffItem in stuff)
+                                {
+                                    <div><strong>@stuffItem.Name: </strong>@stuffItem.Value</div>
+                                }
+                            }
+                            <br />
+                            @Html.ActionLink("Pobierz dane", "Download", "Images", routeValues: new { ImageName = @file.ToString() }, htmlAttributes: new { @class = "btn btn-success btn-lg" })
+                        </p>
                     }
                     else
                     {
                         // DateTimeOffset.Now.ToUnixTimeMilliseconds() is used to prevent caching images in browsers
                         // this "imPath" - path to the personal original image
                         imPath = Url.Content(serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file) + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                        <div class="row">
+                            <img class="img-responsive col-sm-8" src="@imPath" />
+                        </div>
                     }
-                                
+
                 }
             </div>
-            <div class="row">
+            @*<div class="row">
                 <img class="img-responsive col-sm-8" src="@imPath" />
-            </div>
+            </div>*@
         </div>
     }
 }
