@@ -75,8 +75,6 @@ namespace serwer.Controllers
                 return View(model);
             }
 
-            //Thread.Sleep(4000);
-
             var user = UserManager.FindByEmail(model.Email); // find the user associated with an email
             if(user == null)
             {

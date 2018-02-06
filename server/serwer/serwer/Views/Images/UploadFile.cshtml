@@ -14,21 +14,9 @@
         <div class="form-group">
             @Html.Label("Algorytm obróbki", new { @class = "col-md-2 control-label" })
             <div class="col-md-10">
-                @*<div class="dropdown">
-                    <button class="btn btn dropdown-toggle" type="button" data-toggle="dropdown">
-                        <i>Wybierz algorytm</i> 
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        @{
-                            foreach (var item in Model.algorithms)
-                            {
-                                <li><a href="#">@item</a></li>
-                            }
-                        }                        
-                    </ul>
-                </div>*@
-                @Html.DropDownListFor(d => d.selectedAlgorithm, new SelectList(Model.algorithms.Items, "Value", "Text", Model.algorithms.SelectedValue), new { @class = "btn btn-default" })
+                @Html.DropDownListFor(d => d.selectedAlgorithm, 
+                    new SelectList(Model.algorithms.Items, "Value", "Text", Model.algorithms.SelectedValue), 
+                    new { @class = "btn btn-default" })
             </div>
         </div>
         
