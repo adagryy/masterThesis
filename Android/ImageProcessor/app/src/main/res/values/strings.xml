@@ -5,4 +5,6 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="welcome_screen_text">Analizator obrazów</string>
+    <string name="new_photo">Nowe zdjęcie</string>
+    <string name="send_photo">Wyślij</string>
 </resources>
