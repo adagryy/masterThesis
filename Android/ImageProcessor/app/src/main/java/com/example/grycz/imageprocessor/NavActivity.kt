@@ -16,8 +16,8 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.util.Log
 import kotlinx.android.synthetic.main.content_nav.*
-import android.R.attr.data
-import java.io.IOException
+import java.security.MessageDigest
+import java.io.*
 
 
 class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -111,21 +111,51 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
 
         if (resultCode == Activity.RESULT_OK && requestCode == RequestPickImageFromGallery) {
             val uri = data?.data
-
+            var postImageSend = ""
             try {
                 val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
+//                photo_preview.setImageBitmap(bitmap)
+
+//                var byteArrayOutputStream = ByteArrayOutputStream()
+//                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+//                val byteArray: ByteArray = byteArrayOutputStream.toByteArray()
+//
                 photo_preview.setImageBitmap(bitmap)
+//                val encodedImage: String = Base64.encodeToString(byteArray, Base64.DEFAULT)
+//
+//                var jsonImage = JSONObject()
+//
+//                jsonImage.put("Email", "test@test.com")
+//                jsonImage.put("Token", "sadjifhh08934242utrrhhfgds8v034775q29t9ftfjhds8gvb")
+//                jsonImage.put("Image", encodedImage)
+//                jsonImage.put("ImageHash", getSHA_256sumOfString(encodedImage).toString())
+
+                // output = LoginInfoOnStartup().execute(getString(R.string.server_url), postData.toString()).get()
+
+                postImageSend = ServerConnect().execute(persistImage(bitmap, "output")).get()
+                diag.text = postImageSend
+//
+//                Log.i("HASH: ", getSHA_256sumOfString(encodedImage).toString())
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-
-//            val extras = data?.extras
-//            if (extras != null) {
-//                //Get image
-//                val newProfilePic = extras.getParcelable<Bitmap>("data")
-//                photo_preview.setImageBitmap(newProfilePic)
-//            }
         }
+    }
+
+    private fun persistImage(bitmap: Bitmap, name: String) : File {
+        val filesDir = baseContext.getFilesDir()
+        val imageFile = File(filesDir, name + ".jpg")
+
+        val os: OutputStream
+        try {
+            os = FileOutputStream(imageFile)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os)
+            os.flush()
+            os.close()
+        } catch (e: Exception) {
+            Log.e(javaClass.simpleName, "Error writing bitmap", e)
+        }
+        return imageFile
     }
 
     private fun dispatchTakePictureIntent() {
@@ -143,15 +173,20 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         intent.action = Intent.ACTION_GET_CONTENT
         intent.putExtra("return-data", true);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), RequestPickImageFromGallery)
-//        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
-//        intent.type = "image/*"
-//        intent.putExtra("crop", "true")
-//        intent.putExtra("scale", true)
-//        intent.putExtra("outputX", 256)
-//        intent.putExtra("outputY", 256)
-//        intent.putExtra("aspectX", 1)
-//        intent.putExtra("aspectY", 1)
-//        intent.putExtra("return-data", true)
-//        startActivityForResult(intent, 1)
+    }
+
+    private fun getSHA_256sumOfString(s: String) : StringBuilder{
+        var messageDigest =  MessageDigest.getInstance("SHA-256")
+
+        messageDigest.update(s.toByteArray(Charsets.UTF_8))
+
+        var hash: ByteArray = messageDigest.digest()
+        val sb = StringBuilder()
+
+        for (b in hash) {
+            sb.append(Integer.toString((b.toInt() and 0xff) + 0x100, 16).substring(1))
+        }
+
+        return sb
     }
 }

@@ -6,6 +6,20 @@ using System.Web;
 
 namespace serwer.Models
 {
+
+    public abstract class UserData
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        //[Required]
+        //[DataType(DataType.Password)]
+        //protected string Password { get; set; }
+
+        public string Token { get; set; }
+
+    }
     public class LoginMobileViewModel
     {
         [Required]
@@ -17,31 +31,35 @@ namespace serwer.Models
         public string Password { get; set; }
     }
 
-    public class LoginCheck
+    public class LoginCheck : UserData
     {
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
 
-        [Required]
-        public string Token { get; set; }
     }
 
-    public class LoginMobileResource
+    public class HandleImage : UserData
     {
         [Required]
-        [EmailAddress]
-        public string Email { get; set; }
+        public string Image { get; set; }
 
         [Required]
-        [DataType(DataType.Password)]
-        public string Password { get; set; }
-
-        [Display(Name = "Remember me?")]
-        public bool RememberMe { get; set; }
-
-        public String Status { get; set; }
-
-        public String UserId { get; set; }
+        public string ImageHash { get; set; }
     }
+
+    //public class LoginMobileResource
+    //{
+    //    [Required]
+    //    [EmailAddress]
+    //    public string Email { get; set; }
+
+    //    [Required]
+    //    [DataType(DataType.Password)]
+    //    public string Password { get; set; }
+
+    //    [Display(Name = "Remember me?")]
+    //    public bool RememberMe { get; set; }
+
+    //    public String Status { get; set; }
+
+    //    public String UserId { get; set; }
+    //}
 }

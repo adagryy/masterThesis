@@ -1,10 +1,16 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Newtonsoft.Json;
+using serwer.Helpers;
 using serwer.Models;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -53,6 +59,7 @@ namespace serwer.Controllers
         //    }
         //}
 
+
         // GET: MobileDevices
         public ActionResult Index()
         {
@@ -62,7 +69,7 @@ namespace serwer.Controllers
         [HttpGet]
         public String testToken(String email)
         {
-            return "Test web: " + email;
+            return "Test webd: " + email;
         }
 
         [HttpPost]
@@ -96,6 +103,43 @@ namespace serwer.Controllers
 
             return JsonConvert.SerializeObject(values);
         }
+
+
+        [HttpPost]
+        public string handleImageFromMobileApp()
+        {
+            var c = Request.Files;
+            try
+            {
+                Request.Files[0].SaveAs(Server.MapPath("~/Mobile/output.jpg"));
+            }catch(Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(e);
+            }
+            //Dictionary<string, string> response = new Dictionary<string, string>();
+            //if(handleImage.Email == null || handleImage.Token == null || handleImage.Image == null || handleImage.ImageHash == null)
+            //{
+            //    response.Add("correctData", "no");
+            //    return JsonConvert.SerializeObject(response);
+            //}
+
+            //string hash = Mobile.sha256(handleImage.Image);
+            //System.Diagnostics.Debug.WriteLine(hash);
+            //response.Add("ImageHash", Mobile.sha256(handleImage.Image));
+
+            //Image image = Mobile.Base64ToImage(handleImage.Image);
+            //image.Save(Server.MapPath("~/Mobile/output.jpg"), ImageFormat.Jpeg);
+
+            return "df";
+        }
+
+        //public HttpResponseMessage testReturn()
+        //{
+        //    HttpResponseMessage http = new HttpResponseMessage();
+        //    http.Content = new HandleImage() { Email = "d", Image = "df", ImageHash = "dsfgdfsgsgf", Token = "sdfg" };
+        //    return Request.CreateResponse(HttpStatusCode.OK, new HandleImage() { Email = "d", Image = "df", ImageHash = "dsfgdfsgsgf", Token = "sdfg" });
+        //}
+
 
         //// POST api/mobilelogin
         //[AllowAnonymous]

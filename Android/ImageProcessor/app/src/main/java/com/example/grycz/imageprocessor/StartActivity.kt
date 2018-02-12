@@ -27,9 +27,9 @@ class StartActivity : AppCompatActivity() {
         val postData = JSONObject()
         try {
             postData.put("Email", "test@test.com")
-            postData.put("token", "sadjifhh08934242utrrhhfgds8v034775q29t9ftfjhds8gvb")
+            postData.put("Token", "sadjifhh08934242utrrhhfgds8v034775q29t9ftfjhds8gvb")
 
-            output = LoginInfoOnStartup().execute("http://192.168.0.3:62000/serwer/MobileDevices/checkIfLoggedIn", postData.toString()).get()
+            output = LoginInfoOnStartup().execute(getString(R.string.server_url_login), postData.toString()).get()
         } catch (e: JSONException) {
             e.printStackTrace()
         }
