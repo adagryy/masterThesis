@@ -133,6 +133,11 @@ namespace serwer.Controllers
             return "df";
         }
 
+        public FilePathResult GetFileFromDisk()
+        {
+            return File(Server.MapPath("~/Mobile/output.jpg"), "multipart/form-data", "costam.jpg");
+        }
+
         //public HttpResponseMessage testReturn()
         //{
         //    HttpResponseMessage http = new HttpResponseMessage();

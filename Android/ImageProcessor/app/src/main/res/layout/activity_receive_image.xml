@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.grycz.imageprocessor.ReceiveImageActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/my_toolbar_receiving"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
+    <Button
+        android:id="@+id/download_photo"
+        android:layout_width="174dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="92dp"
+        android:layout_marginTop="36dp"
+        android:text="Pobierz obraz"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/my_toolbar_receiving" />
+
+    <ImageView
+        android:id="@+id/downloaded_image_preview"
+        android:layout_width="264dp"
+        android:layout_height="336dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="36dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/download_photo"
+        app:srcCompat="@drawable/ic_launcher_foreground" />
+
+
+</android.support.constraint.ConstraintLayout>

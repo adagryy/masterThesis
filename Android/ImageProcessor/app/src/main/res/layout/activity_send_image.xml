@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.grycz.imageprocessor.SendImageActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/my_toolbar_sending"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
+    <Button
+        android:id="@+id/take_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="28dp"
+        android:text="Wykonaj zdjęcie"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/my_toolbar_sending" />
+
+    <Button
+        android:id="@+id/choose_photo"
+        android:layout_width="145dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="28dp"
+        android:text="Wybierz zdjęcie"
+        app:layout_constraintStart_toEndOf="@+id/take_photo"
+        app:layout_constraintTop_toBottomOf="@+id/my_toolbar_sending" />
+
+    <Button
+        android:id="@+id/send_photo"
+        android:layout_width="188dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="84dp"
+        android:layout_marginTop="100dp"
+        android:text="Prześlij na serwer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/my_toolbar_sending" />
+
+    <ImageView
+        android:id="@+id/photo_preview"
+        android:layout_width="319dp"
+        android:layout_height="288dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="28dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/send_photo"
+        app:srcCompat="@drawable/ic_launcher_foreground" />
+
+</android.support.constraint.ConstraintLayout>

@@ -5,8 +5,8 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="welcome_screen_text">Analizator obrazów</string>
-    <string name="new_photo">Nowe zdjęcie</string>
-    <string name="send_photo">Wyślij</string>
+    <string name="new_photo">Przesyłanie obrazów</string>
+    <string name="send_photo">Pobieranie obrazów</string>
     <string name="server_url_login">http://192.168.0.3:62000/serwer/MobileDevices/checkIfLoggedIn</string>
     <string name="server_url_handle_image">http://192.168.0.3:62000/serwer/MobileDevices/handleImageFromMobileApp</string>
 </resources>

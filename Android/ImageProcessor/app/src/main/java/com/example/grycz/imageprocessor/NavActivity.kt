@@ -1,6 +1,7 @@
 package com.example.grycz.imageprocessor
 
 import android.app.Activity
+import android.app.PendingIntent.getActivity
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
@@ -33,12 +34,18 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show()
         }
 
-        new_photo.setOnClickListener{view ->
-            dispatchTakePictureIntent()
+        receiving_activity.setOnClickListener{view ->
+            val intent = Intent(this, SendImageActivity::class.java)
+            intent.putExtra("napis", "test")
+            startActivity(intent)
+//            dispatchTakePictureIntent()
         }
 
-        send_photo.setOnClickListener { view ->
-            pickGalleryImage()
+        sending_activity.setOnClickListener { view ->
+            val intent = Intent(this, ReceiveImageActivity::class.java)
+            intent.putExtra("napis", "test")
+            startActivity(intent)
+//            pickGalleryImage()
         }
 
         val toggle = ActionBarDrawerToggle(
@@ -78,23 +85,19 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         when (item.itemId) {
-            R.id.nav_camera -> {
-                // Handle the camera action
+            R.id.nav_send_image -> {
+                val intent = Intent(this, SendImageActivity::class.java)
+                intent.putExtra("napis", "test")
+                startActivity(intent)
             }
-            R.id.nav_gallery -> {
-
+            R.id.nav_receive_image -> {
+                val intent = Intent(this, ReceiveImageActivity::class.java)
+                intent.putExtra("napis", "test")
+                startActivity(intent)
             }
-            R.id.nav_slideshow -> {
-
-            }
-            R.id.nav_manage -> {
-
-            }
-            R.id.nav_share -> {
-
-            }
-            R.id.nav_send -> {
-
+            R.id.nav_exit_app -> {
+                finish()
+                System.exit(0)
             }
         }
 
@@ -102,61 +105,41 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         return true
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if ( requestCode == RequestImageFromCamera && resultCode == RESULT_OK) {
-            val extras = data?.extras
-            val imageBitmap = extras?.get("data") as Bitmap
-            photo_preview.setImageBitmap(imageBitmap)
-        }
-
-        if (resultCode == Activity.RESULT_OK && requestCode == RequestPickImageFromGallery) {
-            val uri = data?.data
-            var postImageSend = ""
-            try {
-                val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
-//                photo_preview.setImageBitmap(bitmap)
-
-//                var byteArrayOutputStream = ByteArrayOutputStream()
-//                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-//                val byteArray: ByteArray = byteArrayOutputStream.toByteArray()
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        if ( requestCode == RequestImageFromCamera && resultCode == RESULT_OK) {
+////            val extras = data?.extras
+////            val imageBitmap = extras?.get("data") as Bitmap
+//        }
 //
-                photo_preview.setImageBitmap(bitmap)
-//                val encodedImage: String = Base64.encodeToString(byteArray, Base64.DEFAULT)
+//        if (resultCode == Activity.RESULT_OK && requestCode == RequestPickImageFromGallery) {
+//            val uri = data?.data
+//            var postImageSend = ""
+//            try {
+//                val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
 //
-//                var jsonImage = JSONObject()
+//                postImageSend = ServerConnect().execute(persistImage(bitmap, "output")).get()
 //
-//                jsonImage.put("Email", "test@test.com")
-//                jsonImage.put("Token", "sadjifhh08934242utrrhhfgds8v034775q29t9ftfjhds8gvb")
-//                jsonImage.put("Image", encodedImage)
-//                jsonImage.put("ImageHash", getSHA_256sumOfString(encodedImage).toString())
-
-                // output = LoginInfoOnStartup().execute(getString(R.string.server_url), postData.toString()).get()
-
-                postImageSend = ServerConnect().execute(persistImage(bitmap, "output")).get()
-                diag.text = postImageSend
+//            } catch (e: IOException) {
+//                e.printStackTrace()
+//            }
+//        }
+//    }
 //
-//                Log.i("HASH: ", getSHA_256sumOfString(encodedImage).toString())
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    private fun persistImage(bitmap: Bitmap, name: String) : File {
-        val filesDir = baseContext.getFilesDir()
-        val imageFile = File(filesDir, name + ".jpg")
-
-        val os: OutputStream
-        try {
-            os = FileOutputStream(imageFile)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os)
-            os.flush()
-            os.close()
-        } catch (e: Exception) {
-            Log.e(javaClass.simpleName, "Error writing bitmap", e)
-        }
-        return imageFile
-    }
+//    private fun persistImage(bitmap: Bitmap, name: String) : File {
+//        val filesDir = baseContext.getFilesDir()
+//        val imageFile = File(filesDir, name + ".jpg")
+//
+//        val os: OutputStream
+//        try {
+//            os = FileOutputStream(imageFile)
+//            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os)
+//            os.flush()
+//            os.close()
+//        } catch (e: Exception) {
+//            Log.e(javaClass.simpleName, "Error writing bitmap", e)
+//        }
+//        return imageFile
+//    }
 
     private fun dispatchTakePictureIntent() {
         Log.i("INFO: ", "Entering camera")
@@ -186,7 +169,6 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         for (b in hash) {
             sb.append(Integer.toString((b.toInt() and 0xff) + 0x100, 16).substring(1))
         }
-
         return sb
     }
 }

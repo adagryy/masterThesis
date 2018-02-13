@@ -10,41 +10,52 @@
 
 
     <Button
-        android:id="@+id/new_photo"
-        android:layout_width="122dp"
+        android:id="@+id/receiving_activity"
+        android:layout_width="227dp"
         android:layout_height="56dp"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="52dp"
         android:text="@string/new_photo"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/progress_content" />
 
     <Button
-        android:id="@+id/send_photo"
-        android:layout_width="126dp"
+        android:id="@+id/sending_activity"
+        android:layout_width="226dp"
         android:layout_height="56dp"
-        android:layout_marginStart="40dp"
+        android:layout_marginStart="64dp"
         android:layout_marginTop="24dp"
         android:text="@string/send_photo"
-        app:layout_constraintStart_toEndOf="@+id/new_photo"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/photo_preview"
-        android:layout_width="289dp"
-        android:layout_height="320dp"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="36dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/new_photo"
-        app:srcCompat="@drawable/ic_launcher_foreground" />
+        app:layout_constraintTop_toBottomOf="@+id/receiving_activity" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="225dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="68dp"
+        android:layout_marginTop="32dp"
+        android:text="Odśwież status"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sending_activity" />
 
     <TextView
-        android:id="@+id/diag"
-        android:layout_width="288dp"
-        android:layout_height="137dp"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="16dp"
+        android:id="@+id/progress_title"
+        android:layout_width="189dp"
+        android:layout_height="34dp"
+        android:layout_marginStart="84dp"
+        android:layout_marginTop="28dp"
+        android:text="Status przetwarzania"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/photo_preview" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/progress_content"
+        android:layout_width="181dp"
+        android:layout_height="91dp"
+        android:layout_marginStart="88dp"
+        android:layout_marginTop="20dp"
+        android:text="Brak danych"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progress_title" />
 </android.support.constraint.ConstraintLayout>

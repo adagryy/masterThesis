@@ -26,6 +26,7 @@ class ServerConnect : AsyncTask<File, Void, String>() {
 
             val response = multiPartEntity.finish()
 
+            Log.i("Czas: ", response[0])
         }catch (socketException: SocketTimeoutException){
             return "Connection error"
         }catch(connectException: ConnectException){
