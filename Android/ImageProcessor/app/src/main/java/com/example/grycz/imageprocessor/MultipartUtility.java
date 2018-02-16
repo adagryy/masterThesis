@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.CookieHandler;
+import java.net.CookieManager;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -46,13 +48,11 @@ public class MultipartUtility {
         httpConn.setUseCaches(false);
         httpConn.setDoOutput(true); // indicates POST method
         httpConn.setDoInput(true);
-        httpConn.setRequestProperty("Content-Type",
-                "multipart/form-data; boundary=" + boundary);
+        httpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
         httpConn.setRequestProperty("User-Agent", "CodeJava Agent");
         httpConn.setRequestProperty("Test", "Bonjour");
         outputStream = httpConn.getOutputStream();
-        writer = new PrintWriter(new OutputStreamWriter(outputStream, charset),
-                true);
+        writer = new PrintWriter(new OutputStreamWriter(outputStream, charset),true);
     }
 
     /**
@@ -136,8 +136,7 @@ public class MultipartUtility {
         // checks server's status code first
         int status = httpConn.getResponseCode();
         if (status == HttpURLConnection.HTTP_OK) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(
-                    httpConn.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
             String line = null;
             while ((line = reader.readLine()) != null) {
                 response.add(line);

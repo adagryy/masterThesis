@@ -1,7 +1,5 @@
 package com.example.grycz.imageprocessor
 
-import android.app.Activity
-import android.app.PendingIntent.getActivity
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
@@ -12,14 +10,12 @@ import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_nav.*
 import kotlinx.android.synthetic.main.app_bar_nav.*
-import android.provider.MediaStore
 import android.content.Intent
-import android.graphics.Bitmap
-import android.util.Log
 import kotlinx.android.synthetic.main.content_nav.*
+import java.net.CookieManager
+import java.net.CookieStore
+import java.net.URI
 import java.security.MessageDigest
-import java.io.*
-
 
 class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private val RequestImageFromCamera = 1
@@ -48,6 +44,10 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
 //            pickGalleryImage()
         }
 
+        refresh_button.setOnClickListener {view ->
+            diagnostics()
+        }
+
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
@@ -56,6 +56,8 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         supportActionBar?.title = "Start"
 
         nav_view.setNavigationItemSelectedListener(this)
+
+
     }
 
     override fun onBackPressed() {
@@ -105,59 +107,6 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         return true
     }
 
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        if ( requestCode == RequestImageFromCamera && resultCode == RESULT_OK) {
-////            val extras = data?.extras
-////            val imageBitmap = extras?.get("data") as Bitmap
-//        }
-//
-//        if (resultCode == Activity.RESULT_OK && requestCode == RequestPickImageFromGallery) {
-//            val uri = data?.data
-//            var postImageSend = ""
-//            try {
-//                val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
-//
-//                postImageSend = ServerConnect().execute(persistImage(bitmap, "output")).get()
-//
-//            } catch (e: IOException) {
-//                e.printStackTrace()
-//            }
-//        }
-//    }
-//
-//    private fun persistImage(bitmap: Bitmap, name: String) : File {
-//        val filesDir = baseContext.getFilesDir()
-//        val imageFile = File(filesDir, name + ".jpg")
-//
-//        val os: OutputStream
-//        try {
-//            os = FileOutputStream(imageFile)
-//            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os)
-//            os.flush()
-//            os.close()
-//        } catch (e: Exception) {
-//            Log.e(javaClass.simpleName, "Error writing bitmap", e)
-//        }
-//        return imageFile
-//    }
-
-    private fun dispatchTakePictureIntent() {
-        Log.i("INFO: ", "Entering camera")
-        val takePictureIntent: Intent? = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        if (takePictureIntent?.resolveActivity(packageManager) != null) {
-            startActivityForResult(takePictureIntent, RequestImageFromCamera)
-        }
-        Log.i("INFO: ", "Exitting camera")
-    }
-
-    private fun pickGalleryImage(){
-        val intent = Intent()
-        intent.type = "image/*"
-        intent.action = Intent.ACTION_GET_CONTENT
-        intent.putExtra("return-data", true);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), RequestPickImageFromGallery)
-    }
-
     private fun getSHA_256sumOfString(s: String) : StringBuilder{
         var messageDigest =  MessageDigest.getInstance("SHA-256")
 
@@ -170,5 +119,13 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
             sb.append(Integer.toString((b.toInt() and 0xff) + 0x100, 16).substring(1))
         }
         return sb
+    }
+
+    private fun diagnostics(){
+
+        val cookieStore = AppConfigurator.cookieManager
+
+        for (eachCookie in cookieStore?.cookieStore!!.cookies)
+            println(( eachCookie.name + ",   " + eachCookie.getValue()))
     }
 }

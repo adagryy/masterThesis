@@ -66,7 +66,8 @@ namespace serwer.Controllers
             return View();
         }
 
-        [HttpGet]
+        [Authorize]
+        [HttpPost]
         public String testToken(String email)
         {
             return "Test webd: " + email;

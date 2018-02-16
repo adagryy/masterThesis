@@ -30,7 +30,7 @@
         app:layout_constraintTop_toBottomOf="@+id/receiving_activity" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/refresh_button"
         android:layout_width="225dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="68dp"
@@ -45,16 +45,16 @@
         android:layout_height="34dp"
         android:layout_marginStart="84dp"
         android:layout_marginTop="28dp"
-        android:text="Status przetwarzania"
+        android:text="Status przetwarzania:"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/progress_content"
-        android:layout_width="181dp"
+        android:layout_width="190dp"
         android:layout_height="91dp"
-        android:layout_marginStart="88dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginStart="84dp"
+        android:layout_marginTop="16dp"
         android:text="Brak danych"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/progress_title" />

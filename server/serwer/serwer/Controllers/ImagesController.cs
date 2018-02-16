@@ -24,6 +24,8 @@ namespace serwer.Controllers
         [HttpGet]
         public ActionResult UploadFile()
         {
+            var cccccccc = Request;
+
             UploadFileViewModel uploadFileViewModel = new UploadFileViewModel(); // ViewModel for passing a list of available matlab algorithms on the server to the client
 
             string[] files = Directory.GetFiles(Server.MapPath(ServerConfigurator.matlabScriptsPath)); // Read all matlab algorithms available on server
