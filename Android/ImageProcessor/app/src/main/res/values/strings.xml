@@ -7,6 +7,5 @@
     <string name="welcome_screen_text">Analizator obrazów</string>
     <string name="new_photo">Przesyłanie obrazów</string>
     <string name="send_photo">Pobieranie obrazów</string>
-    <string name="server_url_login">http://192.168.0.3:62000/serwer/MobileDevices/checkIfLoggedIn</string>
-    <string name="server_url_handle_image">http://192.168.0.3:62000/serwer/MobileDevices/handleImageFromMobileApp</string>
+    <string name="server_domain">http://192.168.1.215:62000/</string>
 </resources>

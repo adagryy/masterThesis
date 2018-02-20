@@ -37,9 +37,9 @@
 
     <Button
         android:id="@+id/send_photo"
-        android:layout_width="188dp"
+        android:layout_width="170dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="84dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="100dp"
         android:text="Prześlij na serwer"
         app:layout_constraintStart_toStartOf="parent"
@@ -54,5 +54,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/send_photo"
         app:srcCompat="@drawable/ic_launcher_foreground" />
+
+    <Spinner
+        android:id="@+id/spinner_algorithms"
+        android:layout_width="143dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintStart_toEndOf="@+id/send_photo"
+        app:layout_constraintTop_toBottomOf="@+id/choose_photo" />
 
 </android.support.constraint.ConstraintLayout>

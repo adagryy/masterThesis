@@ -198,6 +198,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\Core.cs" />
     <Compile Include="Helpers\MatlabProcessingDataThreaded.cs" />
     <Compile Include="Helpers\Mobile.cs" />
     <Compile Include="Migrations\201711212137458_Init.cs" />
@@ -271,7 +272,6 @@
     <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
-    <Content Include="Views\Images\Index.cshtml" />
     <Content Include="Views\Images\UploadFile.cshtml" />
     <Content Include="Views\Images\ImagesView.cshtml" />
   </ItemGroup>
@@ -349,7 +349,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>62685</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://192.168.0.3:62000/serwer</IISUrl>
+          <IISUrl>http://192.168.1.215:62000/serwer</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

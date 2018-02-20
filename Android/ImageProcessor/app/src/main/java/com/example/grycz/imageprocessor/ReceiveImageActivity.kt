@@ -3,10 +3,6 @@ package com.example.grycz.imageprocessor
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import android.graphics.BitmapFactory
@@ -15,6 +11,7 @@ import android.util.Log
 import android.widget.ImageView
 import com.example.grycz.imageprocessor.R.id.downloaded_image_preview
 import kotlinx.android.synthetic.main.activity_receive_image.*
+import java.io.*
 
 
 class ReceiveImageActivity : AppCompatActivity() {
@@ -36,7 +33,7 @@ class ReceiveImageActivity : AppCompatActivity() {
 
     private fun downloadImageFromServer(){
 //        val downloadedBitmap = DownloadPhotoFromServer(downloaded_image_preview).execute("http://192.168.0.3:62000/serwer/MobileDevices/GetFileFromDisk").get()
-        DownloadPhotoFromServer(downloaded_image_preview).execute("http://192.168.0.3:62000/serwer/MobileDevices/GetFileFromDisk")
+        DownloadPhotoFromServer(downloaded_image_preview).execute(getString(R.string.server_domain) + "serwer/MobileDevices/GetFileFromDisk")
 //        downloaded_image_preview.setImageBitmap(downloadedBitmap)
     }
 }
@@ -50,6 +47,7 @@ class DownloadPhotoFromServer(val iv: ImageView) : AsyncTask<String, Void, Bitma
         try {
             val url = URL(urls[0])
             connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "POST"
             connection.connect()
 
             // expect HTTP 200 OK, so we don't mistakenly save error report
@@ -61,6 +59,17 @@ class DownloadPhotoFromServer(val iv: ImageView) : AsyncTask<String, Void, Bitma
             val input = connection.inputStream
             bitmap = BitmapFactory.decodeStream(input)
             input.close()
+
+            val inputt = BufferedReader(InputStreamReader(connection.inputStream))
+            var inputLine: String?
+            inputLine = inputt.readLine()
+            while (true) {
+                println(inputLine)
+                inputLine = inputt.readLine()
+                if(inputLine == null)
+                    break
+            }
+            inputt.close()
             return bitmap
 //            // download the file
 //            input = connection.inputStream

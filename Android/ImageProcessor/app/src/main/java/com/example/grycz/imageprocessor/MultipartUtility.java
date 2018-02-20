@@ -36,8 +36,7 @@ public class MultipartUtility {
      * @param charset
      * @throws IOException
      */
-    public MultipartUtility(String requestURL, String charset)
-            throws IOException {
+    public MultipartUtility(String requestURL, String charset) throws IOException {
         this.charset = charset;
 
         // creates a unique boundary based on time stamp
@@ -63,10 +62,8 @@ public class MultipartUtility {
      */
     public void addFormField(String name, String value) {
         writer.append("--" + boundary).append(LINE_FEED);
-        writer.append("Content-Disposition: form-data; name=\"" + name + "\"")
-                .append(LINE_FEED);
-        writer.append("Content-Type: text/plain; charset=" + charset).append(
-                LINE_FEED);
+        writer.append("Content-Disposition: form-data; name=\"" + name + "\"").append(LINE_FEED);
+        writer.append("Content-Type: text/plain; charset=" + charset).append(LINE_FEED);
         writer.append(LINE_FEED);
         writer.append(value).append(LINE_FEED);
         writer.flush();
@@ -83,14 +80,8 @@ public class MultipartUtility {
             throws IOException {
         String fileName = uploadFile.getName();
         writer.append("--" + boundary).append(LINE_FEED);
-        writer.append(
-                "Content-Disposition: form-data; name=\"" + fieldName
-                        + "\"; filename=\"" + fileName + "\"")
-                .append(LINE_FEED);
-        writer.append(
-                "Content-Type: "
-                        + URLConnection.guessContentTypeFromName(fileName))
-                .append(LINE_FEED);
+        writer.append("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"" + fileName + "\"").append(LINE_FEED);
+        writer.append("Content-Type: " + URLConnection.guessContentTypeFromName(fileName)).append(LINE_FEED);
         writer.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
         writer.append(LINE_FEED);
         writer.flush();

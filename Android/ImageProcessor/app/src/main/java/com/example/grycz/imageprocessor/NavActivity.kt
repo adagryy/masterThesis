@@ -12,9 +12,6 @@ import kotlinx.android.synthetic.main.activity_nav.*
 import kotlinx.android.synthetic.main.app_bar_nav.*
 import android.content.Intent
 import kotlinx.android.synthetic.main.content_nav.*
-import java.net.CookieManager
-import java.net.CookieStore
-import java.net.URI
 import java.security.MessageDigest
 
 class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
