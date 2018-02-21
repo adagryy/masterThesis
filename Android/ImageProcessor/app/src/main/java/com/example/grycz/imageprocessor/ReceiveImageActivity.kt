@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Bitmap
 import android.util.Log
 import android.widget.ImageView
+import android.widget.TextView
 import com.example.grycz.imageprocessor.R.id.downloaded_image_preview
 import kotlinx.android.synthetic.main.activity_receive_image.*
 import java.io.*
@@ -33,14 +34,18 @@ class ReceiveImageActivity : AppCompatActivity() {
 
     private fun downloadImageFromServer(){
 //        val downloadedBitmap = DownloadPhotoFromServer(downloaded_image_preview).execute("http://192.168.0.3:62000/serwer/MobileDevices/GetFileFromDisk").get()
-        DownloadPhotoFromServer(downloaded_image_preview).execute(getString(R.string.server_domain) + "serwer/MobileDevices/GetFileFromDisk")
+
+        DownloadPhotoFromServer(downloaded_image_preview, afterProcessingData).execute(getString(R.string.server_domain) + "serwer/MobileDevices/GetFileFromDisk",
+                getString(R.string.server_domain) + "serwer/MobileDevices/getData")
 //        downloaded_image_preview.setImageBitmap(downloadedBitmap)
     }
 }
 
-class DownloadPhotoFromServer(val iv: ImageView) : AsyncTask<String, Void, Bitmap?>(){
+class DownloadPhotoFromServer(val iv: ImageView, private val view: TextView) : AsyncTask<String, Void, Bitmap?>(){
     private var bitmap: Bitmap? = null
+    private var dataUrl: String? = null
     override fun doInBackground(vararg urls: String?): Bitmap? {
+        dataUrl = urls[1]
         var input: InputStream? = null
         var output: OutputStream? = null
         var connection: HttpURLConnection? = null
@@ -108,5 +113,32 @@ class DownloadPhotoFromServer(val iv: ImageView) : AsyncTask<String, Void, Bitma
         super.onPostExecute(result)
 
         iv.setImageBitmap(bitmap)
+        DownloadProcessingResults(view).execute(dataUrl)
+    }
+}
+
+private class DownloadProcessingResults(val iv: TextView) : AsyncTask<String, Void, Unit>(){
+    private var afterProcessingData: String? = null
+    override fun doInBackground(vararg params: String?) {
+        var input: InputStream? = null
+        var output: OutputStream? = null
+        var connection: HttpURLConnection? = null
+        try{
+            val url = URL(params[0])
+            connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+            connection.connect()
+
+            val bufferedReader = BufferedReader(InputStreamReader(connection.inputStream))
+
+            afterProcessingData = bufferedReader.readLine()
+
+        }catch (e: Exception){}
+    }
+
+    override fun onPostExecute(result: Unit?) {
+        super.onPostExecute(result)
+
+        iv.text = this.afterProcessingData
     }
 }

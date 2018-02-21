@@ -85,7 +85,7 @@ namespace serwer.Controllers
         }
 
         [HttpPost]
-        public FilePathResult GetFileFromDisk()
+        public HttpStatusCodeResult GetFileFromDisk()
         {
             string user = User.Identity.Name;
 
@@ -95,14 +95,17 @@ namespace serwer.Controllers
                                                         .GetFiles()
                                                         .Select(s => s.Name)
                                                         .Single(s => s.StartsWith("processed"));
-                return File(Server.MapPath(ServerConfigurator.imageStoragePath + user + "/" + fileToDownload), "multipart/form-data", fileToDownload);
+                //HttpContext.Response.Write("sdfgsdfg");
+                HttpContext.Response.WriteFile(Server.MapPath(ServerConfigurator.imageStoragePath + user + "/" + fileToDownload)); // append file to content body
+
+                return new HttpStatusCodeResult(HttpStatusCode.OK);
             }
             catch(Exception e)
             {
                 Debug.WriteLine(e);
             }
 
-            return null;            
+            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);            
         }
 
         [HttpPost]
@@ -117,6 +120,18 @@ namespace serwer.Controllers
                 counter++;
             }
             return JsonConvert.SerializeObject(dict); 
-        }       
+        }
+        
+        [HttpGet]
+        public void getData()
+        {
+            HttpContext.Response.Headers.Add("s", "d");
+            
+            StreamReader streamReader = new StreamReader(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + "processingResults.json"));
+            //string s = streamReader.ReadLine();
+            //HttpContext.Response.Write(streamWriter.ToString());
+            HttpContext.Response.Write(streamReader.ReadLine());
+            streamReader.Close();
+        }
     }
 }
