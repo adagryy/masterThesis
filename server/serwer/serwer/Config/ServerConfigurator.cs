@@ -18,5 +18,6 @@ namespace serwer.Config
         public const string afterProcessingDataFileName = "processingResults"; // filename of a file into which matlab scripts will save informations about detected objects on image.
         public const string afterProcessingDataFileExtension = ".json"; // VERY VERY important is a dot on the beginning of this string. It is an extension (default: json) into which matlab scripts will save informations about detected objects on image.
 
+        public const string adminRole = "Administrator"; // Name of admin role
     }
 }

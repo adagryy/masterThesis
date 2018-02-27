@@ -22,16 +22,27 @@ namespace serwer.Controllers
 
             string[] files = Directory.GetFiles(Server.MapPath(ServerConfigurator.matlabScriptsPath)); // Read all matlab algorithms available on server
 
-            List<SelectListItem> list = new List<SelectListItem>(); // create list of algorithms later passed to the view
-            list.Add(new SelectListItem { Selected = true, Text = "Wybierz algorytm", Value = "-1" }); // default (first) value "Wybierz algorytm"
+            //List<SelectListItem> list = new List<SelectListItem>(); // create list of algorithms later passed to the view
+            //list.Add(new SelectListItem { Selected = true, Text = "Wybierz algorytm", Value = "-1" }); // default (first) value "Wybierz algorytm"
+
+            //foreach (var file in files) // add all algorithm to the list
+            //{
+            //    string fileName = Path.GetFileNameWithoutExtension(file);
+            //    list.Add(new SelectListItem { Selected = false, Text = fileName, Value = fileName });
+            //}
+
+            //uploadFileViewModel.algorithms = new SelectList(list); // save list to the viewmodel "SelectList" object
+
+            Dictionary<string, string> list = new Dictionary<string, string>(); // create list of algorithms later passed to the view
+            //list.Add(new SelectListItem { Selected = true, Text = "Wybierz algorytm", Value = "-1" }); // default (first) value "Wybierz algorytm"
 
             foreach (var file in files) // add all algorithm to the list
             {
                 string fileName = Path.GetFileNameWithoutExtension(file);
-                list.Add(new SelectListItem { Selected = false, Text = fileName, Value = fileName });
+                list.Add(fileName, fileName);
             }
 
-            uploadFileViewModel.algorithms = new SelectList(list); // save list to the viewmodel "SelectList" object
+            uploadFileViewModel.algorithms = list; // save list to the viewmodel "SelectList" object
 
             return View(uploadFileViewModel);
         }
@@ -103,11 +114,18 @@ namespace serwer.Controllers
         private ImagesDownloadDetails getImages()
         {
             ImagesDownloadDetails imagesDownloadDetails = new ImagesDownloadDetails(); // New ViewModel object for passing a list of images to view to generate links
-            var dir = new DirectoryInfo(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/"));
-            FileInfo[] fileNames = dir.GetFiles("*.*"); // list all files in personal directory 
-
             imagesDownloadDetails.items = new List<string>();
             imagesDownloadDetails.processedImageDataInJSON = null; // initialize with null. Null is treated as not-to-display in the view (when null - then it won't be displayed in the view)
+
+            var dir = new DirectoryInfo(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/"));
+            FileInfo[] fileNames = null;
+            try
+            {
+                fileNames = dir.GetFiles("*.*"); // list all files in personal directory 
+            }catch(DirectoryNotFoundException e) // when directory not exists
+            {
+                return imagesDownloadDetails;
+            }            
 
             foreach (var file in fileNames)
             {

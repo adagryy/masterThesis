@@ -1,5 +1,6 @@
 package com.example.grycz.imageprocessor
 
+import android.content.Context
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
@@ -11,8 +12,12 @@ import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_nav.*
 import kotlinx.android.synthetic.main.app_bar_nav.*
 import android.content.Intent
+import android.os.BatteryManager
 import kotlinx.android.synthetic.main.content_nav.*
 import java.security.MessageDigest
+import android.content.IntentFilter
+
+
 
 class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private val RequestImageFromCamera = 1
@@ -38,7 +43,6 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
             val intent = Intent(this, ReceiveImageActivity::class.java)
             intent.putExtra("napis", "test")
             startActivity(intent)
-//            pickGalleryImage()
         }
 
         refresh_button.setOnClickListener {view ->
@@ -54,7 +58,9 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
 
         nav_view.setNavigationItemSelectedListener(this)
 
+        val iFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
 
+        println(iFilter)
     }
 
     override fun onBackPressed() {

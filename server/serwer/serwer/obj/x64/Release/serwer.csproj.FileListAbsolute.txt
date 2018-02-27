@@ -71,5 +71,5 @@ C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Release\serwer.
 C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Release\serwer.csproj.CoreCompileInputs.cache
 C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Release\serwer.dll
 C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Release\serwer.pdb
-C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Release\serwer.Migrations.Init.resources
 C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Release\serwer.csproj.GenerateResource.Cache
+C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Release\serwer.Migrations.Initial.resources

@@ -1,12 +1,9 @@
 ﻿using serwer.Config;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Web;
-using System.Web.Mvc;
 
 namespace serwer.Helpers
 {
@@ -90,11 +87,20 @@ namespace serwer.Helpers
 
         private static void removePersonalImageFiles(string directoryPath)
         {
-            DirectoryInfo di = new DirectoryInfo(directoryPath); // List to clear images in current personal images' directory
-
-            foreach (FileInfo fileForDeletion in di.GetFiles())
+            try
             {
-                fileForDeletion.Delete();
+                DirectoryInfo di = new DirectoryInfo(directoryPath); // List to clear images in current personal images' directory
+
+                foreach (FileInfo fileForDeletion in di.GetFiles())
+                {
+                    fileForDeletion.Delete();
+                }
+            }catch(DirectoryNotFoundException e)
+            {
+                if (!Directory.Exists(directoryPath)) // if personal directory for every user does not exists, here it is created
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
             }
         }
     }

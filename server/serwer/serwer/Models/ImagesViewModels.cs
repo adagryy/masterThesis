@@ -8,7 +8,8 @@ namespace serwer.Models
 {
     public class UploadFileViewModel
     {
-        public SelectList algorithms { get; set; }
+        //public SelectList algorithms { get; set; }
+        public Dictionary<String, String> algorithms { get; set; }
         public string selectedAlgorithm { get; set; }
     }
 

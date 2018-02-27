@@ -7,11 +7,13 @@ import java.net.HttpURLConnection
 import java.net.URL
 import android.graphics.BitmapFactory
 import android.graphics.Bitmap
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
-import com.example.grycz.imageprocessor.R.id.downloaded_image_preview
 import kotlinx.android.synthetic.main.activity_receive_image.*
+import org.json.JSONException
+import org.json.JSONObject
 import java.io.*
 
 
@@ -21,7 +23,7 @@ class ReceiveImageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_receive_image)
 
-        var actionBar: android.support.v7.widget.Toolbar? = findViewById(R.id.my_toolbar_receiving)
+        val actionBar: android.support.v7.widget.Toolbar? = findViewById(R.id.my_toolbar_receiving)
         actionBar?.title = "Odbiór obrazu"
 
         setSupportActionBar(actionBar)
@@ -30,14 +32,14 @@ class ReceiveImageActivity : AppCompatActivity() {
         download_photo.setOnClickListener{view ->
             downloadImageFromServer()
         }
+
+        afterProcessingData.movementMethod = ScrollingMovementMethod() // enables "afterProcessingData" to scroll
     }
 
     private fun downloadImageFromServer(){
-//        val downloadedBitmap = DownloadPhotoFromServer(downloaded_image_preview).execute("http://192.168.0.3:62000/serwer/MobileDevices/GetFileFromDisk").get()
 
         DownloadPhotoFromServer(downloaded_image_preview, afterProcessingData).execute(getString(R.string.server_domain) + "serwer/MobileDevices/GetFileFromDisk",
                 getString(R.string.server_domain) + "serwer/MobileDevices/getData")
-//        downloaded_image_preview.setImageBitmap(downloadedBitmap)
     }
 }
 
@@ -64,36 +66,8 @@ class DownloadPhotoFromServer(val iv: ImageView, private val view: TextView) : A
             val input = connection.inputStream
             bitmap = BitmapFactory.decodeStream(input)
             input.close()
-
-            val inputt = BufferedReader(InputStreamReader(connection.inputStream))
-            var inputLine: String?
-            inputLine = inputt.readLine()
-            while (true) {
-                println(inputLine)
-                inputLine = inputt.readLine()
-                if(inputLine == null)
-                    break
-            }
-            inputt.close()
             return bitmap
-//            // download the file
-//            input = connection.inputStream
-//            output = FileOutputStream("/sdcard/file_name.extension")
-//
-//            val data = ByteArray(4096)
-//            var total: Long = 0
-//            var count: Int = input.read(data)
-//            while (count != -1) {
-//                // allow canceling with back button
-//                if (isCancelled) {
-//                    input.close()
-//                    return null
-//                }
-//                total += count.toLong()
-//
-//                output.write(data, 0, count)
-//                count = input.read(data)
-//            }
+
         } catch (e: Exception) {
             Log.e("Errpr: ", e.toString())
             return null
@@ -120,8 +94,6 @@ class DownloadPhotoFromServer(val iv: ImageView, private val view: TextView) : A
 private class DownloadProcessingResults(val iv: TextView) : AsyncTask<String, Void, Unit>(){
     private var afterProcessingData: String? = null
     override fun doInBackground(vararg params: String?) {
-        var input: InputStream? = null
-        var output: OutputStream? = null
         var connection: HttpURLConnection? = null
         try{
             val url = URL(params[0])
@@ -139,6 +111,25 @@ private class DownloadProcessingResults(val iv: TextView) : AsyncTask<String, Vo
     override fun onPostExecute(result: Unit?) {
         super.onPostExecute(result)
 
-        iv.text = this.afterProcessingData
+        try {
+            val jsonObject = JSONObject(this.afterProcessingData)
+
+            val keys: Iterator<String> = jsonObject.keys()
+
+            val parsedAfterProcessingData = StringBuilder("")
+
+            keys.forEach { item -> parsedAfterProcessingData
+                    .append(item)
+                    .append(": ")
+                    .append(jsonObject.get(item))
+                    .append(System.lineSeparator())}
+
+            iv.text = parsedAfterProcessingData
+        }catch (e: JSONException){
+            iv.text = "Serwer zwrócił niepoprawne dane"
+        }catch (e: Exception){
+            println(e)
+        }
+
     }
 }

@@ -48,7 +48,7 @@ class StartActivity : AppCompatActivity() {
             }catch (e: Exception){
                 this.exception = e
             }
-            return Unit
+            return
         }
 
 

@@ -192,6 +192,7 @@
     <Compile Include="Config\ServerConfigurator.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\HttpActionContext.cs" />
     <Compile Include="Controllers\ImagesController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\MobileDevicesController.cs" />
@@ -201,9 +202,13 @@
     <Compile Include="Helpers\Core.cs" />
     <Compile Include="Helpers\MatlabProcessingDataThreaded.cs" />
     <Compile Include="Helpers\Mobile.cs" />
-    <Compile Include="Migrations\201711212137458_Init.cs" />
-    <Compile Include="Migrations\201711212137458_Init.Designer.cs">
-      <DependentUpon>201711212137458_Init.cs</DependentUpon>
+    <Compile Include="Migrations\201802271938148_Initial.cs" />
+    <Compile Include="Migrations\201802271938148_Initial.Designer.cs">
+      <DependentUpon>201802271938148_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201802271941572_Initial2.cs" />
+    <Compile Include="Migrations\201802271941572_Initial2.Designer.cs">
+      <DependentUpon>201802271941572_Initial2.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -215,6 +220,10 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\aspnet-serwer-20171115094906.mdf" />
+    <Content Include="App_Data\aspnet-serwer-20171115094906_log.ldf">
+      <DependentUpon>aspnet-serwer-20171115094906.mdf</DependentUpon>
+    </Content>
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="favicon.ico" />
@@ -238,7 +247,9 @@
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -276,7 +287,6 @@
     <Content Include="Views\Images\ImagesView.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
     <Folder Include="MatlabScripts\" />
     <Folder Include="Views\MobileDevices\" />
   </ItemGroup>
@@ -297,11 +307,6 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201711212137458_Init.resx">
-      <DependentUpon>201711212137458_Init.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <COMReference Include="MLApp">
       <Guid>{C36E46AB-6A81-457B-9F91-A7719A06287F}</Guid>
       <VersionMajor>1</VersionMajor>
@@ -311,6 +316,14 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201802271938148_Initial.resx">
+      <DependentUpon>201802271938148_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201802271941572_Initial2.resx">
+      <DependentUpon>201802271941572_Initial2.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

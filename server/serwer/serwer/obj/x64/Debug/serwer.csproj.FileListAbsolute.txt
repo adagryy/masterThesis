@@ -71,5 +71,6 @@ C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Debug\serwer.dl
 C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Debug\serwer.pdb
 C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Debug\Interop.MLApp.dll
 C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Debug\serwer.csproj.ResolveComReference.cache
-C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Debug\serwer.Migrations.Init.resources
 C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Debug\serwer.csproj.GenerateResource.Cache
+C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Debug\serwer.Migrations.Initial.resources
+C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Debug\serwer.Migrations.Initial2.resources

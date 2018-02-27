@@ -11,6 +11,8 @@ using Microsoft.Owin.Security;
 using serwer.Models;
 using System.IO;
 using System.Threading;
+using System.Net;
+using serwer.Config;
 
 namespace serwer.Controllers
 {
@@ -63,6 +65,13 @@ namespace serwer.Controllers
             return View();
         }
 
+        [AllowAnonymous]
+        public HttpStatusCodeResult UnAuthorized(string message)
+        {
+            HttpContext.Response.Write("unauthorized");
+            return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+        }
+
         //
         // POST: /Account/Login
         [HttpPost]
@@ -97,6 +106,35 @@ namespace serwer.Controllers
                     ModelState.AddModelError("", "Błąd logowania.");
                     return View(model);
             }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<HttpStatusCodeResult> MobileLogin(LoginViewModel model)
+        {
+            ApplicationUser applicationUser = UserManager.FindByEmail(model.Email);
+
+            if(!(applicationUser is null))
+            {
+                SignInStatus signInStatus = await SignInManager.PasswordSignInAsync(applicationUser.UserName, model.Password, model.RememberMe, shouldLockout: false);
+
+                switch (signInStatus)
+                {
+                    case SignInStatus.Success:
+                        return new HttpStatusCodeResult(HttpStatusCode.OK);
+                    case SignInStatus.LockedOut:
+                        return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+                    case SignInStatus.RequiresVerification:
+                        return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+                    case SignInStatus.Failure:
+                        return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+                    default:
+                        return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+                }
+            }
+
+            return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+
         }
 
         //
@@ -144,7 +182,8 @@ namespace serwer.Controllers
 
         //
         // GET: /Account/Register
-        [AllowAnonymous]
+        //[AllowAnonymous]
+        [Authorize(Roles = ServerConfigurator.adminRole)]
         public ActionResult Register()
         {
             return View();
@@ -153,7 +192,8 @@ namespace serwer.Controllers
         //
         // POST: /Account/Register
         [HttpPost]
-        [AllowAnonymous]
+        //[AllowAnonymous]
+        [Authorize(Roles = ServerConfigurator.adminRole)]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
