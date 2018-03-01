@@ -13,10 +13,17 @@ using System.Web.Security;
 
 namespace serwer.Controllers
 {
+    // Class for custom management of unauthorized requests
     public class MobileAuthorize : AuthorizeAttribute
     {
         public override void OnAuthorization(AuthorizationContext filterContext)
         {
+            // Actions with "AllowAnonymous attribute will be allowed withoud authentication
+            if (filterContext.ActionDescriptor.IsDefined(typeof(AllowAnonymousAttribute), true) || filterContext.ActionDescriptor.ControllerDescriptor.IsDefined(typeof(AllowAnonymousAttribute), true))
+            {
+                return;
+            }
+
             // If they are authorized, handle accordingly
             if (this.AuthorizeCore(filterContext.HttpContext))
             {
@@ -25,7 +32,6 @@ namespace serwer.Controllers
             else
             {
                 // Otherwise redirect to your specific authorized area
-                filterContext.HttpContext.Response.StatusCode = (int) HttpStatusCode.Forbidden;
                 filterContext.Result = new RedirectResult("~/Account/UnAuthorized");
             }
         }
@@ -34,78 +40,78 @@ namespace serwer.Controllers
     [MobileAuthorize]
     public class MobileDevicesController : Controller
     {
-        [HttpGet]
-        public String testToken(String email)
-        {
-            return "Test webd: " + email;
-        }
+        //[HttpGet]
+        //public String testToken(String email)
+        //{
+        //    return "Test webd: " + email;
+        //}
 
-    //                if (!context.Roles.Any(r => r.Name == "Administrator"))
-    //        {
-    //            var store = new RoleStore<IdentityRole>(context);
-    //    var manager = new RoleManager<IdentityRole>(store);
-    //    var role = new IdentityRole { Name = "Administrator" };
 
-    //    manager.Create(role);
-    //        }
+        //// checks if mobile app user with given email is logged in or not
+        //[HttpGet]
+        //[AllowAnonymous]
+        //public  string checkIfLoggedIn(string token)
+        //{
+        //    Dictionary<string, string> values = new Dictionary<string, string>();
 
-    //        if (!context.Users.Any(u => u.UserName == "Administrator"))
-    //        {
-    //            var store = new UserStore<ApplicationUser>(context);
-    //var manager = new UserManager<ApplicationUser>(store);
-    //var user = new ApplicationUser { UserName = "founder" };
+        //    if (Request.IsAuthenticated)
+        //    {
+        //        values.Add("answer", "Yes");
+        //        values.Add("guid", Guid.NewGuid().ToString());
+        //        values.Add("username", User.Identity.Name);
+        //        values.Add("username2", User.Identity.IsAuthenticated.ToString());
+        //    }
+        //    else
+        //    {
+        //        values.Add("answer", "Yes");
+        //        values.Add("guid", Guid.NewGuid().ToString());
+        //        values.Add("username", User.Identity.Name);
+        //        values.Add("username2", User.Identity.IsAuthenticated.ToString());
+        //    }
 
-    //manager.Create(user, "ChangeItAsap!");
-    //            manager.AddToRole(user.Id, "Administrator");
-    //        }
+        //    return JsonConvert.SerializeObject(values);
+        //}
 
-// checks if mobile app user with given email is logged in or not
-[HttpGet]
+        [HttpPost]
         [AllowAnonymous]
-        public  string checkIfLoggedIn(string token)
+        public void checkIfMobileAppLoggedIn()
         {
-            Dictionary<string, string> values = new Dictionary<string, string>();
-
-            if (Request.IsAuthenticated)
+            if (User.Identity.IsAuthenticated)
             {
-                values.Add("answer", "Yes");
-                values.Add("guid", Guid.NewGuid().ToString());
-                values.Add("username", User.Identity.Name);
-                values.Add("username2", User.Identity.IsAuthenticated.ToString());
+                HttpContext.Response.Write("You are ok :)");
+                HttpContext.Response.StatusCode = (int) HttpStatusCode.OK;
             }
             else
             {
-                values.Add("answer", "Yes");
-                values.Add("guid", Guid.NewGuid().ToString());
-                values.Add("username", User.Identity.Name);
-                values.Add("username2", User.Identity.IsAuthenticated.ToString());
+                HttpContext.Response.Write("Fuck you!");
+                HttpContext.Response.StatusCode = (int) HttpStatusCode.Forbidden;
             }
-
-            return JsonConvert.SerializeObject(values);
         }
 
+        // Handle image from mobile app
         [HttpPost]
         public HttpStatusCodeResult handleImageFromMobileApp()
         {
             try
             {
-                String selectedAlgorithm = Request.Form.Get("selectedAlgorithm");
+                String selectedAlgorithm = Request.Form.Get("selectedAlgorithm"); // gets selected algorithm for processing
                 if (String.IsNullOrEmpty(selectedAlgorithm) || Core.checkIfMatlabScriptExistsOnServer(Server.MapPath(ServerConfigurator.matlabScriptsPath), selectedAlgorithm))
                 {
                     HttpPostedFileBase file = Request.Files[0];
-                    Core.startProcessingImage(file, User.Identity.Name, selectedAlgorithm);
+                    Core.startProcessingImage(file, User.Identity.Name, selectedAlgorithm); // start exact processing
                     return new HttpStatusCodeResult(HttpStatusCode.OK);
                 }                
             }
             catch(Exception e)
             {
-                System.Diagnostics.Debug.WriteLine(e);
+                Debug.WriteLine(e);
                 return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
             }
 
             return new HttpStatusCodeResult(HttpStatusCode.BadRequest);            
         }
 
+        // This action returns an image for Mobile app client
         [HttpPost]
         public HttpStatusCodeResult GetFileFromDisk()
         {
@@ -113,23 +119,25 @@ namespace serwer.Controllers
 
             try
             {
+                // finds file, which should be returned to the Mobile app client
                 string fileToDownload = new DirectoryInfo(Server.MapPath(ServerConfigurator.imageStoragePath + user + "/"))
                                                         .GetFiles()
                                                         .Select(s => s.Name)
                                                         .Single(s => s.StartsWith("processed"));
-                //HttpContext.Response.Write("sdfgsdfg");
-                HttpContext.Response.WriteFile(Server.MapPath(ServerConfigurator.imageStoragePath + user + "/" + fileToDownload)); // append file to content body
 
+                HttpContext.Response.WriteFile(Server.MapPath(ServerConfigurator.imageStoragePath + user + "/" + fileToDownload)); // append file to content body
                 return new HttpStatusCodeResult(HttpStatusCode.OK);
-            }
-            catch(Exception e)
+            }catch(InvalidOperationException e)
             {
-                Debug.WriteLine(e);
+
             }
+            catch(ArgumentNullException e) { }
+            catch (Exception e) { }
 
             return new HttpStatusCodeResult(HttpStatusCode.BadRequest);            
         }
 
+        // Returns a list of available algorithms to the Mobile App Client
         [HttpPost]
         public string getAlgorithms()
         {
@@ -144,16 +152,14 @@ namespace serwer.Controllers
             return JsonConvert.SerializeObject(dict); 
         }
         
+        // Returns data about processed image, which are generated by Matlab scripts in JSON format
         [HttpGet]
         public void getData()
         {
-            HttpContext.Response.Headers.Add("s", "d");            
-
+            HttpContext.Response.Headers.Add("s", "d"); // unused
             try
             {
-                StreamReader streamReader = new StreamReader(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + "processingResults.json"));
-                //string s = streamReader.ReadLine();
-                //HttpContext.Response.Write(streamWriter.ToString());
+                StreamReader streamReader = new StreamReader(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + "processingResults.json"));                
                 HttpContext.Response.Write(streamReader.ReadLine());
                 streamReader.Close();
             }

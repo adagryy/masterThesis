@@ -44,6 +44,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".LoginActivity"
+            android:theme="@style/AppTheme.Dark"
             android:label="@string/title_activity_login"></activity>
     </application>
 

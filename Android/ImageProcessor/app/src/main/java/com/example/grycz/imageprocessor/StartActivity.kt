@@ -22,8 +22,7 @@ class StartActivity : AppCompatActivity() {
         CookieHandler.setDefault(cookieManager)
 
 
-        TestLogging(getString(R.string.server_domain) + "serwer/Account/Login", cookieManager, applicationContext, this).execute()
-//        TestLogging(getString(R.string.server_domain) + "serwer/MobileDevices/testToken", cookieManager, applicationContext, this).execute()
+        TestLogging(getString(R.string.server_domain) + "serwer/MobileDevices/checkIfMobileAppLoggedIn", cookieManager, applicationContext, this).execute()
     }
 
     private class TestLogging(val url: String, val cookieManager: CookieManager, val context: Context, val activity: Activity) : AsyncTask<String, Unit, Unit>(){
@@ -31,16 +30,24 @@ class StartActivity : AppCompatActivity() {
         private var noRouteToHostException: NoRouteToHostException? = null
         private var connectException: ConnectException? = null
         private var exception: Exception? = null
+        private var loggedIn: Boolean = false
 
-        override fun doInBackground(vararg params: String?) : Unit {
+        override fun doInBackground(vararg params: String?) {
             try {
-                val mu = MultipartUtility(url, "UTF-8")
+//                val mu = MultipartUtility(url, "UTF-8")
+//
+//                mu.addFormField("Email", "a@b.d")
+//                mu.addFormField("Password", "RedKon,123d")
+//                mu.addFormField("RememberMe", "true")
+//
+//                response = mu.finish()
+                val url = URL(url)
+                val httpConn = url.openConnection() as HttpURLConnection
+                httpConn.useCaches = (false)
+                httpConn.requestMethod = "POST"
 
-                mu.addFormField("Email", "a@b.d")
-                mu.addFormField("Password", "RedKon,123")
-                mu.addFormField("RememberMe", "true")
-
-                response = mu.finish()
+                if(httpConn.responseCode == 200)
+                    loggedIn = true
             } catch (e: NoRouteToHostException) {
                 this.noRouteToHostException = e
             }catch (e: ConnectException){
@@ -51,22 +58,25 @@ class StartActivity : AppCompatActivity() {
             return
         }
 
-
         override fun onPostExecute(result: Unit?) {
             super.onPostExecute(result)
 
             AppConfigurator.cookieManager = cookieManager
 
-            if(noRouteToHostException == null && exception == null && connectException == null){
+            if(loggedIn && noRouteToHostException == null && exception == null && connectException == null){
                 val redirectIntent = Intent(context, NavActivity::class.java)
                 context.startActivity(redirectIntent)
                 activity.finish()
-            }else if (noRouteToHostException != null || connectException != null){
-                val toast: Toast = Toast.makeText(context, "Problem z połączniem z serwerem." + System.lineSeparator() + "Zamykanie aplikacji", Toast.LENGTH_SHORT)
+            }else if(!loggedIn && noRouteToHostException == null && exception == null && connectException == null){
+                val redirectIntent = Intent(context, LoginActivity::class.java)
+                context.startActivity(redirectIntent)
+                activity.finish()
+            }else if(noRouteToHostException != null || connectException != null){
+                val toast: Toast = Toast.makeText(context, "Problem z połączniem z serwerem." + System.lineSeparator() + "Zamykanie aplikacji.", Toast.LENGTH_SHORT)
                 toast.show()
                 ExitApplicationOnConnectFailed().execute()
             }else{
-                val toast: Toast = Toast.makeText(context, "Nieznany błąd." + System.lineSeparator() + "Zamykanie aplikacji", Toast.LENGTH_SHORT)
+                val toast: Toast = Toast.makeText(context, "Nieznany błąd." + System.lineSeparator() + "Zamykanie aplikacji.", Toast.LENGTH_SHORT)
                 toast.show()
                 ExitApplicationOnConnectFailed().execute()
             }

@@ -76,9 +76,11 @@ namespace serwer.Controllers
         // POST: /Account/Login
         [HttpPost]
         [AllowAnonymous]
-        //[ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
         {
+            var c = Request;
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -112,6 +114,7 @@ namespace serwer.Controllers
         [AllowAnonymous]
         public async Task<HttpStatusCodeResult> MobileLogin(LoginViewModel model)
         {
+            var c = Request;
             ApplicationUser applicationUser = UserManager.FindByEmail(model.Email);
 
             if(!(applicationUser is null))

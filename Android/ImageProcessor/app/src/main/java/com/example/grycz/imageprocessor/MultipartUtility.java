@@ -21,12 +21,13 @@ import java.util.List;
  */
 
 public class MultipartUtility {
-    private final String boundary;
-    private static final String LINE_FEED = "\r\n";
-    private HttpURLConnection httpConn;
-    private String charset;
-    private OutputStream outputStream;
-    private PrintWriter writer;
+    protected final String boundary;
+    protected static final String LINE_FEED = "\r\n";
+    protected HttpURLConnection httpConn;
+    protected String charset;
+    protected OutputStream outputStream;
+    protected PrintWriter writer;
+    protected List<String> response;
 
     /**
      * This constructor initializes a new HTTP POST request with content type
@@ -118,7 +119,7 @@ public class MultipartUtility {
      * @throws IOException
      */
     public List<String> finish() throws IOException {
-        List<String> response = new ArrayList<String>();
+        response = new ArrayList<>();
 
         writer.append(LINE_FEED).flush();
         writer.append("--" + boundary + "--").append(LINE_FEED);
