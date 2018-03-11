@@ -52,18 +52,19 @@ class DownloadPhotoFromServer(val iv: ImageView, private val view: TextView) : A
         var output: OutputStream? = null
         var connection: HttpURLConnection? = null
         try {
-            val url = URL(urls[0])
-            connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "POST"
-            connection.connect()
+//            val url = URL(urls[0])
+//            connection = url.openConnection() as HttpURLConnection
+//            connection.requestMethod = "POST"
+//            connection.connect()
 
+            val httpsUrlConnection = AppConfigurator.createHttpsUrlConnectioObject(urls[0]!!)
             // expect HTTP 200 OK, so we don't mistakenly save error report
             // instead of the file
-            if (connection.responseCode !== HttpURLConnection.HTTP_OK) {
+            if (httpsUrlConnection.responseCode !== HttpURLConnection.HTTP_OK) {
                 return null
             }
 
-            val input = connection.inputStream
+            val input = httpsUrlConnection.inputStream
             bitmap = BitmapFactory.decodeStream(input)
             input.close()
             return bitmap
@@ -94,18 +95,16 @@ class DownloadPhotoFromServer(val iv: ImageView, private val view: TextView) : A
 private class DownloadProcessingResults(val iv: TextView) : AsyncTask<String, Void, Unit>(){
     private var afterProcessingData: String? = null
     override fun doInBackground(vararg params: String?) {
-        var connection: HttpURLConnection? = null
-        try{
-            val url = URL(params[0])
-            connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-            connection.connect()
 
-            val bufferedReader = BufferedReader(InputStreamReader(connection.inputStream))
+        try{
+            val httpsURLConnection = AppConfigurator.createHttpsUrlConnectioObject(params[0]!!)
+            val bufferedReader = BufferedReader(InputStreamReader(httpsURLConnection.inputStream))
 
             afterProcessingData = bufferedReader.readLine()
 
-        }catch (e: Exception){}
+        }catch (e: Exception){
+            println(e)
+        }
     }
 
     override fun onPostExecute(result: Unit?) {

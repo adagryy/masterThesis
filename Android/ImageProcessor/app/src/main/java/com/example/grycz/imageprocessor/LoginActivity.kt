@@ -43,10 +43,10 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
     }
 
     private fun Login(){
-        if (!validate()) {
-            onLoginFailed()
-            return
-        }
+//        if (!validate()) {
+//            onLoginFailed()
+//            return
+//        }
         btn_login.setEnabled(false);
 
         val progressDialog: ProgressDialog = ProgressDialog(this, R.style.AppTheme_Dark_Dialog);

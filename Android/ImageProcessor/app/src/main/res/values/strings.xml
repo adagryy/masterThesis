@@ -7,7 +7,7 @@
     <string name="welcome_screen_text">Analizator obrazów</string>
     <string name="new_photo">Przesyłanie obrazów</string>
     <string name="send_photo">Pobieranie obrazów</string>
-    <string name="server_domain">http://192.168.1.215:62000/</string>
+    <string name="server_domain">https://192.168.1.215:62000/</string>
     <string name="title_activity_login">Zaloguj się</string>
 
     <!-- Strings related to login -->

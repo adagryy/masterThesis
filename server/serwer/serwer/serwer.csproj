@@ -307,6 +307,14 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Migrations\201802271938148_Initial.resx">
+      <DependentUpon>201802271938148_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201802271941572_Initial2.resx">
+      <DependentUpon>201802271941572_Initial2.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <COMReference Include="MLApp">
       <Guid>{C36E46AB-6A81-457B-9F91-A7719A06287F}</Guid>
       <VersionMajor>1</VersionMajor>
@@ -316,14 +324,6 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201802271938148_Initial.resx">
-      <DependentUpon>201802271938148_Initial.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201802271941572_Initial2.resx">
-      <DependentUpon>201802271941572_Initial2.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -362,7 +362,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>62685</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://192.168.1.215:62000/serwer</IISUrl>
+          <IISUrl>https://192.168.0.3:62000/serwer</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

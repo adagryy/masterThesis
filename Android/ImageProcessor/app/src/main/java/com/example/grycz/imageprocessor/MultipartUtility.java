@@ -8,13 +8,15 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.CookieHandler;
-import java.net.CookieManager;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
 
 /**
  * Created by grycz on 2/12/2018.
@@ -23,7 +25,7 @@ import java.util.List;
 public class MultipartUtility {
     protected final String boundary;
     protected static final String LINE_FEED = "\r\n";
-    protected HttpURLConnection httpConn;
+    protected HttpsURLConnection httpsConn;
     protected String charset;
     protected OutputStream outputStream;
     protected PrintWriter writer;
@@ -44,14 +46,21 @@ public class MultipartUtility {
         boundary = "===" + System.currentTimeMillis() + "===";
 
         URL url = new URL(requestURL);
-        httpConn = (HttpURLConnection) url.openConnection();
-        httpConn.setUseCaches(false);
-        httpConn.setDoOutput(true); // indicates POST method
-        httpConn.setDoInput(true);
-        httpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-        httpConn.setRequestProperty("User-Agent", "CodeJava Agent");
-        httpConn.setRequestProperty("Test", "Bonjour");
-        outputStream = httpConn.getOutputStream();
+        httpsConn = (HttpsURLConnection) url.openConnection();
+        httpsConn.setSSLSocketFactory(AppConfigurator.Companion.getSSLContext().getSocketFactory());
+        httpsConn.setHostnameVerifier(new HostnameVerifier() { // ignore mismatch between certificate CN and server CN
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        });
+        httpsConn.setUseCaches(false);
+        httpsConn.setDoOutput(true); // indicates POST method
+        httpsConn.setDoInput(true);
+        httpsConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+        httpsConn.setRequestProperty("User-Agent", "CodeJava Agent");
+        httpsConn.setRequestProperty("Test", "Bonjour");
+        outputStream = httpsConn.getOutputStream();
         writer = new PrintWriter(new OutputStreamWriter(outputStream, charset),true);
     }
 
@@ -126,15 +135,15 @@ public class MultipartUtility {
         writer.close();
 
         // checks server's status code first
-        int status = httpConn.getResponseCode();
+        int status = httpsConn.getResponseCode();
         if (status == HttpURLConnection.HTTP_OK) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(httpsConn.getInputStream()));
             String line = null;
             while ((line = reader.readLine()) != null) {
                 response.add(line);
             }
             reader.close();
-            httpConn.disconnect();
+            httpsConn.disconnect();
         } else {
             throw new IOException("Server returned non-OK status: " + status);
         }

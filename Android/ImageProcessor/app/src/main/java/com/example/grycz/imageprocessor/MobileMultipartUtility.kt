@@ -16,7 +16,7 @@ class MobileMultipartUtility(url: String, charset: String) : MultipartUtility(ur
         writer.close()
 
         // checks server's status code first
-        responseCode = httpConn.responseCode
+        responseCode = httpsConn.responseCode
     }
 }
 
