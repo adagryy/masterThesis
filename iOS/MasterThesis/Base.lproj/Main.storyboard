@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="kkb-jS-yOb">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <capability name="Alignment constraints to the first baseline" minToolsVersion="6.0"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Navigation Controller-->
+        <scene sceneID="i26-VS-JuD">
+            <objects>
+                <navigationController id="kkb-jS-yOb" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="8kR-Mi-Fv8">
+                        <rect key="frame" x="0.0" y="20" width="375" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="pXf-YP-2cl" kind="relationship" relationship="rootViewController" id="qZe-1h-ni2"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="86H-h7-lSX" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1311" y="3"/>
+        </scene>
+        <!--Witaj :) -->
+        <scene sceneID="wUk-Fu-Xx3">
+            <objects>
+                <viewController id="pXf-YP-2cl" customClass="LoginViewController" customModule="MasterThesis" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="G3a-GH-cab">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="login" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="ATq-hm-t9s">
+                                <rect key="frame" x="38" y="295" width="299" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="hasło" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Yh1-ZR-zZL">
+                                <rect key="frame" x="38" y="341" width="299" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="b2A-5m-2UN">
+                                <rect key="frame" x="112" y="401" width="150" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.24046498537063599" green="0.77986711263656616" blue="0.99566179513931274" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <state key="normal" title="Zaloguj">
+                                    <color key="titleColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="signInButtonTouched:" destination="pXf-YP-2cl" eventType="touchUpInside" id="ExK-kD-lWx"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6gI-GI-5ZX">
+                                <rect key="frame" x="112" y="493" width="150" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.24046498537063599" green="0.77986711263656616" blue="0.99566179513931274" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <state key="normal" title="Kontynuuj">
+                                    <color key="titleColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="continueButtonPressed:" destination="pXf-YP-2cl" eventType="touchUpInside" id="Wza-hk-Qsu"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <viewLayoutGuide key="safeArea" id="fsI-pS-arE"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="Witaj :) " id="fEz-Pg-LDL">
+                        <barButtonItem key="backBarButtonItem" title="Wyloguj" id="kZQ-SO-x8X"/>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="continueButton" destination="6gI-GI-5ZX" id="2Rv-23-5cO"/>
+                        <outlet property="loginTextField" destination="ATq-hm-t9s" id="kgq-VM-kJL"/>
+                        <outlet property="passwordTextField" destination="Yh1-ZR-zZL" id="Fjp-Rh-jPp"/>
+                        <outlet property="signInButton" destination="b2A-5m-2UN" id="NR2-iX-5Yc"/>
+                        <segue destination="BYZ-38-t0r" kind="show" identifier="TakingImage" id="tbb-fb-frg"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="7pD-o7-2G6" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-498.39999999999998" y="3.1484257871064472"/>
+        </scene>
+        <!--Taking Image View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="TakingImageViewController" customModule="MasterThesis" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eVM-RW-31y">
+                                <rect key="frame" x="0.0" y="426" width="160" height="71"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="71" id="Fpg-kn-MkZ"/>
+                                    <constraint firstAttribute="width" constant="160" id="IU0-1C-Qxa"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <state key="normal" title="Zdjęcie z biblioteki">
+                                    <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                </state>
+                                <connections>
+                                    <action selector="pickingPhotoFromLibrary:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Aot-oc-GPP"/>
+                                </connections>
+                            </button>
+                            <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HZH-0k-z1e">
+                                <rect key="frame" x="0.0" y="505" width="375" height="162"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="162" id="vyo-K6-H40"/>
+                                </constraints>
+                            </pickerView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AWw-ea-eTT">
+                                <rect key="frame" x="176" y="426" width="183" height="71"/>
+                                <color key="backgroundColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <state key="normal" title="Zrób zdjęcie">
+                                    <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                </state>
+                                <connections>
+                                    <action selector="takingPhoto:" destination="BYZ-38-t0r" eventType="touchUpInside" id="2IN-XX-Wot"/>
+                                </connections>
+                            </button>
+                            <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="c4t-H1-lZR">
+                                <rect key="frame" x="49" y="207" width="277" height="201"/>
+                                <gestureRecognizers/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="gfp-VU-3IM" appends="YES" id="w9l-GK-YOu"/>
+                                </connections>
+                            </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="u54-LZ-djH">
+                                <rect key="frame" x="0.0" y="97" width="168" height="65"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="65" id="u1y-hR-9Tq"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <state key="normal" title="Wyslij foto">
+                                    <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                </state>
+                                <connections>
+                                    <action selector="sendImageToProcess:" destination="BYZ-38-t0r" eventType="touchUpInside" id="T1w-Bh-taW"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OhH-3a-BCO">
+                                <rect key="frame" x="176" y="97" width="199" height="65"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <state key="normal" title="Odbierz foto">
+                                    <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                </state>
+                                <connections>
+                                    <action selector="receiveImageFromProcessing:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Xyh-x8-rWv"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="u54-LZ-djH" firstAttribute="leading" secondItem="eVM-RW-31y" secondAttribute="leading" id="0Ey-RN-RQ2"/>
+                            <constraint firstItem="OhH-3a-BCO" firstAttribute="leading" secondItem="AWw-ea-eTT" secondAttribute="leading" id="7vN-F9-VjT"/>
+                            <constraint firstItem="eVM-RW-31y" firstAttribute="leading" secondItem="HZH-0k-z1e" secondAttribute="leading" id="8KY-PF-gn3"/>
+                            <constraint firstAttribute="trailing" secondItem="OhH-3a-BCO" secondAttribute="trailing" id="BTY-Wz-uBj"/>
+                            <constraint firstItem="u54-LZ-djH" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="33" id="Eos-ai-KRU"/>
+                            <constraint firstItem="AWw-ea-eTT" firstAttribute="leading" secondItem="eVM-RW-31y" secondAttribute="trailing" constant="16" id="Fcd-9g-0te"/>
+                            <constraint firstItem="OhH-3a-BCO" firstAttribute="trailing" secondItem="HZH-0k-z1e" secondAttribute="trailing" id="Fyj-2q-k7h"/>
+                            <constraint firstItem="eVM-RW-31y" firstAttribute="top" secondItem="AWw-ea-eTT" secondAttribute="top" id="I68-dj-WAg"/>
+                            <constraint firstItem="HZH-0k-z1e" firstAttribute="top" secondItem="eVM-RW-31y" secondAttribute="bottom" constant="8" symbolic="YES" id="MQs-pM-Jt0"/>
+                            <constraint firstItem="u54-LZ-djH" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="NXR-wK-5Au"/>
+                            <constraint firstItem="OhH-3a-BCO" firstAttribute="leading" secondItem="u54-LZ-djH" secondAttribute="trailing" constant="8" symbolic="YES" id="OI5-xp-GT1"/>
+                            <constraint firstItem="c4t-H1-lZR" firstAttribute="top" secondItem="u54-LZ-djH" secondAttribute="bottom" constant="45" id="S1w-xK-DGB"/>
+                            <constraint firstItem="u54-LZ-djH" firstAttribute="top" secondItem="OhH-3a-BCO" secondAttribute="top" id="c6d-tr-kuu"/>
+                            <constraint firstItem="c4t-H1-lZR" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="49" id="dhh-ev-ZYy"/>
+                            <constraint firstItem="eVM-RW-31y" firstAttribute="top" secondItem="c4t-H1-lZR" secondAttribute="bottom" constant="18" id="eJi-i1-QUs"/>
+                            <constraint firstItem="AWw-ea-eTT" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="rM0-yn-Hmq"/>
+                            <constraint firstItem="c4t-H1-lZR" firstAttribute="centerX" secondItem="HZH-0k-z1e" secondAttribute="centerX" id="rth-iT-wqJ"/>
+                            <constraint firstItem="eVM-RW-31y" firstAttribute="baseline" secondItem="AWw-ea-eTT" secondAttribute="firstBaseline" id="sn9-aG-VFX"/>
+                            <constraint firstItem="u54-LZ-djH" firstAttribute="baseline" secondItem="OhH-3a-BCO" secondAttribute="firstBaseline" id="ssH-x1-EBM"/>
+                            <constraint firstItem="HZH-0k-z1e" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="yPp-wK-a1u"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                    <connections>
+                        <outlet property="imageView" destination="c4t-H1-lZR" id="SOx-RQ-LGl"/>
+                        <outlet property="pickerView" destination="HZH-0k-z1e" id="QPK-UM-bNe"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="gfp-VU-3IM">
+                    <connections>
+                        <action selector="imageTapped:" destination="BYZ-38-t0r" id="Dfw-K2-TFL"/>
+                    </connections>
+                </tapGestureRecognizer>
+            </objects>
+            <point key="canvasLocation" x="400.80000000000001" y="1.3493253373313345"/>
+        </scene>
+    </scenes>
+</document>
