@@ -72,10 +72,13 @@ namespace serwer.Controllers
         //    return JsonConvert.SerializeObject(values);
         //}
 
+        // Using this method you can check from your mobile app if you are logged in or not
+        // It sets 200 Http code if your mobile client is authenticated and 403 Http code otherwise
         [HttpPost]
         [AllowAnonymous]
         public void checkIfMobileAppLoggedIn()
         {
+            HttpContext.Response.TrySkipIisCustomErrors = true; // prevent IIS from displaying error pages for non-OK Http codes
             if (User.Identity.IsAuthenticated)
             {
                 HttpContext.Response.Write("You are ok :)");
@@ -88,13 +91,15 @@ namespace serwer.Controllers
             }
         }
 
-        // Handle image from mobile app
+        // Handle image from mobile app. Send POST request with image and selected algorithm to this method from mobile app.
         [HttpPost]
         public HttpStatusCodeResult handleImageFromMobileApp()
         {
+            HttpContext.Response.TrySkipIisCustomErrors = true; // prevent IIS from displaying error pages for non-OK Http codes
             try
             {
                 String selectedAlgorithm = Request.Form.Get("selectedAlgorithm"); // gets selected algorithm for processing
+                // Check if selected algorithm is not null or ampty and then check if selected algorithm exists on the server
                 if (String.IsNullOrEmpty(selectedAlgorithm) || Core.checkIfMatlabScriptExistsOnServer(Server.MapPath(ServerConfigurator.matlabScriptsPath), selectedAlgorithm))
                 {
                     HttpPostedFileBase file = Request.Files[0];
@@ -105,16 +110,20 @@ namespace serwer.Controllers
             catch(Exception e)
             {
                 Debug.WriteLine(e);
-                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError);
+                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError); // Error during processing
             }
 
+            // Incorrect data received from client (no image, no selectedalgorithm, selectedalgorithm does not exist). Bad reqest (400 Http)
             return new HttpStatusCodeResult(HttpStatusCode.BadRequest);            
         }
 
-        // This action returns an image for Mobile app client
+        // This action returns a processed image for Mobile app client
         [HttpPost]
         public HttpStatusCodeResult GetFileFromDisk()
         {
+            HttpContext.Response.TrySkipIisCustomErrors = true; // prevent IIS from displaying error pages for non-OK Http codes
+            // Fetch username of user, which requests image for download.
+            // Username is needed for determine user-specific directory for client
             string user = User.Identity.Name;
 
             try
@@ -125,7 +134,7 @@ namespace serwer.Controllers
                                                         .Select(s => s.Name)
                                                         .Single(s => s.StartsWith("processed"));
 
-                HttpContext.Response.WriteFile(Server.MapPath(ServerConfigurator.imageStoragePath + user + "/" + fileToDownload)); // append file to content body
+                HttpContext.Response.WriteFile(Server.MapPath(ServerConfigurator.imageStoragePath + user + "/" + fileToDownload)); // append file to response content body
                 return new HttpStatusCodeResult(HttpStatusCode.OK);
             }catch(InvalidOperationException e)
             {
@@ -133,7 +142,7 @@ namespace serwer.Controllers
             }
             catch(ArgumentNullException e) { }
             catch (Exception e) { }
-
+            // Something went wrong (image is not processed yet). Bad request (400 Http). Maybe it should be set to 404?
             return new HttpStatusCodeResult(HttpStatusCode.BadRequest);            
         }
 
@@ -141,9 +150,19 @@ namespace serwer.Controllers
         [HttpPost]
         public string getAlgorithms()
         {
-            Dictionary<string, string> dict = new Dictionary<string, string>();
-            string[]  files = Directory.GetFiles(Server.MapPath(ServerConfigurator.matlabScriptsPath));
-            int counter = 0;
+            // Algorithms will be read from servers' disk into this dictionary in the following order: keys are 
+            // For instance if you have four algorithms on the server: imageNegative, imageRotater, imageBlurrer and imageCropper on the server, then this dictionary will be following (keys are consecutive natural numbers starting from zero, and values are algorithms names):
+            // 0: imageNegative
+            // 1: imageRotater
+            // 2: imageBlurrer
+            // 3: imageCropper
+            // Of course this dictionary is created in foreach loop below and will be serialized into JSON format by the last line ("JsonConvert.SerializeObject(dict);") 
+            // of this method into such a body:
+            // {"0":"imageNegative","1":"imageRotater","2":"imageBlurrer","3":"imageCropper"}
+
+            Dictionary<string, string> dict = new Dictionary<string, string>(); 
+            string[]  files = Directory.GetFiles(Server.MapPath(ServerConfigurator.matlabScriptsPath)); // read files names (matlab scripts) into string array, then iterate over them.
+            int counter = 0; // counter for numbering dict keys
             foreach(string file in files)
             {                
                 dict.Add(counter.ToString(), Path.GetFileNameWithoutExtension(file));
@@ -159,13 +178,13 @@ namespace serwer.Controllers
             HttpContext.Response.Headers.Add("s", "d"); // unused
             try
             {
+                // Stream for reading file with JSON-formatted data about processed image
                 StreamReader streamReader = new StreamReader(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + "processingResults.json"));                
-                HttpContext.Response.Write(streamReader.ReadLine());
+                HttpContext.Response.Write(streamReader.ReadLine()); // All data are in the first line
                 streamReader.Close();
             }
             catch(FileNotFoundException e) { }
-            catch(Exception e) { }
-            
+            catch(Exception e) { }            
         }
     }
 

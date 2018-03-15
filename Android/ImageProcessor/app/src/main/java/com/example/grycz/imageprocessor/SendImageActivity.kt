@@ -14,6 +14,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
+import com.example.grycz.imageprocessor.R.id.cropImageView
 import kotlinx.android.synthetic.main.activity_send_image.*
 import org.json.JSONObject
 import java.io.File
@@ -46,6 +47,23 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         }
 
         send_photo.setOnClickListener { view ->
+            this.chosenBitmap = cropping.croppedImage
+            sendPhotoToServer()
+        }
+
+        left_rot.setOnClickListener { view ->
+            cropping.rotateImage(-1)
+        }
+
+        right_rot.setOnClickListener { view ->
+            cropping.rotateImage(1)
+        }
+
+        crop_button.setOnClickListener { view ->
+            cropping.setImageBitmap(cropping.croppedImage)
+        }
+
+        cropping.setOnCropImageCompleteListener { view, result ->
             sendPhotoToServer()
         }
 
@@ -102,7 +120,9 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
             var postImageSend = ""
             try {
                 chosenBitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
-                photo_preview.setImageBitmap(chosenBitmap)
+//                photo_preview.setImageBitmap(chosenBitmap)
+
+                cropping.setImageBitmap(chosenBitmap)
                 } catch (e: IOException) {
                 e.printStackTrace()
             }

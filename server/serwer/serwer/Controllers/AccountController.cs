@@ -68,8 +68,9 @@ namespace serwer.Controllers
         [AllowAnonymous]
         public HttpStatusCodeResult UnAuthorized(string message)
         {
+            HttpContext.Response.TrySkipIisCustomErrors = true;
             HttpContext.Response.Write("unauthorized");
-            return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+            return new HttpStatusCodeResult(HttpStatusCode.NotFound);
         }
 
         //
