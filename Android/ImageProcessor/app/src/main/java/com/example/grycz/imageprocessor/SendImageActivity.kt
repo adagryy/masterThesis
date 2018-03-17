@@ -4,9 +4,11 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
@@ -21,12 +23,19 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
+import android.os.Environment.DIRECTORY_PICTURES
+import android.support.v4.content.FileProvider
+import java.text.SimpleDateFormat
+import java.util.*
+
 
 class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private val RequestImageFromCamera = 1
     private val RequestPickImageFromGallery = 2
     private var chosenBitmap: Bitmap? = null
     private var selectedAlgorithm = ""
+    private var mCurrentPhotoPath: String? = null
+    private var photoURI: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,7 +119,9 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if ( requestCode == RequestImageFromCamera && resultCode == RESULT_OK) {
+        if (resultCode == Activity. RESULT_OK && requestCode == RequestImageFromCamera) {
+            chosenBitmap = MediaStore.Images.Media.getBitmap(contentResolver, photoURI)
+            cropping.setImageBitmap(chosenBitmap)
 //            val extras = data?.extras
 //            val imageBitmap = extras?.get("data") as Bitmap
         }
@@ -146,12 +157,58 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
     }
 
     private fun dispatchTakePictureIntent() {
-        Log.i("INFO: ", "Entering camera")
-        val takePictureIntent: Intent? = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        if (takePictureIntent?.resolveActivity(packageManager) != null) {
-            startActivityForResult(takePictureIntent, RequestImageFromCamera)
+//        Log.i("INFO: ", "Entering camera")
+//        val takePictureIntent: Intent? = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+//        if (takePictureIntent?.resolveActivity(packageManager) != null) {
+//            startActivityForResult(takePictureIntent, RequestImageFromCamera)
+//        }
+//        Log.i("INFO: ", "Exitting camera")
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(packageManager) != null) {
+            // Create the File where the photo should go
+            var photoFile: File? = null
+            try {
+                photoFile = createImageFile()
+            } catch (ex: IOException) {
+                // Error occurred while creating the File
+                Toast.makeText(applicationContext, "Błąd. Nie można utworzyć pliku obrazu", Toast.LENGTH_SHORT).show()
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                try {
+                    photoURI = FileProvider.getUriForFile(applicationContext,"com.example.android.fileprovider", photoFile)
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                    startActivityForResult(takePictureIntent, RequestImageFromCamera)
+                }catch (e: Exception){
+                    println(e)
+                }
+            }
         }
-        Log.i("INFO: ", "Exitting camera")
+    }
+
+    @Throws(IOException::class)
+    private fun createImageFile(): File {
+        // Create an image file name
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val imageFileName = "JPEG_" + timeStamp + "_"
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+
+        storageDir.listFiles().forEach { item ->
+            item.delete()
+        }
+
+        val image = File.createTempFile(
+                imageFileName, /* prefix */
+                ".jpg", /* suffix */
+                storageDir      /* directory */
+        )
+
+        val list = storageDir.list()
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.absolutePath
+        return image
     }
 
     private fun pickGalleryImage(){
