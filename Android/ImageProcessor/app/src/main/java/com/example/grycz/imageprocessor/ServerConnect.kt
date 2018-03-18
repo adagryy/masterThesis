@@ -1,16 +1,20 @@
 package com.example.grycz.imageprocessor
 
+import android.content.Context
 import android.os.AsyncTask
 import android.util.Log
+import android.widget.Toast
 import java.io.*
 import java.lang.Exception
+import java.lang.ref.WeakReference
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 
 /**
  * Created by grycz on 2/9/2018.
  */
-class ServerConnect(private val url: String, private val selectedAlgorithm: String) : AsyncTask<File, Void, String>() {
+class ServerConnect(private val context: WeakReference<Context>, private val url: String, private val selectedAlgorithm: String) : AsyncTask<File, Void, String>() {
+
     override fun doInBackground(vararg params: File): String {
         var data: String? = ""
 
@@ -32,6 +36,12 @@ class ServerConnect(private val url: String, private val selectedAlgorithm: Stri
         }
         return data.toString()
 
+    }
+
+    override fun onPostExecute(result: String?) {
+        super.onPostExecute(result)
+
+        Toast.makeText(context.get(), "Obraz został przesłany na serwer.", Toast.LENGTH_SHORT).show()
     }
 
 }

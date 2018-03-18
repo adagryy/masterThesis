@@ -73,13 +73,13 @@ namespace serwer.Helpers
                     );
                 matlab.Quit();
             }
-            catch (System.Runtime.InteropServices.COMException e)
+            catch (System.Runtime.InteropServices.COMException)
             {
                 //ViewBag.MatlabProcessingError = "Error processing image on the server. Probably incorrect uage of matlab function available on the server";
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Debug.WriteLine(e);
+                //Debug.WriteLine(e);
                 //ViewBag.MatlabProcessingError = "Unknown image processing error";
             }
 
@@ -95,7 +95,7 @@ namespace serwer.Helpers
                 {
                     fileForDeletion.Delete();
                 }
-            }catch(DirectoryNotFoundException e)
+            }catch(DirectoryNotFoundException)
             {
                 if (!Directory.Exists(directoryPath)) // if personal directory for every user does not exists, here it is created
                 {

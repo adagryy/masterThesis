@@ -25,6 +25,8 @@ import java.io.IOException
 import java.io.OutputStream
 import android.os.Environment.DIRECTORY_PICTURES
 import android.support.v4.content.FileProvider
+import kotlinx.android.synthetic.main.nav_header_nav.view.*
+import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -220,10 +222,8 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
     }
 
     private fun sendPhotoToServer(){
-        var postImageSend = ""
         try {
-            postImageSend = ServerConnect(getString(R.string.server_domain), this.selectedAlgorithm).execute(persistImage(this.chosenBitmap!!, "output")).get()
-            Log.i("1. INFO:  ", postImageSend)
+            ServerConnect(WeakReference(applicationContext), getString(R.string.server_domain), this.selectedAlgorithm).execute(persistImage(this.chosenBitmap!!, "output"))
         }catch (e: Exception){
             var toast: Toast = Toast.makeText(applicationContext, "Najpierw wybierz zdjęcie", Toast.LENGTH_SHORT)
             toast.show()

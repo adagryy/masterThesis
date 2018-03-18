@@ -136,12 +136,13 @@ namespace serwer.Controllers
 
                 HttpContext.Response.WriteFile(Server.MapPath(ServerConfigurator.imageStoragePath + user + "/" + fileToDownload)); // append file to response content body
                 return new HttpStatusCodeResult(HttpStatusCode.OK);
-            }catch(InvalidOperationException e)
+            }catch(InvalidOperationException)
             {
-
+                HttpContext.Response.Write("Processing not finished yet!");
+                return new HttpStatusCodeResult(HttpStatusCode.NotFound);
             }
-            catch(ArgumentNullException e) { }
-            catch (Exception e) { }
+            catch(ArgumentNullException) { }
+            catch (Exception) { }
             // Something went wrong (image is not processed yet). Bad request (400 Http). Maybe it should be set to 404?
             return new HttpStatusCodeResult(HttpStatusCode.BadRequest);            
         }
@@ -160,6 +161,8 @@ namespace serwer.Controllers
             // of this method into such a body:
             // {"0":"imageNegative","1":"imageRotater","2":"imageBlurrer","3":"imageCropper"}
 
+            HttpContext.Response.TrySkipIisCustomErrors = true; // skip IIS default error pages like 404, 500 etc
+
             Dictionary<string, string> dict = new Dictionary<string, string>(); 
             string[]  files = Directory.GetFiles(Server.MapPath(ServerConfigurator.matlabScriptsPath)); // read files names (matlab scripts) into string array, then iterate over them.
             int counter = 0; // counter for numbering dict keys
@@ -175,7 +178,7 @@ namespace serwer.Controllers
         [HttpPost]
         public void getData()
         {
-            HttpContext.Response.Headers.Add("s", "d"); // unused
+            HttpContext.Response.TrySkipIisCustomErrors = true; // skip IIS default error pages like 404, 500 etc
             try
             {
                 // Stream for reading file with JSON-formatted data about processed image
@@ -183,8 +186,11 @@ namespace serwer.Controllers
                 HttpContext.Response.Write(streamReader.ReadLine()); // All data are in the first line
                 streamReader.Close();
             }
-            catch(FileNotFoundException e) { }
-            catch(Exception e) { }            
+            catch(FileNotFoundException) {
+                HttpContext.Response.Write("Processing not finished yet!");
+                HttpContext.Response.StatusCode = (int) (HttpStatusCode.NotFound);
+            }
+            catch(Exception) { }            
         }
     }
 

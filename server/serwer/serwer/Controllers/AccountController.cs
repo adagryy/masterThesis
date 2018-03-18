@@ -68,9 +68,9 @@ namespace serwer.Controllers
         [AllowAnonymous]
         public HttpStatusCodeResult UnAuthorized(string message)
         {
-            HttpContext.Response.TrySkipIisCustomErrors = true;
-            HttpContext.Response.Write("unauthorized");
-            return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            HttpContext.Response.TrySkipIisCustomErrors = true; // skip IIS default error pages like 404, 500 etc
+            HttpContext.Response.Write("unauthorized"); // content when unauthorized request reaches server
+            return new HttpStatusCodeResult(HttpStatusCode.Forbidden); // Access denied
         }
 
         //
@@ -80,8 +80,6 @@ namespace serwer.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
         {
-            var c = Request;
-
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -115,29 +113,28 @@ namespace serwer.Controllers
         [AllowAnonymous]
         public async Task<HttpStatusCodeResult> MobileLogin(LoginViewModel model)
         {
-            var c = Request;
-            ApplicationUser applicationUser = UserManager.FindByEmail(model.Email);
+            ApplicationUser applicationUser = UserManager.FindByEmail(model.Email); // try to find user in database
 
-            if(!(applicationUser is null))
+            if(!(applicationUser is null)) // if user was found...
             {
-                SignInStatus signInStatus = await SignInManager.PasswordSignInAsync(applicationUser.UserName, model.Password, model.RememberMe, shouldLockout: false);
+                SignInStatus signInStatus = await SignInManager.PasswordSignInAsync(applicationUser.UserName, model.Password, model.RememberMe, shouldLockout: false); // try to sign the user in using password received from client
 
-                switch (signInStatus)
+                switch (signInStatus) // signInStatus - object containing information about signing in status
                 {
                     case SignInStatus.Success:
-                        return new HttpStatusCodeResult(HttpStatusCode.OK);
+                        return new HttpStatusCodeResult(HttpStatusCode.OK); // sign in successful
                     case SignInStatus.LockedOut:
-                        return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+                        return new HttpStatusCodeResult(HttpStatusCode.Forbidden); // account locked
                     case SignInStatus.RequiresVerification:
-                        return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+                        return new HttpStatusCodeResult(HttpStatusCode.Forbidden); // unverified account
                     case SignInStatus.Failure:
-                        return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+                        return new HttpStatusCodeResult(HttpStatusCode.Forbidden); // sing in error (wrong password)
                     default:
-                        return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+                        return new HttpStatusCodeResult(HttpStatusCode.Forbidden); // other sign in error
                 }
             }
 
-            return new HttpStatusCodeResult(HttpStatusCode.NotFound);
+            return new HttpStatusCodeResult(HttpStatusCode.Forbidden); // user not found in the database
 
         }
 
@@ -452,6 +449,15 @@ namespace serwer.Controllers
         {
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
             return RedirectToAction("Index", "Home");
+        }
+
+        //
+        // POST: /Account/MobileLogOff
+        [HttpPost]
+        public HttpStatusCodeResult MobileLogOff()
+        {
+            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+            return new HttpStatusCodeResult(HttpStatusCode.OK);
         }
 
         //

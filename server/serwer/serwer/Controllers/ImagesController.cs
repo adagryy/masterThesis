@@ -71,7 +71,7 @@ namespace serwer.Controllers
                 ViewBag.Message = "Pomyślnie przesłano obraz na serwer";
                 return RedirectToAction("imagesView");
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ViewBag.Message = "Error during sending image to server";
                 return View();
@@ -122,7 +122,7 @@ namespace serwer.Controllers
             try
             {
                 fileNames = dir.GetFiles("*.*"); // list all files in personal directory 
-            }catch(DirectoryNotFoundException e) // when directory not exists
+            }catch(DirectoryNotFoundException) // when directory not exists
             {
                 return imagesDownloadDetails;
             }            
@@ -150,7 +150,7 @@ namespace serwer.Controllers
                         imagesDownloadDetails.processedImageDataInJSON = JSONFormattedData;                        
                     }
                     catch (OutOfMemoryException) { r.Close(); }
-                    catch (Exception e) { r.Close(); }
+                    catch (Exception) { r.Close(); }
                 }
             }
 
