@@ -27,6 +27,7 @@ import android.os.Environment.DIRECTORY_PICTURES
 import android.support.v4.content.FileProvider
 import kotlinx.android.synthetic.main.nav_header_nav.view.*
 import java.lang.ref.WeakReference
+import java.net.ConnectException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -81,31 +82,37 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         val spinner: Spinner = findViewById(R.id.spinner_algorithms)
         spinner.onItemSelectedListener = this
 
-        AlgorithmList(getString(R.string.server_domain) + "serwer/MobileDevices/getAlgorithms", spinner, applicationContext).execute()
+        AlgorithmList(getString(R.string.server_domain) + "MobileDevices/getAlgorithms", spinner ).execute()
 
     }
 
-    private class AlgorithmList(private val url: String, private val spinner: Spinner, private val context: Context) : AsyncTask<String, Void, Unit>(){
+    private inner class AlgorithmList(private val url: String, private val spinner: Spinner) : AsyncTask<String, Void, Unit>(){
         private var response: List<String>? = null
         private var algorithms: MutableList<String> = ArrayList()
+        private var exception: Exception? = null
+
         override fun doInBackground(vararg params: String?) {
-            val mu = MultipartUtility(url, "UTF-8")
+            try {
+                val mu = MultipartUtility(url, "UTF-8")
+                response = mu.finish()
 
-            response = mu.finish()
+                val json = JSONObject(response!![0])
 
-            val json = JSONObject(response!![0])
-
-            val keys: Iterator<String> = json.keys()
-            while (keys.hasNext()){
-                algorithms.add(json.get(keys.next()) as String)
+                val keys: Iterator<String> = json.keys()
+                while (keys.hasNext()){
+                    algorithms.add(json.get(keys.next()) as String)
+                }
+            }catch (exception: Exception){
+                this.exception = exception
             }
-
-            println(json)
         }
 
         override fun onPostExecute(result: Unit?) {
             super.onPostExecute(result)
-            var adapter: ArrayAdapter<String> = ArrayAdapter(context, android.R.layout.simple_list_item_1, algorithms)
+
+            AppConfigurator.toastMessageBasedOnException(this.exception, applicationContext)
+
+            var adapter: ArrayAdapter<String> = ArrayAdapter(applicationContext, android.R.layout.simple_list_item_1, algorithms)
             spinner.adapter = adapter
         }
     }
@@ -159,12 +166,6 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
     }
 
     private fun dispatchTakePictureIntent() {
-//        Log.i("INFO: ", "Entering camera")
-//        val takePictureIntent: Intent? = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-//        if (takePictureIntent?.resolveActivity(packageManager) != null) {
-//            startActivityForResult(takePictureIntent, RequestImageFromCamera)
-//        }
-//        Log.i("INFO: ", "Exitting camera")
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(packageManager) != null) {

@@ -6,7 +6,7 @@
     @Html.AntiForgeryToken()
 
     <ul class="nav navbar-nav navbar-right">
-        @if (User.Identity.Name.Equals("test2"))
+        @if (User.IsInRole(serwer.Config.ServerConfigurator.adminRole)) // check if user is admin
         {
             <li>@Html.ActionLink("Rejestracja", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>
         }    

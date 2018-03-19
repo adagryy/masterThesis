@@ -40,11 +40,11 @@ namespace serwer.Controllers
     [MobileAuthorize]
     public class MobileDevicesController : Controller
     {
-        //[HttpGet]
-        //public String testToken(String email)
-        //{
-        //    return "Test webd: " + email;
-        //}
+        [HttpGet]
+        public String testToken(String email)
+        {
+            return "Web application working test: " + email;
+        }
 
 
         //// checks if mobile app user with given email is logged in or not
@@ -95,26 +95,28 @@ namespace serwer.Controllers
         [HttpPost]
         public HttpStatusCodeResult handleImageFromMobileApp()
         {
-            HttpContext.Response.TrySkipIisCustomErrors = true; // prevent IIS from displaying error pages for non-OK Http codes
+            HttpContext.Response.TrySkipIisCustomErrors = true; // prevent IIS from displaying error pages for non-OK Http codes            
             try
             {
                 String selectedAlgorithm = Request.Form.Get("selectedAlgorithm"); // gets selected algorithm for processing
-                // Check if selected algorithm is not null or ampty and then check if selected algorithm exists on the server
-                if (String.IsNullOrEmpty(selectedAlgorithm) || Core.checkIfMatlabScriptExistsOnServer(Server.MapPath(ServerConfigurator.matlabScriptsPath), selectedAlgorithm))
-                {
-                    HttpPostedFileBase file = Request.Files[0];
-                    Core.startProcessingImage(file, User.Identity.Name, selectedAlgorithm); // start exact processing
-                    return new HttpStatusCodeResult(HttpStatusCode.OK);
-                }                
+
+                if(String.IsNullOrEmpty(selectedAlgorithm) // server received "selectedAlgorithm" string empty or null
+                    || !Core.checkIfMatlabScriptExistsOnServer(Server.MapPath(ServerConfigurator.matlabScriptsPath), selectedAlgorithm) // algorithm specified in "selectedAlgorithm" does not exists on the server
+                    || Request.Files.Count == 0 // server didn't received any file for processing
+                    )
+                    // Incorrect data received from client (no image, no selectedalgorithm, selectedalgorithm does not exist). Bad reqest (400 Http)
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+                HttpPostedFileBase file = Request.Files[0]; // Load file from request into variable
+                Core.startProcessingImage(file, User.Identity.Name, selectedAlgorithm); // start exact processing
+                return new HttpStatusCodeResult(HttpStatusCode.OK); // return 200 just after processing starts. No guarantee what happens later.
+                           
             }
             catch(Exception e)
             {
                 Debug.WriteLine(e);
                 return new HttpStatusCodeResult(HttpStatusCode.InternalServerError); // Error during processing
-            }
-
-            // Incorrect data received from client (no image, no selectedalgorithm, selectedalgorithm does not exist). Bad reqest (400 Http)
-            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);            
+            }         
         }
 
         // This action returns a processed image for Mobile app client

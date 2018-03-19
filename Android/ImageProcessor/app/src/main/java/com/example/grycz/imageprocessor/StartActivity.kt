@@ -82,7 +82,7 @@ class StartActivity : AppCompatActivity() {
 
         AppConfigurator.sslContext = context
 
-        TestLogging(getString(R.string.server_domain) + "serwer/MobileDevices/checkIfMobileAppLoggedIn", cookieManager, applicationContext, this).execute()
+        TestLogging(getString(R.string.server_domain) + "/MobileDevices/checkIfMobileAppLoggedIn", cookieManager, applicationContext, this).execute()
 //        try {
 //            // Tell the URLConnection to use a SocketFactory from our SSLContext
 //            val url = URL(getString(R.string.server_domain) + "serwer/MobileDevices/checkIfMobileAppLoggedIn")

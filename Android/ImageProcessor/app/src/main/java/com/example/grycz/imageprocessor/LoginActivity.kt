@@ -64,10 +64,10 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
         map.put("Password", "RedKon,123")
         map.put("RememberMe", "true")
 
-        LoginClass(this, applicationContext, getString(R.string.server_domain) + "serwer/Account/MobileLogin   ", "UTF-8", progressDialog).execute(map)
+        LoginClass(getString(R.string.server_domain) + "Account/MobileLogin   ", "UTF-8", progressDialog).execute(map)
     }
 
-    internal class LoginClass(private val loginActivity: LoginActivity, private val context: Context, val url: String, val charset: String, val progressDialog: ProgressDialog) : AsyncTask<HashMap<String, String>, Void, Unit>(){
+    internal inner class LoginClass(val url: String, val charset: String, val progressDialog: ProgressDialog) : AsyncTask<HashMap<String, String>, Void, Unit>(){
         private var responseCode: Int? = null
 
 
@@ -94,14 +94,15 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
 
             // Successfully logged in
             if (responseCode == 200) {
-                val redirectIntent = Intent(context, NavActivity::class.java)
-                context.startActivity(redirectIntent)
+                val redirectIntent = Intent(applicationContext, NavActivity::class.java)
+                applicationContext.startActivity(redirectIntent)
                 progressDialog.dismiss()
-                Toast.makeText(context, "Logowanie zakończone sukcesem", Toast.LENGTH_LONG).show()
-                loginActivity.finish()
+                Toast.makeText(applicationContext, "Logowanie zakończone sukcesem", Toast.LENGTH_LONG).show()
+//                loginActivity.finish()
+                this@LoginActivity.finish()
             } else { // else login failed
                 progressDialog.dismiss()
-                loginActivity.onLoginFailed()
+                this@LoginActivity.onLoginFailed()
             }
         }
     }

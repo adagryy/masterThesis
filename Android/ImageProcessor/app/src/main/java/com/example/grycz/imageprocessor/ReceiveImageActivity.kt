@@ -7,14 +7,18 @@ import java.net.HttpURLConnection
 import java.net.URL
 import android.graphics.BitmapFactory
 import android.graphics.Bitmap
+import android.os.Message
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_receive_image.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.*
+import java.net.ConnectException
+import javax.net.ssl.HttpsURLConnection
 
 
 class ReceiveImageActivity : AppCompatActivity() {
@@ -38,59 +42,55 @@ class ReceiveImageActivity : AppCompatActivity() {
 
     private fun downloadImageFromServer(){
 
-        DownloadPhotoFromServer(downloaded_image_preview, afterProcessingData).execute(getString(R.string.server_domain) + "serwer/MobileDevices/GetFileFromDisk",
-                getString(R.string.server_domain) + "serwer/MobileDevices/getData")
+        DownloadPhotoFromServer(downloaded_image_preview, afterProcessingData).execute(getString(R.string.server_domain) + "MobileDevices/GetFileFromDisk",
+                getString(R.string.server_domain) + "MobileDevices/getData")
     }
-}
 
-class DownloadPhotoFromServer(val iv: ImageView, private val view: TextView) : AsyncTask<String, Void, Bitmap?>(){
-    private var bitmap: Bitmap? = null
-    private var dataUrl: String? = null
-    override fun doInBackground(vararg urls: String?): Bitmap? {
-        dataUrl = urls[1]
-        var input: InputStream? = null
-        var output: OutputStream? = null
-        var connection: HttpURLConnection? = null
-        try {
-//            val url = URL(urls[0])
-//            connection = url.openConnection() as HttpURLConnection
-//            connection.requestMethod = "POST"
-//            connection.connect()
+    private inner class DownloadPhotoFromServer(val iv: TouchImageView, private val view: TextView) : AsyncTask<String, Void, Bitmap?>(){
+        private var bitmap: Bitmap? = null
+        private var dataUrl: String? = null
+        private var exception: Exception? = null
 
-            val httpsUrlConnection = AppConfigurator.createHttpsUrlConnectioObject(urls[0]!!)
-            // expect HTTP 200 OK, so we don't mistakenly save error report
-            // instead of the file
-            if (httpsUrlConnection.responseCode !== HttpURLConnection.HTTP_OK) {
-                return null
-            }
-
-            val input = httpsUrlConnection.inputStream
-            bitmap = BitmapFactory.decodeStream(input)
-            input.close()
-            return bitmap
-
-        } catch (e: Exception) {
-            Log.e("Errpr: ", e.toString())
-            return null
-        } finally {
+        override fun doInBackground(vararg urls: String?): Bitmap? {
+            dataUrl = urls[1]
             try {
-                output?.close()
-                input?.close()
-            } catch (ignored: IOException) {
+                val httpsUrlConnection = AppConfigurator.createHttpsUrlConnectioObject(urls[0]!!)
+                // expect HTTP 200 OK, so we don't mistakenly save error report
+                // instead of the file
+                val code = httpsUrlConnection.responseCode
+
+                when(httpsUrlConnection.responseCode){
+                    HttpsURLConnection.HTTP_OK -> {
+                        val input = httpsUrlConnection.inputStream
+                        bitmap = BitmapFactory.decodeStream(input)
+                        input.close()
+                        httpsUrlConnection.disconnect()
+                        return bitmap
+                    }
+                    HttpsURLConnection.HTTP_NOT_FOUND -> throw ProcessedImageNotExistsOnServerException()
+                }
+                return null
+            } catch (exception: Exception) {
+                this.exception = exception
             }
-
-            connection?.disconnect()
+            return null
         }
-        return null
-    }
 
-    override fun onPostExecute(result: Bitmap?) {
-        super.onPostExecute(result)
+        override fun onPostExecute(result: Bitmap?) {
+            super.onPostExecute(result)
 
-        iv.setImageBitmap(bitmap)
-        DownloadProcessingResults(view).execute(dataUrl)
+            if(exception == null)
+                Toast.makeText(applicationContext, "Pomyślnie odebrano obraz z serwera", Toast.LENGTH_SHORT).show()
+            else
+                AppConfigurator.toastMessageBasedOnException(this.exception, applicationContext)
+
+            iv.setImageBitmap(bitmap)
+            DownloadProcessingResults(view).execute(dataUrl)
+        }
     }
 }
+
+class ProcessedImageNotExistsOnServerException : Exception()
 
 private class DownloadProcessingResults(val iv: TextView) : AsyncTask<String, Void, Unit>(){
     private var afterProcessingData: String? = null
@@ -100,6 +100,8 @@ private class DownloadProcessingResults(val iv: TextView) : AsyncTask<String, Vo
             val httpsURLConnection = AppConfigurator.createHttpsUrlConnectioObject(params[0]!!)
             val bufferedReader = BufferedReader(InputStreamReader(httpsURLConnection.inputStream))
 
+            if(httpsURLConnection.responseCode == HttpsURLConnection.HTTP_NOT_FOUND)
+                throw ProcessedImageNotExistsOnServerException()
             afterProcessingData = bufferedReader.readLine()
 
         }catch (e: Exception){

@@ -7,7 +7,8 @@
     <string name="welcome_screen_text">Analizator obrazów</string>
     <string name="new_photo">Przesyłanie obrazów</string>
     <string name="send_photo">Pobieranie obrazów</string>
-    <string name="server_domain">https://192.168.0.3:62000/</string>
+    <!--<string name="server_domain">https://192.168.0.3/</string>-->
+    <string name="server_domain">https://192.168.0.3:62000/serwer/</string>
     <string name="title_activity_login">Zaloguj się</string>
 
     <!-- Strings related to login -->
@@ -22,4 +23,13 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+    <!-- strings related with messages-->
+    <string name="socket_exception">Błąd komunikacji z serwerem. Skontaktuj się z Administratorem.</string>
+    <string name="connect_exception">Brak połączenia z serwerem. Sprawdź połączenie z Internetem.</string>
+    <string name="unknown_error">Nieznany błąd</string>
+    <string name="image_sent">Przesłano obraz do serwera</string>
+    <string name="non_ok_status">Serwer zwrtócił kod błędu</string>
+    <string name="IOException">Niepoprawny format przesyłanych danych do serwera. Proszę ponownie załadować ten widok/aplikację</string>
+    <string name="processedImageNotExistsOnServerException">Przetwarzanie obrazu w toku</string>
 </resources>

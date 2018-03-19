@@ -14,34 +14,29 @@ import java.net.SocketTimeoutException
  * Created by grycz on 2/9/2018.
  */
 class ServerConnect(private val context: WeakReference<Context>, private val url: String, private val selectedAlgorithm: String) : AsyncTask<File, Void, String>() {
+    private var exception: Exception? = null
 
     override fun doInBackground(vararg params: File): String {
-        var data: String? = ""
-
         try {
-            val multiPartEntity = MultipartUtility(url + "serwer/MobileDevices/handleImageFromMobileApp", "UTF-8")
+            val multiPartEntity = MultipartUtility(url + "MobileDevices/handleImageFromMobileApp", "UTF-8")
             multiPartEntity.addFormField("selectedAlgorithm", this.selectedAlgorithm)
-            multiPartEntity.addFilePart("dfsf", params[0])
+            multiPartEntity.addFilePart("image", params[0])
 
-            val response = multiPartEntity.finish()
-
-            Log.i("Czas: ", response[0])
-        }catch (socketException: SocketTimeoutException){
-            return "Connection error"
-        }catch(connectException: ConnectException){
-            return "Connection error"
+            multiPartEntity.finish()
         }
         catch (exception: Exception){
-            return "Unknown error"
+            this.exception = exception
         }
-        return data.toString()
+        return ""
 
     }
 
     override fun onPostExecute(result: String?) {
         super.onPostExecute(result)
 
-        Toast.makeText(context.get(), "Obraz został przesłany na serwer.", Toast.LENGTH_SHORT).show()
+        try {
+            AppConfigurator.toastMessageBasedOnException(this.exception!!, context.get()!!)
+        }catch (nullPointerException: NullPointerException){}
     }
 
 }
