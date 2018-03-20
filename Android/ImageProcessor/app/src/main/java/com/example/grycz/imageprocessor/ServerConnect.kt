@@ -36,7 +36,11 @@ class ServerConnect(private val context: WeakReference<Context>, private val url
 
         try {
             AppConfigurator.toastMessageBasedOnException(this.exception!!, context.get()!!)
-        }catch (nullPointerException: NullPointerException){}
+        }catch (nullPointerException: NullPointerException){
+            val appcontext = context.get()
+            if(appcontext != null)
+                Toast.makeText(appcontext, "Pomyślnie przesłano obraz do serwera", Toast.LENGTH_SHORT).show()
+        }
     }
 
 }

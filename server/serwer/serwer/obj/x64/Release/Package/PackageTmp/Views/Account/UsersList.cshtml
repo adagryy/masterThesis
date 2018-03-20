@@ -1,0 +1,37 @@
+﻿@model  serwer.Models.UsersViewModel
+
+@{
+    ViewBag.Title = "UsersList";
+    Layout =  "~/Views/Shared/_Layout.cshtml";
+}
+<br />
+<h2>Użytkownicy w systemie</h2>
+<br />
+<div class="container">
+    @using (@Html.BeginForm("RemoveUser", "Account", FormMethod.Post, new { @class = "", role = "form", enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Nazwa użytkownika</th>
+                    <th>Adres e-mail</th>
+                    <th>Edycja</th>
+                </tr>
+            </thead>
+            <tbody>         
+                @foreach (serwer.Models.ApplicationUser au in Model.AllUsers)
+                {
+                    <tr>
+                        <th>@au.UserName</th>
+                        <th>@au.Email</th>
+                        <th><a  href="#">Edytuj</a></th>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <input type="submit" value="Zaloguj się" class="btn btn-default" />
+    }
+</div>
+

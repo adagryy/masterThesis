@@ -26,6 +26,16 @@ namespace serwer
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
                       "~/Content/site.css"));
+
+            bundles.Add(new StyleBundle("~/Content/mycss").Include(
+                      "~/Content/css/bootstrap.css"));
+
+            bundles.Add(new ScriptBundle("~/Content/bootstrapjs").Include(
+                      "~/Content/js/jquery.min.js",
+                      "~/Content/js/popper.min.js",
+                      "~/Content/js/bootstrap.min.js"));
+
+            BundleTable.EnableOptimizations = true; // needed to include custom bundles (bootstrap, js) - Adam Gryczka
         }
     }
 }

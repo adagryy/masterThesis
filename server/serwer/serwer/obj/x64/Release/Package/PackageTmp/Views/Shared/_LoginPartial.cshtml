@@ -1,25 +1,37 @@
 ﻿@using Microsoft.AspNet.Identity
 @if (Request.IsAuthenticated)
 {
-    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "nav-link" }))
     {
     @Html.AntiForgeryToken()
 
-    <ul class="nav navbar-nav navbar-right">
+    <ul class="navbar-nav">
         @if (User.IsInRole(serwer.Config.ServerConfigurator.adminRole)) // check if user is admin
-        {
-            <li>@Html.ActionLink("Rejestracja", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>
+        {            
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                    Użytkownicy
+                </a>
+                <div class="dropdown-menu">
+                    @Html.ActionLink("Rejestracja nowego użytkownika", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink", @class = "dropdown-item" })
+                    @Html.ActionLink("Edycja kont", "UsersList", "Account", routeValues: null, htmlAttributes: new { id = "registerLink", @class = "dropdown-item" })
+                    @Html.ActionLink("Zarządzanie skryptami Matlaba", "MatlabScriptsList", "Account", routeValues: null, htmlAttributes: new { id = "registerLink", @class = "dropdown-item" })
+                    @*<a class="dropdown-item" href="#">Link 1</a>
+                    <a class="dropdown-item" href="#">Link 2</a>
+                    <a class="dropdown-item" href="#">Link 3</a>*@
+                </div>
+            </li>
         }    
         <li>
-            @Html.ActionLink("Użytkownik: \"" + User.Identity.GetUserName() + "\"", "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage" })
+            @Html.ActionLink("Użytkownik: \"" + User.Identity.GetUserName() + "\"", "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage", @class = "nav-link" })
         </li>
-        <li><a href="javascript:document.getElementById('logoutForm').submit()">Wyloguj się</a></li>
+        <li><a href="javascript:document.getElementById('logoutForm').submit()", class="nav-link">Wyloguj się</a></li>
     </ul>
     }
 }
 else
 {
-    <ul class="nav navbar-nav navbar-right">            
-        <li>@Html.ActionLink("Logowanie", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
+    <ul class="nav navbar-nav mr-auto">            
+        <li>@Html.ActionLink("Logowanie", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink", @class="nav-link" })</li>
     </ul>
 }

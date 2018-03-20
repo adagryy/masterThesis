@@ -79,10 +79,11 @@ class ReceiveImageActivity : AppCompatActivity() {
         override fun onPostExecute(result: Bitmap?) {
             super.onPostExecute(result)
 
-            if(exception == null)
+            try {
+                AppConfigurator.toastMessageBasedOnException(this.exception!!, applicationContext)
+            }catch (nullPointerexception: NullPointerException){
                 Toast.makeText(applicationContext, "Pomyślnie odebrano obraz z serwera", Toast.LENGTH_SHORT).show()
-            else
-                AppConfigurator.toastMessageBasedOnException(this.exception, applicationContext)
+            }
 
             iv.setImageBitmap(bitmap)
             DownloadProcessingResults(view).execute(dataUrl)

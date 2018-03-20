@@ -13,6 +13,7 @@ using System.IO;
 using System.Threading;
 using System.Net;
 using serwer.Config;
+using System.Web.Security;
 
 namespace serwer.Controllers
 {
@@ -183,7 +184,6 @@ namespace serwer.Controllers
 
         //
         // GET: /Account/Register
-        //[AllowAnonymous]
         [Authorize(Roles = ServerConfigurator.adminRole)]
         public ActionResult Register()
         {
@@ -193,7 +193,6 @@ namespace serwer.Controllers
         //
         // POST: /Account/Register
         [HttpPost]
-        //[AllowAnonymous]
         [Authorize(Roles = ServerConfigurator.adminRole)]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
@@ -201,6 +200,9 @@ namespace serwer.Controllers
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = model.UserName, Email = model.Email };
+
+                //Membership.DeleteUser(User.Identity.Name, true);
+                
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -226,6 +228,45 @@ namespace serwer.Controllers
 
             // If we got this far, something failed, redisplay form
             return View(model);
+        }
+
+        //
+        // GET: /Account/UsersList
+        [Authorize(Roles = ServerConfigurator.adminRole)]
+        public ActionResult UsersList()
+        {
+            var db = new ApplicationDbContext();
+            var list = db.Users.ToList();
+
+            UsersViewModel usersViewModel = new UsersViewModel();
+            usersViewModel.AllUsers = list;
+
+            return View(usersViewModel);
+        }
+
+        //
+        // POST: /Account/RemoveUser
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = ServerConfigurator.adminRole)]
+        public ActionResult RemoveUser()
+        {
+            return RedirectToAction("UsersList");
+        }
+
+        //
+        // POST: /Account/MatlabScriptsList
+        [Authorize(Roles = ServerConfigurator.adminRole)]
+        public ActionResult MatlabScriptsList()
+        {
+            string[] files = Directory.GetFiles(Server.MapPath(ServerConfigurator.matlabScriptsPath)); // Read all matlab algorithms available on server
+
+            return View();
+        }
+
+        public ActionResult testV()
+        {
+            return View();
         }
 
         //

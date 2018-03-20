@@ -110,7 +110,10 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         override fun onPostExecute(result: Unit?) {
             super.onPostExecute(result)
 
-            AppConfigurator.toastMessageBasedOnException(this.exception, applicationContext)
+            try {
+                AppConfigurator.toastMessageBasedOnException(this.exception!!, applicationContext)
+            }catch (nullPointerException: NullPointerException){}
+
 
             var adapter: ArrayAdapter<String> = ArrayAdapter(applicationContext, android.R.layout.simple_list_item_1, algorithms)
             spinner.adapter = adapter
