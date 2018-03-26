@@ -14,6 +14,7 @@ using System.Threading;
 using System.Net;
 using serwer.Config;
 using System.Web.Security;
+using System.Collections.Generic;
 
 namespace serwer.Controllers
 {
@@ -27,7 +28,7 @@ namespace serwer.Controllers
         {
         }
 
-        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
+        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
@@ -39,9 +40,9 @@ namespace serwer.Controllers
             {
                 return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
             }
-            private set 
-            { 
-                _signInManager = value; 
+            private set
+            {
+                _signInManager = value;
             }
         }
 
@@ -87,7 +88,7 @@ namespace serwer.Controllers
             }
 
             var user = UserManager.FindByEmail(model.Email); // find the user associated with an email
-            if(user == null)
+            if (user == null)
             {
                 ModelState.AddModelError("", "Błąd logowania. Podany adres email nie został znaleziony w systemie");
                 return View(model);
@@ -116,7 +117,7 @@ namespace serwer.Controllers
         {
             ApplicationUser applicationUser = UserManager.FindByEmail(model.Email); // try to find user in database
 
-            if(!(applicationUser is null)) // if user was found...
+            if (!(applicationUser is null)) // if user was found...
             {
                 SignInStatus signInStatus = await SignInManager.PasswordSignInAsync(applicationUser.UserName, model.Password, model.RememberMe, shouldLockout: false); // try to sign the user in using password received from client
 
@@ -168,7 +169,7 @@ namespace serwer.Controllers
             // If a user enters incorrect codes for a specified amount of time then the user account 
             // will be locked out for a specified amount of time. 
             // You can configure the account lockout settings in IdentityConfig
-            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent:  model.RememberMe, rememberBrowser: model.RememberBrowser);
+            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent: model.RememberMe, rememberBrowser: model.RememberBrowser);
             switch (result)
             {
                 case SignInStatus.Success:
@@ -199,14 +200,12 @@ namespace serwer.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.UserName, Email = model.Email };
+                var user = new ApplicationUser { Firstname = model.Firstname, Lastname = model.Lastname, UserName = model.UserName, Email = model.Email };
 
-                //Membership.DeleteUser(User.Identity.Name, true);
-                
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
+                    //await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
 
                     string storageDirectory = Server.MapPath("~/Storage/" + model.UserName);
 
@@ -221,7 +220,7 @@ namespace serwer.Controllers
                     // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                     // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
 
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("UsersList", "Account");
                 }
                 AddErrors(result);
             }
@@ -232,6 +231,7 @@ namespace serwer.Controllers
 
         //
         // GET: /Account/UsersList
+        [HttpGet]
         [Authorize(Roles = ServerConfigurator.adminRole)]
         public ActionResult UsersList()
         {
@@ -239,9 +239,35 @@ namespace serwer.Controllers
             var list = db.Users.ToList();
 
             UsersViewModel usersViewModel = new UsersViewModel();
-            usersViewModel.AllUsers = list;
+            usersViewModel.AllUsers = new List<ApplicationUser>();
+
+            foreach (ApplicationUser ap in list)
+            {
+                if (!UserManager.IsInRole(ap.Id, ServerConfigurator.adminRole))
+                    usersViewModel.AllUsers.Add(ap);
+            }
 
             return View(usersViewModel);
+        }
+
+        //
+        // GET: /Account/RemoveUser
+        [HttpGet]
+        [Authorize(Roles = ServerConfigurator.adminRole)]
+        public ActionResult RemoveUser(string userId)
+        {
+            ApplicationUser applicationUser = UserManager.FindById(userId);
+
+            // If user has been found, then we do some stuff
+            if (applicationUser != null)
+            {
+                return View(new UserRemovalData { EmailConfirmation = applicationUser.Email, UserId = applicationUser.Id });
+            }
+            else
+            {
+                // Else return to the default users list
+                return RedirectToAction("UsersList");
+            }
         }
 
         //
@@ -249,24 +275,188 @@ namespace serwer.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = ServerConfigurator.adminRole)]
-        public ActionResult RemoveUser()
+        public ActionResult RemoveUser(UserRemovalData userRemovalData)
         {
-            return RedirectToAction("UsersList");
+            if (ModelState.IsValid)
+            {
+                if (userRemovalData.UserId != null) // check if in request is an ID
+                {
+                    ApplicationUser user = UserManager.FindById(userRemovalData.UserId); // look for a user in database
+
+                    if (user != null) // if user was found
+                    {
+                        if (userRemovalData.EmailForRemoval.Equals(user.Email)) // if an email supplied from user (Administrator) requesting deletion is the same with the email found in the database, then remove
+                        {
+                            if (!UserManager.IsInRole(user.Id, ServerConfigurator.adminRole)) // cannot delete Admin user
+                                UserManager.Delete(user); // remove an user from database
+
+                            return RedirectToAction("UsersList");
+                        }
+                    }
+                }
+            }
+            // If data typed into form is incorrect, then redisplay the form
+            return View(userRemovalData);
         }
 
         //
-        // POST: /Account/MatlabScriptsList
+        // GET: /Account/EditUserAdmin
+        [HttpGet]
+        [Authorize(Roles = ServerConfigurator.adminRole)]
+        public ActionResult EditUserAdmin(String userId)
+        {
+            ApplicationUser user = UserManager.FindById(userId);
+
+            //bool testPass = UserManager.CheckPassword(user, "pass");
+
+            // If user has been found, then we do some stuff
+            if (user != null)
+            {
+                return View(new UserEdit(user.Id, user.Firstname, user.Lastname, user.Email));
+            }
+            else
+            {
+                // Else return to the default users list
+                return RedirectToAction("UsersList");
+            }
+        }
+
+        //
+        // GET: /Account/ResetUserPassword
+        [HttpGet]
+        [Authorize(Roles = ServerConfigurator.adminRole)]
+        public ActionResult ResetUserPassword(string userId)
+        {
+            if (userId == null)
+                return View("UsersList");
+
+            ApplicationUser applicationUser = UserManager.FindById(userId);
+
+            if (applicationUser != null)
+            {
+                return View(new UserPasswordReset { userId = applicationUser.Id });
+            }
+
+            return View("UsersList");
+        }
+
+        //
+        // GET: /Account/ResetUserPassword
+        [HttpPost]
+        [Authorize(Roles = ServerConfigurator.adminRole)]
+        public ActionResult ResetUserPassword(UserPasswordReset userPasswordReset)
+        {
+            if (ModelState.IsValid)
+            {
+                if (UserManager.FindById(userPasswordReset.userId) != null)
+                    UserManager.ResetPassword(userPasswordReset.userId, UserManager.GeneratePasswordResetToken(userPasswordReset.userId), userPasswordReset.Password); // reset password
+
+                return RedirectToAction("UsersList");
+            }
+
+            // If provided data from client is invalid
+            return View(userPasswordReset);
+        }
+
+        //
+        // POST: /Account/EditUserAdmin
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = ServerConfigurator.adminRole)]
+        public ActionResult EditUserAdmin(UserEdit userEdit)
+        {
+            if (ModelState.IsValid)
+            {
+                if (userEdit.userId == null)
+                    return RedirectToAction("UsersList");
+                try
+                {
+                    ApplicationUser applicationUser = UserManager.FindById(userEdit.userId); // find user for editing in database
+                                                                                             // ec33c601-3f79-40bd-981d-5604cc3a770c - testowe
+                    applicationUser.Firstname = userEdit.FirstName; // set new name
+                    applicationUser.Lastname = userEdit.LastName; // set new surname
+                    applicationUser.Email = userEdit.Email; // set new email                    
+
+                    UserManager.Update(applicationUser); // Update changes on database
+
+                    return RedirectToAction("UsersList"); // back to the users list
+                }
+                catch (Exception)
+                {
+                    return RedirectToAction("UsersList");
+                }
+            }
+
+            return View(userEdit);
+        }
+
+        //
+        // GET: /Account/MatlabScriptsList
         [Authorize(Roles = ServerConfigurator.adminRole)]
         public ActionResult MatlabScriptsList()
         {
             string[] files = Directory.GetFiles(Server.MapPath(ServerConfigurator.matlabScriptsPath)); // Read all matlab algorithms available on server
 
-            return View();
+            return View(new MatlabScriptsViewModel { MatlabScripts = files });
         }
 
-        public ActionResult testV()
+        //
+        // POST: /Account/MatlabScriptsList
+        [HttpPost]
+        [Authorize(Roles = ServerConfigurator.adminRole)]
+        public ActionResult MatlabScriptsList(HttpPostedFileBase httpPostedFileBase, MatlabScriptsViewModel matlabScriptsViewModel)
         {
-            return View();
+            if (httpPostedFileBase != null &&  httpPostedFileBase.ContentLength > 0)
+            {                
+                if (!Path.GetExtension(httpPostedFileBase.FileName).Equals(".m")) // if there is other than matlab file extension uploaded - then do nothing
+                {
+                    return RedirectToAction("MatlabScriptsList");
+                }
+
+                string path = Path.Combine(Server.MapPath(ServerConfigurator.matlabScriptsPath), httpPostedFileBase.FileName);
+                try
+                {
+                    httpPostedFileBase.SaveAs(path);
+                }
+                catch (Exception) { }                
+            }
+            return RedirectToAction("MatlabScriptsList");
+        }
+
+        //
+        // GET: /Account/RemoveScript
+        [HttpGet]
+        [Authorize(Roles = ServerConfigurator.adminRole)]
+        public ActionResult RemoveMatlabScript(string scriptName)
+        {            
+            return View(new MatlabViewModel { ScriptName = scriptName});
+        }
+
+        //
+        // POST: /Account/RemoveScript
+        [HttpPost]
+        [Authorize(Roles = ServerConfigurator.adminRole)]
+        [ValidateAntiForgeryToken]
+        public ActionResult RemoveMatlabScript(MatlabViewModel matlabViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                string path = Path.Combine(Server.MapPath(ServerConfigurator.matlabScriptsPath), matlabViewModel.ScriptName);
+                if (matlabViewModel.ScriptName.Equals(matlabViewModel.ScriptNameForRemoval))
+                {
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                    }
+                }
+                else
+                {
+                    ViewBag.WrongScriptName = "Proszę podać poprawną nazwę skryptu do usunięcia.";
+                    return View(matlabViewModel);
+                }
+                return RedirectToAction("MatlabScriptsList");
+            }
+            return View(matlabViewModel);            
         }
 
         //
@@ -588,4 +778,6 @@ namespace serwer.Controllers
         }
         #endregion
     }
+
+
 }

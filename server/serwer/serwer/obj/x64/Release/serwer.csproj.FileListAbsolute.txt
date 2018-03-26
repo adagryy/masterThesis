@@ -74,3 +74,4 @@ C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Release\serwer.
 C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Release\serwer.csproj.GenerateResource.Cache
 C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Release\serwer.Migrations.Initial.resources
 C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Release\serwer.Migrations.Initial2.resources
+C:\Users\grycz\Desktop\masterThesis\server\serwer\serwer\obj\x64\Release\serwer.Migrations.Firstname_lastname_pesel.resources

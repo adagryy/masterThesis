@@ -1,0 +1,41 @@
+﻿@model serwer.Models.UserRemovalData
+@{
+    ViewBag.Title = "RemoveUser";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<br />
+<center>
+    <h2>Usuwanie konta użytkownika: <b>@Model.EmailConfirmation</b></h2>
+    <br />
+    <h3 class="text-danger">
+        W celu potwierdzenia usunięcia konta z systemu proszę wpisać w poniższe pole skojarzony z tym kontem adres email: <b>@Model.EmailConfirmation</b><br />
+        Ta operacja jest nieodwracalna.
+    </h3>
+    @using (Html.BeginForm("RemoveUser", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        <hr />
+        @Html.ValidationSummary("", new { @class = "text-danger" })
+
+        @Html.HiddenFor(m => m.UserId)
+
+        @Html.HiddenFor(m => m.EmailConfirmation)
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.EmailForRemoval, new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.EmailForRemoval, new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" class="btn btn-danger" style="margin-bottom: 1em;" value="Rozumiem, usuń użytkownika" />
+                @*<input type="submit" class="btn btn-success" value="Powrót" />*@
+                @Html.ActionLink("Powrót", "UsersList", "Account", null, new { @class = "btn btn-success", @Style= "margin-bottom: 1em;" })
+            </div>
+        </div>
+
+            }
+</center>
+

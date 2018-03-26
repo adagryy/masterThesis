@@ -20,6 +20,7 @@ namespace serwer.Helpers
         // "selectedAlgorithm" - name of matlab algorithm available on the server to be used for image processing
         public static void startProcessingImage(HttpPostedFileBase file, String user, String selectedAlgorithm)
         {
+
             removePersonalImageFiles(HttpContext.Current.Server.MapPath(ServerConfigurator.imageStoragePath + user + "/")); // Remove previous files       
 
             string fileName = Path.GetFileName(file.FileName);
@@ -50,6 +51,7 @@ namespace serwer.Helpers
             //ThreadStart threadStart = new ThreadStart(processImageWithinNewThread);
             Thread thread = new Thread(() => processImageWithinNewThread(matlabProcessingDataThreaded));
             thread.Start();
+                    
         }
 
         // This method is run in new Thread which ensures, that application is not blocked when running time-consuming image processing

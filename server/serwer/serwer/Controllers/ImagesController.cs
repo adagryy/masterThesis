@@ -54,7 +54,7 @@ namespace serwer.Controllers
         {
             try
             {
-                if (file.ContentLength > 0)
+                if (file != null && file.ContentLength > 0)
                 {
                     string user = User.Identity.Name; // fetches the user login, which is currently logged in. It is used to decide into which directory the image should be saved
                                        
@@ -67,14 +67,18 @@ namespace serwer.Controllers
                     Core.startProcessingImage(file, user, model.selectedAlgorithm); // starts exact image processing. To start image processing we need image 
                                                                                     // to be processed (file), which user requested processing (user) and which algorithm 
                                                                                     // to use for processing (model.selectedAlgorithm)
+                    ViewBag.Message = "Pomyślnie przesłano obraz na serwer";
+                    return RedirectToAction("imagesView");
                 }
-                ViewBag.Message = "Pomyślnie przesłano obraz na serwer";
-                return RedirectToAction("imagesView");
+                else
+                {
+                    return RedirectToAction("UploadFile");
+                }                
             }
             catch (Exception)
             {
                 ViewBag.Message = "Error during sending image to server";
-                return View();
+                return RedirectToAction("UploadFile");
             }
         }
 

@@ -18,6 +18,8 @@
                     <th>Nazwa użytkownika</th>
                     <th>Adres e-mail</th>
                     <th>Edycja</th>
+                    <th>Usuwanie</th>
+                    <th>Hasło</th>
                 </tr>
             </thead>
             <tbody>         
@@ -26,12 +28,13 @@
                     <tr>
                         <th>@au.UserName</th>
                         <th>@au.Email</th>
-                        <th><a  href="#">Edytuj</a></th>
+                        <th>@Html.ActionLink("Edytuj", "EditUserAdmin", "Account", new { userId = au.Id }, null)</th>
+                        <th>@Html.ActionLink("Usuń konto", "RemoveUser", "Account", new { userId = au.Id }, null)</th>
+                        <th>@Html.ActionLink("Zmień", "ResetUserPassword", "Account", new { userId = au.Id }, null)</th>
                     </tr>
                 }
             </tbody>
         </table>
-        <input type="submit" value="Zaloguj się" class="btn btn-default" />
     }
 </div>
 

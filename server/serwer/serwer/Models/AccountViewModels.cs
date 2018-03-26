@@ -64,16 +64,24 @@ namespace serwer.Models
 
     public class RegisterViewModel
     {
-        [Required]
+        [Required(ErrorMessage = "Proszę wpisać imię")]
+        [Display(Name = "Imię")]
+        public string Firstname { get; set; }
+
+        [Required(ErrorMessage = "Proszę wpisać nazwisko")]
+        [Display(Name = "Nazwisko")]
+        public string Lastname { get; set; }
+
+        [Required(ErrorMessage = "Proszę podać nazwę użytkownika")]
         [Display(Name = "Nazwa użytkownika")]
         public string UserName { get; set; }
 
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "Proszę podać adres email")]
+        [EmailAddress(ErrorMessage = "Adres email ma niepoprawny format")]
         [Display(Name = "Adres Email")]
         public string Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Proszę podać hasło")]
         [StringLength(100,  MinimumLength = 6, ErrorMessage = "Długość pola {0} musi być z przedziału {1} - {2}")] // {0} - field name (current value: "Hasło"), {1} - first argument (current value: 100), {2} - second argument (current value: 6)
         [DataType(DataType.Password)]
         [Display(Name = "Hasło")]
