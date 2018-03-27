@@ -292,6 +292,10 @@ namespace serwer.Controllers
 
                             return RedirectToAction("UsersList");
                         }
+                        else
+                        {
+                            ViewBag.WrongEmailAddress = "Podany adres email jest niezgodny ze skojarzonym dla tego konta";
+                        }
                     }
                 }
             }

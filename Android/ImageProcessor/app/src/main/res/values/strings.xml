@@ -8,7 +8,7 @@
     <string name="new_photo">Przesyłanie obrazów</string>
     <string name="send_photo">Pobieranie obrazów</string>
     <string name="server_domain">https://192.168.0.3/</string>
-    <!--<string name="server_domain">https://192.168.43.81/</string>-->
+    <!--<string name="server_domain">https://192.168.43.81:62000/serwer/</string>-->
     <!--<string name="server_domain">https://192.168.0.3:62000/serwer/</string>-->
     <string name="title_activity_login">Zaloguj się</string>
 

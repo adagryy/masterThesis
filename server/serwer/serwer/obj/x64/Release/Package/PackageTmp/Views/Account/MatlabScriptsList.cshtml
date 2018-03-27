@@ -3,16 +3,16 @@
     ViewBag.Title = "MatlabScriptsList";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<br />
 
-<h2>Dostępne skrypty na serwerze</h2>
-
-@using (Html.BeginForm("UploadFile", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
+<h2>Prześlij nowy skrypt</h2>
+@using (Html.BeginForm("MatlabScriptsList", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
     <div class="form-group">
         @Html.Label("Plik", new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
-            @Html.TextBox("file", "", new { @type = "file", @class = "form-control" })
+            @Html.TextBox("httpPostedFileBase", "", new { @type = "file", @class = "form-control" })
         </div>
     </div>
 
@@ -21,35 +21,32 @@
             <input type="submit" value="Prześlij na serwer" class="btn btn-primary" />
         </div>
     </div>
-    @{
+    
         if (ViewBag.Message != null)
         {
             <div class="alert alert-success">
                 <p>@ViewBag.Message</p>
             </div>
         }
-    }
+   
 }
 
-@using (@Html.BeginForm("MatlabScriptsList", "Account", FormMethod.Post, new { @class = "", role = "form", enctype = "multipart/form-data" }))
-{
-    @Html.AntiForgeryToken()
 
-    <table class="table">
-        <thead class="thead-dark">
+<h2>Dostępne skrypty na serwerze</h2>
+<table class="table">
+    <thead class="thead-dark">
+        <tr>
+            <th>Nazwa użytkownika</th>
+            <th>Adres e-mail</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (string matlabScript in Model.MatlabScripts)
+            {
             <tr>
-                <th>Nazwa użytkownika</th>
-                <th>Adres e-mail</th>
+                <th>@Path.GetFileName(matlabScript)</th>
+                <th>@Html.ActionLink("Usuń skrypt", "RemoveMatlabScript", "Account", new { scriptName = Path.GetFileName(matlabScript)}, new { Type = ""})</th>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (string matlabScript in Model.MatlabScripts)
-                {
-                <tr>
-                    <th>@matlabScript</th>
-                    <th>usuń</th>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+        }
+    </tbody>
+</table>

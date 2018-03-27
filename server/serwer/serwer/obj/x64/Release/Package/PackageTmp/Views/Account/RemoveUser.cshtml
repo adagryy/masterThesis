@@ -6,9 +6,12 @@
 
 <br />
 <center>
-    <h2>Usuwanie konta</h2>
+    <h2>Usuwanie konta użytkownika: <b>@Model.EmailConfirmation</b></h2>
     <br />
-    <h3 class="text-danger">W celu potwierdzenia zamiaru usunięcia konta z systemu proszę wpisać w poniższe pole skojarzony z tym kontem adres email: <b>@Model.EmailConfirmation</b></h3>
+    <h3 class="text-danger">
+        W celu potwierdzenia usunięcia konta z systemu proszę wpisać w poniższe pole skojarzony z tym kontem adres email: <b>@Model.EmailConfirmation</b><br />
+        Ta operacja jest nieodwracalna.
+    </h3>
     @using (Html.BeginForm("RemoveUser", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
     {
         @Html.AntiForgeryToken()
@@ -18,6 +21,10 @@
         @Html.HiddenFor(m => m.UserId)
 
         @Html.HiddenFor(m => m.EmailConfirmation)
+
+        <div class="text-danger">
+            @ViewBag.WrongEmailAddress
+        </div>
 
         <div class="form-group">
             @Html.LabelFor(m => m.EmailForRemoval, new { @class = "col-md-2 control-label" })

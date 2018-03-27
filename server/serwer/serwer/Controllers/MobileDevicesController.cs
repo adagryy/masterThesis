@@ -91,6 +91,31 @@ namespace serwer.Controllers
             }
         }
 
+        // This method checks, if processing has been finished
+        [HttpPost]
+        public void checkIfProcessingIsFinished()
+        {
+            HttpContext.Response.TrySkipIisCustomErrors = true; // prevent IIS from displaying error pages for non-OK Http codes
+            try
+            {
+                string test = Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + ServerConfigurator.afterProcessingDataFileName + ServerConfigurator.afterProcessingDataFileExtension);
+                if (System.IO.File.Exists(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + ServerConfigurator.afterProcessingDataFileName + ServerConfigurator.afterProcessingDataFileExtension)))
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+                    HttpContext.Response.Write("OK");
+                }
+                else
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    HttpContext.Response.Write("Not Found");
+                }                    
+            }
+            catch (Exception)
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+            }
+        }
+
         // Handle image from mobile app. Send POST request with image and selected algorithm to this method from mobile app.
         [HttpPost]
         public HttpStatusCodeResult handleImageFromMobileApp()

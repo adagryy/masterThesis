@@ -8,9 +8,10 @@
 }
 
 @{
+    <br />
     <div class="container-fluid">
         <div class="row">
-            <br />
+            <br /><br />
             <div class="col-sm-8">
                 @Html.ActionLink("Ponownie ładuj obraz", "uploadFile", "Images", null, new { @class = "btn btn-primary btn-lg" })
             </div>
@@ -42,26 +43,35 @@
                             <h2>Obraz orginalny</h2>
                             @*@Html.ActionLink("Pobierz", "Download", "Images", new { ImageName = "images.jpg" }) this syntax not working, so be cerreful*@
                             
-                            @Html.ActionLink("Pobierz", "Download", "Images", routeValues: new { ImageName = @file.ToString() }, htmlAttributes: new { @class = "btn btn-success btn-lg" })
+                            
                             @using (@Html.BeginForm("RemoveImage", "Images", FormMethod.Post, new { @class = "", role = "form", enctype = "multipart/form-data" }))
                             {
                                 @Html.AntiForgeryToken()
                                 Model.removeImagePath = serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file.ToString();    
                                             
                                 @Html.HiddenFor(r => r.removeImagePath)
-                                            
-                                <input type="submit" value="Usuń obraz" class="btn btn-danger btn-lg" />                                           
+
+                                @Html.ActionLink("Pobierz obraz", "Download", "Images", routeValues: new { ImageName = @file.ToString() }, htmlAttributes: new { @class = "btn btn-success btn-lg" })
+                                <input type="submit" value="Usuń" class="btn btn-danger btn-lg" />                                           
                             }          
-                                
-                        </p>
+                             
+                            </p>
+
                         imPath = Url.Content(serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file) + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                        <div class="row">
-                            <img class="img-responsive col-sm-8" src="@imPath" />
-                        </div>
+                        <p>
+                            <center>
+                                <div class="row">
+                                    <img class="img-responsive" src="@imPath" />
+
+                                </div>
+                            </center>
+                        </p>
+                        
+                        
                         if (!File.Exists(Server.MapPath(serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + serwer.Config.ServerConfigurator.processedImageName + Model.processedImageExtension)))
                         {
                             <br />
-                            <p><h4> Trwa przetwarzanie obrazu. Proszę odświeżyć stronę.Obraz wyświetli się po zakończeniu przetwarzania poniżej.</h4></p>
+                            <p><h4> Trwa przetwarzanie obrazu. Strona odświeży się automatycznie, gdy przetwarzanie zostanie zakończone.</h4></p>
                         }
 
                     }
@@ -70,7 +80,7 @@
                         <p>
                             <h2>Obraz przetworzony</h2>
                             @*@Html.ActionLink("Pobierz", "Download", "Images", new { ImageName = "images.jpg" }) this syntax not working, so be cerreful*@
-                            @Html.ActionLink("Pobierz", "Download", "Images", routeValues: new { ImageName = @file.ToString() }, htmlAttributes: new { @class = "btn btn-success btn-lg" })
+                            
                             @using (@Html.BeginForm("RemoveImage", "Images", FormMethod.Post, new { @class = "", role = "form", enctype = "multipart/form-data" }))
                             {
                                 @Html.AntiForgeryToken()
@@ -78,12 +88,13 @@
 
                                 @Html.HiddenFor(r => r.removeImagePath)
 
-                                <input type="submit" value="Usuń obraz" class="btn btn-danger btn-lg" />
+                                @Html.ActionLink("Pobierz obraz", "Download", "Images", routeValues: new { ImageName = @file.ToString() }, htmlAttributes: new { @class = "btn btn-success btn-lg" })
+                                <input type="submit" value="Usuń" class="btn btn-danger btn-lg" />
                             }    
                         </p>
                         imPath = Url.Content(serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file) + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
                         <div class="row">
-                            <img class="img-responsive col-sm-8" src="@imPath" />
+                            <img class="img-responsive" id="processedImage" src="@imPath" />
                         </div>
                     }
                     else if (file.Equals(serwer.Config.ServerConfigurator.afterProcessingDataFileName + serwer.Config.ServerConfigurator.afterProcessingDataFileExtension) && Model.processedImageDataInJSON != null)
@@ -108,8 +119,8 @@
                         // DateTimeOffset.Now.ToUnixTimeMilliseconds() is used to prevent caching images in browsers
                         // this "imPath" - path to the personal original image
                         imPath = Url.Content(serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file) + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                        <div class="row">
-                            <img class="img-responsive col-sm-8" src="@imPath" />
+                        <div class="row" id="processedImage">
+                            <img class="img-responsive" src="@imPath" />
                         </div>
                     }
 
@@ -120,4 +131,50 @@
             </div>*@
         </div>
     }
+
+    
+    <script type="text/javascript">
+        var protocol = window.location.protocol;
+        var domain = window.location.hostname;
+        var port = window.location.port;
+
+        var url = protocol + "//" + domain + ":" + port + "/MobileDevices/checkIfProcessingIsFinished";
+
+        // Shorthand for $( document ).ready()
+        $(function () {
+            $.ajax({
+                url: url,
+                method: "POST",
+                statusCode: {
+                    404: function () {
+                        setTimeout(checkIfProcessingIsFinished, 2000); // you could choose not to continue on failure...
+                    },
+                    200: function () {
+                        if ($("#processedImage").length === 0) {
+                            location.reload();
+                        }
+                        console.log("OK");
+                    }
+                }
+            });
+        });
+
+        function checkIfProcessingIsFinished() {
+            $.ajax({
+                url: url,
+                method: "POST",
+                statusCode: {
+                    404: function () {
+                        console.log("page not found");
+                        setTimeout(checkIfProcessingIsFinished, 2000); // you could choose not to continue on failure...
+                    },
+                    200: function () {
+                        location.reload();
+                        console.log("OK");
+                    }
+                }
+            });
+        }
+    </script>
+    
 }
