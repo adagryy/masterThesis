@@ -124,19 +124,19 @@ namespace serwer.Controllers
                 switch (signInStatus) // signInStatus - object containing information about signing in status
                 {
                     case SignInStatus.Success:
-                        return new HttpStatusCodeResult(HttpStatusCode.OK); // sign in successful
-                    case SignInStatus.LockedOut:
-                        return new HttpStatusCodeResult(HttpStatusCode.Forbidden); // account locked
-                    case SignInStatus.RequiresVerification:
-                        return new HttpStatusCodeResult(HttpStatusCode.Forbidden); // unverified account
+                        return new HttpStatusCodeResult(HttpStatusCode.OK); // 200 - sign in successful
+                    //case SignInStatus.LockedOut:
+                    //    return new HttpStatusCodeResult(HttpStatusCode.Forbidden); // 403 - account locked
+                    //case SignInStatus.RequiresVerification:
+                    //    return new HttpStatusCodeResult(HttpStatusCode.Forbidden); // 403 - unverified account
                     case SignInStatus.Failure:
-                        return new HttpStatusCodeResult(HttpStatusCode.Forbidden); // sing in error (wrong password)
+                        return new HttpStatusCodeResult(HttpStatusCode.Forbidden); // 403 - sing in error (wrong password)
                     default:
-                        return new HttpStatusCodeResult(HttpStatusCode.Forbidden); // other sign in error
+                        return new HttpStatusCodeResult(HttpStatusCode.BadRequest); // 400 - other sign in error
                 }
             }
 
-            return new HttpStatusCodeResult(HttpStatusCode.Forbidden); // user not found in the database
+            return new HttpStatusCodeResult(HttpStatusCode.Unauthorized); // 401 - user not found in the database
 
         }
 
@@ -207,7 +207,7 @@ namespace serwer.Controllers
                 {
                     //await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
 
-                    string storageDirectory = Server.MapPath("~/Storage/" + model.UserName);
+                    string storageDirectory = ServerConfigurator.usersStorage + model.UserName;// Server.MapPath("~/Storage/" + model.UserName);
 
                     if (!Directory.Exists(storageDirectory)) // if personal directory for every user does not exists, here it is created
                     {
@@ -399,7 +399,8 @@ namespace serwer.Controllers
         [Authorize(Roles = ServerConfigurator.adminRole)]
         public ActionResult MatlabScriptsList()
         {
-            string[] files = Directory.GetFiles(Server.MapPath(ServerConfigurator.matlabScriptsPath)); // Read all matlab algorithms available on server
+            //string[] files = Directory.GetFiles(Server.MapPath(ServerConfigurator.matlabScriptsPath)); // Read all matlab algorithms available on server
+            string[] files = Directory.GetFiles(ServerConfigurator.matlabScripts); // Read all matlab algorithms available on server
 
             return View(new MatlabScriptsViewModel { MatlabScripts = files });
         }
@@ -417,7 +418,8 @@ namespace serwer.Controllers
                     return RedirectToAction("MatlabScriptsList");
                 }
 
-                string path = Path.Combine(Server.MapPath(ServerConfigurator.matlabScriptsPath), httpPostedFileBase.FileName);
+                //string path = Path.Combine(Server.MapPath(ServerConfigurator.matlabScriptsPath), httpPostedFileBase.FileName);
+                string path = Path.Combine(ServerConfigurator.matlabScripts, httpPostedFileBase.FileName);
                 try
                 {
                     httpPostedFileBase.SaveAs(path);
@@ -445,7 +447,8 @@ namespace serwer.Controllers
         {
             if (ModelState.IsValid)
             {
-                string path = Path.Combine(Server.MapPath(ServerConfigurator.matlabScriptsPath), matlabViewModel.ScriptName);
+                //string path = Path.Combine(Server.MapPath(ServerConfigurator.matlabScriptsPath), matlabViewModel.ScriptName);
+                string path = Path.Combine(ServerConfigurator.matlabScripts, matlabViewModel.ScriptName);
                 if (matlabViewModel.ScriptName.Equals(matlabViewModel.ScriptNameForRemoval))
                 {
                     if (System.IO.File.Exists(path))

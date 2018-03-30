@@ -21,15 +21,20 @@ namespace serwer.Helpers
         public static void startProcessingImage(HttpPostedFileBase file, String user, String selectedAlgorithm)
         {
 
-            removePersonalImageFiles(HttpContext.Current.Server.MapPath(ServerConfigurator.imageStoragePath + user + "/")); // Remove previous files       
+            //removePersonalImageFiles(HttpContext.Current.Server.MapPath(ServerConfigurator.imageStoragePath + user + "/")); // Remove previous files       
+            removePersonalImageFiles(ServerConfigurator.usersStorage + user + ServerConfigurator.directoryPathSeparator); // Remove previous files     
 
             string fileName = Path.GetFileName(file.FileName);
-            string storageImageSourceDirectory = HttpContext.Current.Server.MapPath(ServerConfigurator.imageStoragePath + user + "/"); // directory into which we will save the original image
-            string storageImageDestinationDirectory = HttpContext.Current.Server.MapPath(ServerConfigurator.imageStoragePath + user + "/"); // directory into which we will save the original image
-            string storageAfterPOrocessingJSONFileNameDirectory = HttpContext.Current.Server.MapPath(ServerConfigurator.imageStoragePath + user + "/"); // directory into which we will save the original image
+            //string storageImageSourceDirectory = HttpContext.Current.Server.MapPath(ServerConfigurator.imageStoragePath + user + "/"); // directory into which we will save the original image
+            //string storageImageDestinationDirectory = HttpContext.Current.Server.MapPath(ServerConfigurator.imageStoragePath + user + "/"); // directory into which we will save the original image
+            //string storageAfterPOrocessingJSONFileNameDirectory = HttpContext.Current.Server.MapPath(ServerConfigurator.imageStoragePath + user + "/"); // directory into which we will save the original image
+            string storageImageSourceDirectory = ServerConfigurator.usersStorage + user + ServerConfigurator.directoryPathSeparator; // directory into which we will save the original image
+            string storageImageDestinationDirectory = ServerConfigurator.usersStorage + user + ServerConfigurator.directoryPathSeparator; // directory into which we will save the original image
+            string storageAfterPOrocessingJSONFileNameDirectory = ServerConfigurator.usersStorage + user + ServerConfigurator.directoryPathSeparator; // directory into which we will save the original image
             string originalFileName = ServerConfigurator.originalImageName + Path.GetExtension(file.FileName); // name of file which is used to save the uploaded image on the server
             string processedFileName = ServerConfigurator.processedImageName + Path.GetExtension(file.FileName); // name of file which will be used to save image after processing
-            string matlabScriptsDirectory = HttpContext.Current.Server.MapPath(ServerConfigurator.matlabScriptsPath); // in this directory are stored all matlab scripts
+            //string matlabScriptsDirectory = HttpContext.Current.Server.MapPath(ServerConfigurator.matlabScriptsPath); // in this directory are stored all matlab scripts
+            string matlabScriptsDirectory = ServerConfigurator.matlabScripts; // in this directory are stored all matlab scripts
 
             string path = Path.Combine(storageImageSourceDirectory, originalFileName); // path for save uploaded image to server disk
             file.SaveAs(path);

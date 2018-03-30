@@ -98,8 +98,9 @@ namespace serwer.Controllers
             HttpContext.Response.TrySkipIisCustomErrors = true; // prevent IIS from displaying error pages for non-OK Http codes
             try
             {
-                string test = Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + ServerConfigurator.afterProcessingDataFileName + ServerConfigurator.afterProcessingDataFileExtension);
-                if (System.IO.File.Exists(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + ServerConfigurator.afterProcessingDataFileName + ServerConfigurator.afterProcessingDataFileExtension)))
+                //string test = Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + ServerConfigurator.afterProcessingDataFileName + ServerConfigurator.afterProcessingDataFileExtension);
+                //if (System.IO.File.Exists(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + ServerConfigurator.afterProcessingDataFileName + ServerConfigurator.afterProcessingDataFileExtension)))
+                if (System.IO.File.Exists(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator + ServerConfigurator.afterProcessingDataFileName + ServerConfigurator.afterProcessingDataFileExtension))
                 {
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
                     HttpContext.Response.Write("OK");
@@ -126,7 +127,8 @@ namespace serwer.Controllers
                 String selectedAlgorithm = Request.Form.Get("selectedAlgorithm"); // gets selected algorithm for processing
 
                 if(String.IsNullOrEmpty(selectedAlgorithm) // server received "selectedAlgorithm" string empty or null
-                    || !Core.checkIfMatlabScriptExistsOnServer(Server.MapPath(ServerConfigurator.matlabScriptsPath), selectedAlgorithm) // algorithm specified in "selectedAlgorithm" does not exists on the server
+                                                           //|| !Core.checkIfMatlabScriptExistsOnServer(Server.MapPath(ServerConfigurator.matlabScriptsPath), selectedAlgorithm) // algorithm specified in "selectedAlgorithm" does not exists on the server
+                    || !Core.checkIfMatlabScriptExistsOnServer(ServerConfigurator.matlabScripts, selectedAlgorithm) // algorithm specified in "selectedAlgorithm" does not exists on the server
                     || Request.Files.Count == 0 // server didn't received any file for processing
                     )
                     // Incorrect data received from client (no image, no selectedalgorithm, selectedalgorithm does not exist). Bad reqest (400 Http)
@@ -156,12 +158,14 @@ namespace serwer.Controllers
             try
             {
                 // finds file, which should be returned to the Mobile app client
-                string fileToDownload = new DirectoryInfo(Server.MapPath(ServerConfigurator.imageStoragePath + user + "/"))
+                //string fileToDownload = new DirectoryInfo(Server.MapPath(ServerConfigurator.imageStoragePath + user + "/"))
+                string fileToDownload = new DirectoryInfo(ServerConfigurator.usersStorage + user + ServerConfigurator.directoryPathSeparator)
                                                         .GetFiles()
                                                         .Select(s => s.Name)
                                                         .Single(s => s.StartsWith("processed"));
 
-                HttpContext.Response.WriteFile(Server.MapPath(ServerConfigurator.imageStoragePath + user + "/" + fileToDownload)); // append file to response content body
+                //HttpContext.Response.WriteFile(Server.MapPath(ServerConfigurator.imageStoragePath + user + "/" + fileToDownload)); // append file to response content body
+                HttpContext.Response.WriteFile(ServerConfigurator.usersStorage + user + ServerConfigurator.directoryPathSeparator + fileToDownload); // append file to response content body
                 return new HttpStatusCodeResult(HttpStatusCode.OK);
             }catch(InvalidOperationException)
             {
@@ -190,8 +194,9 @@ namespace serwer.Controllers
 
             HttpContext.Response.TrySkipIisCustomErrors = true; // skip IIS default error pages like 404, 500 etc
 
-            Dictionary<string, string> dict = new Dictionary<string, string>(); 
-            string[]  files = Directory.GetFiles(Server.MapPath(ServerConfigurator.matlabScriptsPath)); // read files names (matlab scripts) into string array, then iterate over them.
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            //string[]  files = Directory.GetFiles(Server.MapPath(ServerConfigurator.matlabScriptsPath)); // read files names (matlab scripts) into string array, then iterate over them.
+            string[] files = Directory.GetFiles(ServerConfigurator.matlabScripts); // read files names (matlab scripts) into string array, then iterate over them.
             int counter = 0; // counter for numbering dict keys
             foreach(string file in files)
             {                
@@ -209,7 +214,8 @@ namespace serwer.Controllers
             try
             {
                 // Stream for reading file with JSON-formatted data about processed image
-                StreamReader streamReader = new StreamReader(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + "processingResults.json"));                
+                //StreamReader streamReader = new StreamReader(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + "processingResults.json"));
+                StreamReader streamReader = new StreamReader(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator + "processingResults.json");
                 HttpContext.Response.Write(streamReader.ReadLine()); // All data are in the first line
                 streamReader.Close();
             }

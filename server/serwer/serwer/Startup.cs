@@ -1,5 +1,6 @@
 ﻿using Microsoft.Owin;
 using Owin;
+using serwer.Config;
 using System;
 
 [assembly: OwinStartupAttribute(typeof(serwer.Startup))]
@@ -10,6 +11,7 @@ namespace serwer
         public void Configuration(IAppBuilder app)
         {
             ConfigureAuth(app);
+            ServerConfigurator.initializeStorageDirectories();
         }
     }
 }

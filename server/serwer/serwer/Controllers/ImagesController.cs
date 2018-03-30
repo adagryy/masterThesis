@@ -20,7 +20,8 @@ namespace serwer.Controllers
         {
             UploadFileViewModel uploadFileViewModel = new UploadFileViewModel(); // ViewModel for passing a list of available matlab algorithms on the server to the client
 
-            string[] files = Directory.GetFiles(Server.MapPath(ServerConfigurator.matlabScriptsPath)); // Read all matlab algorithms available on server
+            //string[] files = Directory.GetFiles(Server.MapPath(ServerConfigurator.matlabScriptsPath)); // Read all matlab algorithms available on server
+            string[] files = Directory.GetFiles(ServerConfigurator.matlabScripts); // Read all matlab algorithms available on server
 
             //List<SelectListItem> list = new List<SelectListItem>(); // create list of algorithms later passed to the view
             //list.Add(new SelectListItem { Selected = true, Text = "Wybierz algorytm", Value = "-1" }); // default (first) value "Wybierz algorytm"
@@ -58,7 +59,7 @@ namespace serwer.Controllers
                 {
                     string user = User.Identity.Name; // fetches the user login, which is currently logged in. It is used to decide into which directory the image should be saved
                                        
-                    if (!Core.checkIfMatlabScriptExistsOnServer(Server.MapPath(ServerConfigurator.matlabScriptsPath), model.selectedAlgorithm)) // Check if given algorithm exists on the server
+                    if (!Core.checkIfMatlabScriptExistsOnServer(ServerConfigurator.matlabScripts, model.selectedAlgorithm)) // Check if given algorithm exists on the server
                     {
                         ViewBag.Message = "Błąd - nie ma takiego algorytmu na serwerze";
                         return View("imagesView", this.getImages());
@@ -75,7 +76,7 @@ namespace serwer.Controllers
                     return RedirectToAction("UploadFile");
                 }                
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 ViewBag.Message = "Error during sending image to server";
                 return RedirectToAction("UploadFile");
@@ -92,24 +93,34 @@ namespace serwer.Controllers
         [HttpGet]
         public FileResult Download(string ImageName)
         {
-            return File(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + ImageName), System.Net.Mime.MediaTypeNames.Application.Octet, ImageName);
+            return File(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator + ImageName, System.Net.Mime.MediaTypeNames.Application.Octet, ImageName);
+        }
+
+        // Returns an image which is out of the server webroot
+        [HttpGet]
+        public FileResult DownloadImage(string ImageName)
+        {         
+            return File(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator + ImageName, System.Net.Mime.MediaTypeNames.Application.Octet, ImageName);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult RemoveImage(ImagesDownloadDetails imagesDownloadDetails)
         {
-            try
-            {
-                System.IO.File.Delete(Server.MapPath(imagesDownloadDetails.removeImagePath));
-            }catch(ArgumentException) { }
-            //catch (ArgumentNullException) { } // 
-            catch(DirectoryNotFoundException) { }
-            catch (IOException) { }
-            catch (NotSupportedException) { }
-            //catch (PathTooLongException) { } // already catched by IOException
-            catch (UnauthorizedAccessException) { }
-
+            if (imagesDownloadDetails.removeImagePath.StartsWith(ServerConfigurator.usersStorage + User.Identity.Name)) { // be sure if you are removing image exactly for user which requested it to.
+                try
+                {
+                    //System.IO.File.Delete(Server.MapPath(imagesDownloadDetails.removeImagePath));
+                    System.IO.File.Delete(imagesDownloadDetails.removeImagePath);
+                }
+                catch (ArgumentException) { }
+                //catch (ArgumentNullException) { } // 
+                catch (DirectoryNotFoundException) { }
+                catch (IOException) { }
+                catch (NotSupportedException) { }
+                //catch (PathTooLongException) { } // already catched by IOException
+                catch (UnauthorizedAccessException) { }
+            }
             return RedirectToAction("ImagesView");
         }
 
@@ -121,7 +132,8 @@ namespace serwer.Controllers
             imagesDownloadDetails.items = new List<string>();
             imagesDownloadDetails.processedImageDataInJSON = null; // initialize with null. Null is treated as not-to-display in the view (when null - then it won't be displayed in the view)
 
-            var dir = new DirectoryInfo(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/"));
+            //var dir = new DirectoryInfo(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/"));
+            var dir = new DirectoryInfo(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator);
             FileInfo[] fileNames = null;
             try
             {
@@ -147,7 +159,8 @@ namespace serwer.Controllers
                     StreamReader r = null;
                     try
                     {
-                        r = new StreamReader(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file));
+                        //r = new StreamReader(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file));
+                        r = new StreamReader(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator + file);
                         string JSONFormattedData = r.ReadToEnd();
                         r.Close();
                         JsonConvert.DeserializeObject(JSONFormattedData); // try to deserialize JSON from file - if it is invalid - then exception will be thrown and "JSONFormattedData" string won't be passed into view

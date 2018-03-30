@@ -47,7 +47,7 @@
                             @using (@Html.BeginForm("RemoveImage", "Images", FormMethod.Post, new { @class = "", role = "form", enctype = "multipart/form-data" }))
                             {
                                 @Html.AntiForgeryToken()
-                                Model.removeImagePath = serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file.ToString();    
+                                Model.removeImagePath = serwer.Config.ServerConfigurator.usersStorage + User.Identity.Name + serwer.Config.ServerConfigurator.directoryPathSeparator + file.ToString();    
                                             
                                 @Html.HiddenFor(r => r.removeImagePath)
 
@@ -57,18 +57,19 @@
                              
                             </p>
 
-                        imPath = Url.Content(serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file) + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                        //imPath = Url.Content(serwer.Config.ServerConfigurator.usersStorage + User.Identity.Name + serwer.Config.ServerConfigurator.directoryPathSeparator + file) + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
                         <p>
                             <center>
                                 <div class="row">
-                                    <img class="img-responsive" src="@imPath" />
-
+                                    @*<img class="img-responsive" style="width: 100%;" src="@imPath" />*@
+                                    @*<img class="img-responsive" style="width: 100%;" src="@imPath" />*@
+                                    <img src="@Url.Action("DownloadImage","Images", new {ImageName = "original.jpg", noCache = DateTimeOffset.Now.ToUnixTimeMilliseconds()})" />
                                 </div>
                             </center>
                         </p>
-                        
-                        
-                        if (!File.Exists(Server.MapPath(serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + serwer.Config.ServerConfigurator.processedImageName + Model.processedImageExtension)))
+
+
+                        if (!File.Exists(serwer.Config.ServerConfigurator.usersStorage + User.Identity.Name + serwer.Config.ServerConfigurator.directoryPathSeparator + serwer.Config.ServerConfigurator.processedImageName + Model.processedImageExtension))
                         {
                             <br />
                             <p><h4> Trwa przetwarzanie obrazu. Strona odświeży się automatycznie, gdy przetwarzanie zostanie zakończone.</h4></p>
@@ -80,21 +81,22 @@
                         <p>
                             <h2>Obraz przetworzony</h2>
                             @*@Html.ActionLink("Pobierz", "Download", "Images", new { ImageName = "images.jpg" }) this syntax not working, so be cerreful*@
-                            
+
                             @using (@Html.BeginForm("RemoveImage", "Images", FormMethod.Post, new { @class = "", role = "form", enctype = "multipart/form-data" }))
                             {
                                 @Html.AntiForgeryToken()
-                                Model.removeImagePath = serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file.ToString();
+                                Model.removeImagePath = serwer.Config.ServerConfigurator.usersStorage + User.Identity.Name + serwer.Config.ServerConfigurator.directoryPathSeparator + file.ToString();
 
                                 @Html.HiddenFor(r => r.removeImagePath)
 
                                 @Html.ActionLink("Pobierz obraz", "Download", "Images", routeValues: new { ImageName = @file.ToString() }, htmlAttributes: new { @class = "btn btn-success btn-lg" })
                                 <input type="submit" value="Usuń" class="btn btn-danger btn-lg" />
-                            }    
+                            }
                         </p>
-                        imPath = Url.Content(serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file) + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                        //imPath = Url.Content(serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file) + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
                         <div class="row">
-                            <img class="img-responsive" id="processedImage" src="@imPath" />
+                            @*<img class="img-responsive" style="width: 100%;" id="processedImage" src="@imPath" />*@
+                            <img src="@Url.Action("DownloadImage","Images", new {ImageName = "processed.jpg", noCache = DateTimeOffset.Now.ToUnixTimeMilliseconds()})" id="processedImage" />
                         </div>
                     }
                     else if (file.Equals(serwer.Config.ServerConfigurator.afterProcessingDataFileName + serwer.Config.ServerConfigurator.afterProcessingDataFileExtension) && Model.processedImageDataInJSON != null)
@@ -118,10 +120,10 @@
                     {
                         // DateTimeOffset.Now.ToUnixTimeMilliseconds() is used to prevent caching images in browsers
                         // this "imPath" - path to the personal original image
-                        imPath = Url.Content(serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file) + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                        <div class="row" id="processedImage">
-                            <img class="img-responsive" src="@imPath" />
-                        </div>
+                        //imPath = Url.Content(serwer.Config.ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + file) + "?noCache=" + DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                    @*<div class="row" id="processedImage">
+                        <img class="img-responsive" style="width: 100%;" src="@imPath" />
+                    </div>*@
                     }
 
                 }
@@ -147,7 +149,7 @@
                 method: "POST",
                 statusCode: {
                     404: function () {
-                        setTimeout(checkIfProcessingIsFinished, 2000); // you could choose not to continue on failure...
+                        setTimeout(checkIfProcessingIsFinished, 1000); // you could choose not to continue on failure...
                     },
                     200: function () {
                         if ($("#processedImage").length === 0) {
@@ -165,8 +167,8 @@
                 method: "POST",
                 statusCode: {
                     404: function () {
-                        console.log("page not found");
-                        setTimeout(checkIfProcessingIsFinished, 2000); // you could choose not to continue on failure...
+                        console.log("Waiting for processed image!");
+                        setTimeout(checkIfProcessingIsFinished, 1000); // you could choose not to continue on failure...
                     },
                     200: function () {
                         location.reload();
