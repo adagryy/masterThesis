@@ -4,9 +4,11 @@ using serwer.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
@@ -135,9 +137,18 @@ namespace serwer.Controllers
                     return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
                 HttpPostedFileBase file = Request.Files[0]; // Load file from request into variable
-                Core.startProcessingImage(file, User.Identity.Name, selectedAlgorithm); // start exact processing
-                return new HttpStatusCodeResult(HttpStatusCode.OK); // return 200 just after processing starts. No guarantee what happens later.
-                           
+
+                // Check if file (image) is: not null, not empty and has an extension (lower case) which is supported by server (checked by regex)
+                if (Core.checkIfReceivedFileHasValidExtension(file))
+                {
+                    Image.FromStream(file.InputStream); // Try to create Image - if "file" is not valid - then Image creation fails and exception will be thrown
+
+                    Core.startProcessingImage(file, User.Identity.Name, selectedAlgorithm); // start exact processing
+                    return new HttpStatusCodeResult(HttpStatusCode.OK); // return 200 just after processing starts. No guarantee what happens later.
+                }else
+                    // Incorrect data received from client (unsupported image estension)
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
             }
             catch(Exception e)
             {
@@ -162,7 +173,7 @@ namespace serwer.Controllers
                 string fileToDownload = new DirectoryInfo(ServerConfigurator.usersStorage + user + ServerConfigurator.directoryPathSeparator)
                                                         .GetFiles()
                                                         .Select(s => s.Name)
-                                                        .Single(s => s.StartsWith("processed"));
+                                                        .Single(s => s.StartsWith(ServerConfigurator.processedImageName));
 
                 //HttpContext.Response.WriteFile(Server.MapPath(ServerConfigurator.imageStoragePath + user + "/" + fileToDownload)); // append file to response content body
                 HttpContext.Response.WriteFile(ServerConfigurator.usersStorage + user + ServerConfigurator.directoryPathSeparator + fileToDownload); // append file to response content body

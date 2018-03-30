@@ -21,6 +21,8 @@ namespace serwer.Config
         public const string matlabScripts = "C:\\Users\\grycz\\Desktop\\Storage\\matlabscripts\\"; // storage for matlab scripts; out of the IIS server
         public const string directoryPathSeparator = "\\"; // separates folders in path string. For example in physical path it is double backslash (for example "C:\\Example") and for virtual path it is single slash (for example "~/Example/")        
 
+        public const string supportedImageExtensions = "(jpg|jpeg|png|gif|bmp)"; // image extensions supported by server in procesing. This is part of the regular expression
+
         public static void initializeStorageDirectories()
         {
             if (!Directory.Exists(usersStorage)) // if not exists usersStorage directory, then create it

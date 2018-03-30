@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web;
 
@@ -9,6 +10,13 @@ namespace serwer.Helpers
 {
     static class Core
     {
+        // Return true if image received from client has valid extension, false otherwise
+        public static bool checkIfReceivedFileHasValidExtension(HttpPostedFileBase file)
+        {
+            return file != null && file.ContentLength > 0 && Regex.Match(Path.GetExtension(file.FileName).ToLower(), ServerConfigurator.supportedImageExtensions).Success;
+        }
+
+        // Returns true if specified Matlab algorithm exists on the server, false otherwise
         public static bool checkIfMatlabScriptExistsOnServer(string matlabScriptsDirectory, string selectedAlgorithm)
         {
             return File.Exists(matlabScriptsDirectory + selectedAlgorithm + ".m");

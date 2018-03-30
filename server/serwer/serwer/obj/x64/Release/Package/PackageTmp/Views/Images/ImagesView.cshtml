@@ -47,11 +47,11 @@
                             @using (@Html.BeginForm("RemoveImage", "Images", FormMethod.Post, new { @class = "", role = "form", enctype = "multipart/form-data" }))
                             {
                                 @Html.AntiForgeryToken()
-                                Model.removeImagePath = serwer.Config.ServerConfigurator.usersStorage + User.Identity.Name + serwer.Config.ServerConfigurator.directoryPathSeparator + file.ToString();    
-                                            
-                                @Html.HiddenFor(r => r.removeImagePath)
+                                Model.removeImageName = file.ToString();
 
-                                @Html.ActionLink("Pobierz obraz", "Download", "Images", routeValues: new { ImageName = @file.ToString() }, htmlAttributes: new { @class = "btn btn-success btn-lg" })
+                                @Html.HiddenFor(r => r.removeImageName)
+
+                                @Html.ActionLink("Pobierz obraz", "DownloadImage", "Images", routeValues: new { ImageName = @file.ToString() }, htmlAttributes: new { @class = "btn btn-success btn-lg" })
                                 <input type="submit" value="Usuń" class="btn btn-danger btn-lg" />                                           
                             }          
                              
@@ -85,11 +85,11 @@
                             @using (@Html.BeginForm("RemoveImage", "Images", FormMethod.Post, new { @class = "", role = "form", enctype = "multipart/form-data" }))
                             {
                                 @Html.AntiForgeryToken()
-                                Model.removeImagePath = serwer.Config.ServerConfigurator.usersStorage + User.Identity.Name + serwer.Config.ServerConfigurator.directoryPathSeparator + file.ToString();
+                                Model.removeImageName = file.ToString();
 
-                                @Html.HiddenFor(r => r.removeImagePath)
+                                @Html.HiddenFor(r => r.removeImageName)
 
-                                @Html.ActionLink("Pobierz obraz", "Download", "Images", routeValues: new { ImageName = @file.ToString() }, htmlAttributes: new { @class = "btn btn-success btn-lg" })
+                                @Html.ActionLink("Pobierz obraz", "DownloadImage", "Images", routeValues: new { ImageName = @file.ToString() }, htmlAttributes: new { @class = "btn btn-success btn-lg" })
                                 <input type="submit" value="Usuń" class="btn btn-danger btn-lg" />
                             }
                         </p>
@@ -113,7 +113,7 @@
                                 }
                             }
                             <br />
-                            @Html.ActionLink("Pobierz dane", "Download", "Images", routeValues: new { ImageName = @file.ToString() }, htmlAttributes: new { @class = "btn btn-success btn-lg" })
+                            @Html.ActionLink("Pobierz dane", "DownloadImage", "Images", routeValues: new { ImageName = @file.ToString() }, htmlAttributes: new { @class = "btn btn-success btn-lg" })
                         </p>
                     }
                     else
@@ -153,7 +153,7 @@
                     },
                     200: function () {
                         if ($("#processedImage").length === 0) {
-                            location.reload();
+                            //location.reload();
                         }
                         console.log("OK");
                     }
@@ -172,7 +172,6 @@
                     },
                     200: function () {
                         location.reload();
-                        console.log("OK");
                     }
                 }
             });

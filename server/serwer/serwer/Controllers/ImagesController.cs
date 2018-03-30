@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Threading;
 using serwer.Helpers;
 using Newtonsoft.Json;
+using System.Text.RegularExpressions;
+using System.Drawing;
 
 namespace serwer.Controllers
 {
@@ -55,8 +57,11 @@ namespace serwer.Controllers
         {
             try
             {
-                if (file != null && file.ContentLength > 0)
+                // Check if file (image) is: not null, not empty and has an extension (lower case) which is supported by server (checked by regex)
+                if(Core.checkIfReceivedFileHasValidExtension(file))
                 {
+                    Image.FromStream(file.InputStream); // Try to create Image - if "file" is not valid - then Image creation fails and exception will be thrown
+
                     string user = User.Identity.Name; // fetches the user login, which is currently logged in. It is used to decide into which directory the image should be saved
                                        
                     if (!Core.checkIfMatlabScriptExistsOnServer(ServerConfigurator.matlabScripts, model.selectedAlgorithm)) // Check if given algorithm exists on the server
@@ -73,6 +78,7 @@ namespace serwer.Controllers
                 }
                 else
                 {
+                    // Invalid image received from client
                     return RedirectToAction("UploadFile");
                 }                
             }
@@ -89,13 +95,6 @@ namespace serwer.Controllers
             return View(this.getImages());
         }
 
-        // Returns an image for download
-        [HttpGet]
-        public FileResult Download(string ImageName)
-        {
-            return File(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator + ImageName, System.Net.Mime.MediaTypeNames.Application.Octet, ImageName);
-        }
-
         // Returns an image which is out of the server webroot
         [HttpGet]
         public FileResult DownloadImage(string ImageName)
@@ -107,20 +106,26 @@ namespace serwer.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult RemoveImage(ImagesDownloadDetails imagesDownloadDetails)
         {
-            if (imagesDownloadDetails.removeImagePath.StartsWith(ServerConfigurator.usersStorage + User.Identity.Name)) { // be sure if you are removing image exactly for user which requested it to.
-                try
-                {
-                    //System.IO.File.Delete(Server.MapPath(imagesDownloadDetails.removeImagePath));
-                    System.IO.File.Delete(imagesDownloadDetails.removeImagePath);
-                }
-                catch (ArgumentException) { }
-                //catch (ArgumentNullException) { } // 
-                catch (DirectoryNotFoundException) { }
-                catch (IOException) { }
-                catch (NotSupportedException) { }
-                //catch (PathTooLongException) { } // already catched by IOException
-                catch (UnauthorizedAccessException) { }
+            // Using regular expression check if correct filename was received from client for removing image
+            string pattern = "(^" + ServerConfigurator.originalImageName + "\\." + ServerConfigurator.supportedImageExtensions + "$)|(^" + ServerConfigurator.processedImageName + "\\." + ServerConfigurator.supportedImageExtensions + "$)";
+
+            if (!Regex.Match(imagesDownloadDetails.removeImageName, pattern).Success)
+                return RedirectToAction("ImagesView");
+
+            try
+            {
+                //System.IO.File.Delete(Server.MapPath(imagesDownloadDetails.removeImagePath));
+                System.IO.File.Delete(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator + imagesDownloadDetails.removeImageName);
             }
+            catch (ArgumentException) { }
+            //catch (ArgumentNullException) { } // 
+            catch (DirectoryNotFoundException) { }
+            catch (IOException) { }
+            catch (NotSupportedException) { }
+            //catch (PathTooLongException) { } // already catched by IOException
+            catch (UnauthorizedAccessException) { }
+            catch (Exception) { }
+            
             return RedirectToAction("ImagesView");
         }
 
