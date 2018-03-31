@@ -316,7 +316,6 @@
     <Content Include="Scripts\popper.js.map" />
     <Content Include="Scripts\popper-utils.min.js.map" />
     <Content Include="Scripts\popper-utils.js.map" />
-    <Content Include="Views\Account\testV.cshtml" />
     <Content Include="Views\Account\MatlabScriptsList.cshtml" />
     <Content Include="Views\Account\EditUserAdmin.cshtml" />
     <Content Include="Views\Account\RemoveUser.cshtml" />
