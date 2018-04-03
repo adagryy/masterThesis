@@ -88,7 +88,7 @@ namespace serwer.Controllers
             }
             else
             {
-                HttpContext.Response.Write("Fuck you!");
+                HttpContext.Response.Write("You are not ok!");
                 HttpContext.Response.StatusCode = (int) HttpStatusCode.Forbidden;
             }
         }
@@ -101,7 +101,12 @@ namespace serwer.Controllers
             try
             {
                 //string test = Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + ServerConfigurator.afterProcessingDataFileName + ServerConfigurator.afterProcessingDataFileExtension);
-                //if (System.IO.File.Exists(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + ServerConfigurator.afterProcessingDataFileName + ServerConfigurator.afterProcessingDataFileExtension)))
+                //if (System.IO.File.Exists(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + ServerConfigurator.afterProcessingDataFileName + ServerConfigurator.afterProcessingDataFileExtension)))                    
+                string fileToDownload = new DirectoryInfo(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator)
+                                                        .GetFiles()
+                                                        .Select(s => s.Name)
+                                                        .Single(s => s.StartsWith(ServerConfigurator.processedImageName));
+
                 if (System.IO.File.Exists(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator + ServerConfigurator.afterProcessingDataFileName + ServerConfigurator.afterProcessingDataFileExtension))
                 {
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
@@ -115,7 +120,15 @@ namespace serwer.Controllers
             }
             catch (Exception)
             {
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                if (System.IO.File.Exists(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator + ServerConfigurator.afterProcessingDataFileName + ServerConfigurator.afterProcessingDataFileExtension))
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                }
+                else
+                {
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    HttpContext.Response.Write("Not Found");
+                }
             }
         }
 

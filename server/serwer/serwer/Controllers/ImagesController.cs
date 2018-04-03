@@ -102,32 +102,43 @@ namespace serwer.Controllers
             return File(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator + ImageName, System.Net.Mime.MediaTypeNames.Application.Octet, ImageName);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult RemoveImage(ImagesDownloadDetails imagesDownloadDetails)
-        {
-            // Using regular expression check if correct filename was received from client for removing image
-            string pattern = "(^" + ServerConfigurator.originalImageName + "\\." + ServerConfigurator.supportedImageExtensions + "$)|(^" + ServerConfigurator.processedImageName + "\\." + ServerConfigurator.supportedImageExtensions + "$)";
 
-            if (!Regex.Match(imagesDownloadDetails.removeImageName, pattern).Success)
-                return RedirectToAction("ImagesView");
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// </summary>
+        /// <returns></returns>
+        // In final version I have removed feature of removing images from server
 
-            try
-            {
-                //System.IO.File.Delete(Server.MapPath(imagesDownloadDetails.removeImagePath));
-                System.IO.File.Delete(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator + imagesDownloadDetails.removeImageName);
-            }
-            catch (ArgumentException) { }
-            //catch (ArgumentNullException) { } // 
-            catch (DirectoryNotFoundException) { }
-            catch (IOException) { }
-            catch (NotSupportedException) { }
-            //catch (PathTooLongException) { } // already catched by IOException
-            catch (UnauthorizedAccessException) { }
-            catch (Exception) { }
-            
-            return RedirectToAction("ImagesView");
-        }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult RemoveImage(ImagesDownloadDetails imagesDownloadDetails)
+        //{
+        //    // Using regular expression check if correct filename was received from client for removing image
+        //    string pattern = "(^" + ServerConfigurator.originalImageName + "\\." + ServerConfigurator.supportedImageExtensions + "$)|(^" + ServerConfigurator.processedImageName + "\\." + ServerConfigurator.supportedImageExtensions + "$)";
+
+        //    if (!Regex.Match(imagesDownloadDetails.removeImageName, pattern).Success)
+        //        return RedirectToAction("ImagesView");
+
+        //    try
+        //    {
+        //        //System.IO.File.Delete(Server.MapPath(imagesDownloadDetails.removeImagePath));
+        //        System.IO.File.Delete(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator + imagesDownloadDetails.removeImageName);
+        //    }
+        //    catch (ArgumentException) { }
+        //    //catch (ArgumentNullException) { } // 
+        //    catch (DirectoryNotFoundException) { }
+        //    catch (IOException) { }
+        //    catch (NotSupportedException) { }
+        //    //catch (PathTooLongException) { } // already catched by IOException
+        //    catch (UnauthorizedAccessException) { }
+        //    catch (Exception) { }
+
+        //    return RedirectToAction("ImagesView");
+        //}
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Saves all images names in directory to viewmodel object to retrieve them during displaying images in the view named "ImagesView"
         // There SHOULD ALWAYS be only two images per user on the server, but this method supports more, than two

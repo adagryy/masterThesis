@@ -5,7 +5,7 @@
 }
 
 <br />
-<h2>Edytuj konto użytkownika</h2>
+<h2>Edytuj konto użytkownika: <b>@Model.Email</b></h2>
     @using (Html.BeginForm("EditUserAdmin", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
     {
         @Html.AntiForgeryToken()
