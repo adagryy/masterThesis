@@ -63,6 +63,8 @@ namespace serwer.Models
 
     public class UserPasswordReset
     {
+        public string User { get; set; }
+
         [Required(ErrorMessage = "UserId field is required on the serwer app")]
         public string userId { get; set; }
 

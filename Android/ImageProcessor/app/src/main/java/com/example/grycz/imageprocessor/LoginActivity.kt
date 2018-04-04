@@ -1,5 +1,6 @@
 package com.example.grycz.imageprocessor
 
+import android.app.Dialog
 import android.support.v7.app.AppCompatActivity
 
 import android.os.AsyncTask
@@ -7,9 +8,23 @@ import android.os.Bundle
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.os.Message
+import android.support.v7.app.AlertDialog
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import android.view.WindowManager
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 
 import kotlinx.android.synthetic.main.activity_login.*
 import android.widget.Toast
+import kotlinx.android.synthetic.main.progress_dialog.*
+import kotlinx.android.synthetic.main.progress_dialog.view.*
+import android.widget.TextView
+
+
 
 
 /**
@@ -27,7 +42,7 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
         setContentView(R.layout.activity_login)
         // Set up the login form.
 
-        btn_login.setOnClickListener{ view ->
+        btn_login.setOnClickListener{ _ ->
             Login()
         }
 //        populateAutoComplete()
@@ -42,6 +57,50 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
 //        email_sign_in_button.setOnClickListener { attemptLogin() }
     }
 
+    private fun setProgressDialog(message: String) : AlertDialog {
+
+        val llPadding = 30
+        val ll = LinearLayout(this)
+        ll.orientation = LinearLayout.HORIZONTAL
+        ll.setPadding(llPadding, llPadding, llPadding, llPadding)
+        ll.gravity = Gravity.CENTER
+        var llParam = LinearLayout.LayoutParams(110, 110)
+        llParam.gravity = Gravity.CENTER
+
+        val progressBar = ProgressBar(this)
+        progressBar.isIndeterminate = true
+        progressBar.setPadding(0, 0, llPadding, 0)
+        progressBar.layoutParams = llParam
+
+        llParam = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        llParam.gravity = Gravity.CENTER
+        val tvText = TextView(this)
+        tvText.text = message
+        tvText.setTextColor(Color.parseColor("#000000"))
+        tvText.textSize = 20f
+        tvText.layoutParams = llParam
+
+        ll.addView(progressBar)
+        ll.addView(tvText)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setCancelable(false)
+        builder.setView(ll)
+
+        val dialog = builder.create()
+        dialog.show()
+        val window = dialog.getWindow()
+        if (window != null) {
+            val layoutParams = WindowManager.LayoutParams()
+            layoutParams.copyFrom(dialog.getWindow().getAttributes())
+            layoutParams.width = 756
+            layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
+            dialog.getWindow().setAttributes(layoutParams)
+        }
+
+        return dialog
+    }
+
     private fun Login(){
 //        if (!validate()) {
 //            onLoginFailed()
@@ -49,10 +108,11 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
 //        }
         btn_login.setEnabled(false);
 
-        val progressDialog: ProgressDialog = ProgressDialog(this, R.style.AppTheme_Dark_Dialog);
-        progressDialog.isIndeterminate = (true)
-        progressDialog.setMessage("Authenticating...");
-        progressDialog.show();
+//        val progressDialog = ProgressBar(this, null, R.style.AppTheme_Dark_Dialog)
+//        progressDialog.isIndeterminate = (true)
+//        progressDialog.setMessage = "Authenticating..."
+
+        var ad = setProgressDialog("Logowanie...")
 
         val email = _emailText.getText().toString();
         val password = _passwordText.getText().toString();
@@ -64,10 +124,10 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
         map.put("Password", "RedKon,123")
         map.put("RememberMe", "true")
 
-        LoginClass(getString(R.string.server_domain) + "Account/MobileLogin   ", "UTF-8", progressDialog).execute(map)
+        LoginClass(getString(R.string.server_domain) + "Account/MobileLogin   ", "UTF-8", ad).execute(map)
     }
 
-    internal inner class LoginClass(val url: String, val charset: String, val progressDialog: ProgressDialog) : AsyncTask<HashMap<String, String>, Void, Unit>(){
+    internal inner class LoginClass(val url: String, val charset: String, val progressDialog: Dialog) : AsyncTask<HashMap<String, String>, Void, Unit>(){
         private var responseCode: Int? = null
 
 

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.net.Uri
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
@@ -12,10 +13,6 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Spinner
-import android.widget.Toast
 import com.example.grycz.imageprocessor.R.id.cropImageView
 import kotlinx.android.synthetic.main.activity_send_image.*
 import org.json.JSONObject
@@ -24,7 +21,13 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
 import android.os.Environment.DIRECTORY_PICTURES
+import android.support.v4.app.NavUtils
 import android.support.v4.content.FileProvider
+import android.support.v7.app.AlertDialog
+import android.view.Gravity
+import android.view.ViewGroup
+import android.view.WindowManager
+import android.widget.*
 import kotlinx.android.synthetic.main.nav_header_nav.view.*
 import java.lang.ref.WeakReference
 import java.net.ConnectException
@@ -227,10 +230,84 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
 
     private fun sendPhotoToServer(){
         try {
-            ServerConnect(WeakReference(applicationContext), getString(R.string.server_domain), this.selectedAlgorithm).execute(persistImage(this.chosenBitmap!!, "output"))
+            ServerConnect(getString(R.string.server_domain), this.selectedAlgorithm, setProgressDialog("Wysyłanie...")).execute(persistImage(this.chosenBitmap!!, "output"))
         }catch (e: Exception){
-            var toast: Toast = Toast.makeText(applicationContext, "Najpierw wybierz zdjęcie", Toast.LENGTH_SHORT)
-            toast.show()
+            Toast.makeText(applicationContext, "Najpierw wybierz zdjęcie", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    internal inner class ServerConnect( private val url: String, private val selectedAlgorithm: String, private val alertDialog: AlertDialog) : AsyncTask<File, Void, String>() {
+        private var exception: java.lang.Exception? = null
+
+        override fun doInBackground(vararg params: File): String {
+            try {
+                val multiPartEntity = MultipartUtility(url + "MobileDevices/handleImageFromMobileApp", "UTF-8")
+                multiPartEntity.addFormField("selectedAlgorithm", this.selectedAlgorithm)
+                multiPartEntity.addFilePart("image", params[0])
+
+                multiPartEntity.finish()
+            }
+            catch (exception: java.lang.Exception){
+                this.exception = exception
+            }
+            return ""
+        }
+
+        override fun onPostExecute(result: String?) {
+            super.onPostExecute(result)
+
+            try {
+                AppConfigurator.toastMessageBasedOnException(this.exception!!, this@SendImageActivity.applicationContext)
+            }catch (nullPointerException: NullPointerException){
+                Toast.makeText(this@SendImageActivity.applicationContext, "Pomyślnie przesłano obraz do serwera", Toast.LENGTH_SHORT).show()
+            }
+            alertDialog.dismiss()
+            NavUtils.navigateUpFromSameTask(this@SendImageActivity)
+            this@SendImageActivity.finish()
+        }
+    }
+
+    private fun setProgressDialog(message: String) : AlertDialog {
+
+        val llPadding = 30
+        val ll = LinearLayout(this)
+        ll.orientation = LinearLayout.HORIZONTAL
+        ll.setPadding(llPadding, llPadding, llPadding, llPadding)
+        ll.gravity = Gravity.CENTER
+        var llParam = LinearLayout.LayoutParams(110, 110)
+        llParam.gravity = Gravity.CENTER
+
+        val progressBar = ProgressBar(this)
+        progressBar.isIndeterminate = true
+        progressBar.setPadding(0, 0, llPadding, 0)
+        progressBar.layoutParams = llParam
+
+        llParam = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        llParam.gravity = Gravity.CENTER
+        val tvText = TextView(this)
+        tvText.text = message
+        tvText.setTextColor(Color.parseColor("#000000"))
+        tvText.textSize = 20f
+        tvText.layoutParams = llParam
+
+        ll.addView(progressBar)
+        ll.addView(tvText)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setCancelable(false)
+        builder.setView(ll)
+
+        val dialog = builder.create()
+        dialog.show()
+        val window = dialog.getWindow()
+        if (window != null) {
+            val layoutParams = WindowManager.LayoutParams()
+            layoutParams.copyFrom(dialog.getWindow().getAttributes())
+            layoutParams.width = 756
+            layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
+            dialog.getWindow().setAttributes(layoutParams)
+        }
+
+        return dialog
     }
 }

@@ -344,7 +344,7 @@ namespace serwer.Controllers
 
             if (applicationUser != null)
             {
-                return View(new UserPasswordReset { userId = applicationUser.Id });
+                return View(new UserPasswordReset { userId = applicationUser.Id, User = applicationUser.UserName });
             }
 
             return View("UsersList");

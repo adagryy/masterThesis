@@ -16,7 +16,10 @@ import android.os.BatteryManager
 import kotlinx.android.synthetic.main.content_nav.*
 import java.security.MessageDigest
 import android.content.IntentFilter
-
+import android.content.BroadcastReceiver
+import android.support.v4.content.LocalBroadcastManager
+import android.widget.TextView
+import android.widget.Toast
 
 
 class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -45,10 +48,6 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
             startActivity(intent)
         }
 
-        refresh_button.setOnClickListener {view ->
-            diagnostics()
-        }
-
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
@@ -58,9 +57,36 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
 
         nav_view.setNavigationItemSelectedListener(this)
 
-        val iFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
 
-        println(iFilter)
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                IntentFilter("processingFinished"))
+
+        startService(Intent(this, ProcessingStatus::class.java))
+    }
+
+    // Broadcast receiver
+    private val mMessageReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            // Get extra data included in the Intent
+            val message = intent.getStringExtra("responseCode")
+
+            val view: TextView = this@NavActivity.findViewById(R.id.progress_title)
+
+            when (intent.getStringExtra("responseCode")){
+                "200" ->  {
+                    view.text = "Status przetwarzania: \nZakończono"
+                }
+                "400" ->  {
+                    view.text = "Status przetwarzania: \nBłędne żądanie"
+                }
+                "404" ->  {
+                    view.text = "Status przetwarzania: \nW toku"
+                }
+                "error" -> {
+                    view.text = "Status przetwarzania: \n" + intent.getStringExtra("errorMessage")
+                }
+            }
+        }
     }
 
     override fun onBackPressed() {
@@ -69,6 +95,11 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         } else {
             super.onBackPressed()
         }
+    }
+
+    override fun onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver)
+        super.onDestroy()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

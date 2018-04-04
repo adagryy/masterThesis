@@ -7,12 +7,15 @@ import java.net.HttpURLConnection
 import java.net.URL
 import android.graphics.BitmapFactory
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.os.Message
+import android.support.v7.app.AlertDialog
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.view.Gravity
+import android.view.ViewGroup
+import android.view.WindowManager
+import android.widget.*
 import kotlinx.android.synthetic.main.activity_receive_image.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -33,20 +36,62 @@ class ReceiveImageActivity : AppCompatActivity() {
         setSupportActionBar(actionBar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        download_photo.setOnClickListener{view ->
-            downloadImageFromServer()
-        }
+        downloadImageFromServer() // download image from server
 
         afterProcessingData.movementMethod = ScrollingMovementMethod() // enables "afterProcessingData" to scroll
     }
 
     private fun downloadImageFromServer(){
 
-        DownloadPhotoFromServer(downloaded_image_preview, afterProcessingData).execute(getString(R.string.server_domain) + "MobileDevices/GetFileFromDisk",
+        DownloadPhotoFromServer(downloaded_image_preview, afterProcessingData, setProgressDialog("Pobieranie obrazu")).execute(getString(R.string.server_domain) + "MobileDevices/GetFileFromDisk",
                 getString(R.string.server_domain) + "MobileDevices/getData")
     }
 
-    private inner class DownloadPhotoFromServer(val iv: TouchImageView, private val view: TextView) : AsyncTask<String, Void, Bitmap?>(){
+    private fun setProgressDialog(message: String) : AlertDialog {
+
+        val llPadding = 30
+        val ll = LinearLayout(this)
+        ll.orientation = LinearLayout.HORIZONTAL
+        ll.setPadding(llPadding, llPadding, llPadding, llPadding)
+        ll.gravity = Gravity.CENTER
+        var llParam = LinearLayout.LayoutParams(110, 110)
+        llParam.gravity = Gravity.CENTER
+
+        val progressBar = ProgressBar(this)
+        progressBar.isIndeterminate = true
+        progressBar.setPadding(0, 0, llPadding, 0)
+        progressBar.layoutParams = llParam
+
+        llParam = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        llParam.gravity = Gravity.CENTER
+        val tvText = TextView(this)
+        tvText.text = message
+        tvText.setTextColor(Color.parseColor("#000000"))
+        tvText.textSize = 20f
+        tvText.layoutParams = llParam
+
+        ll.addView(progressBar)
+        ll.addView(tvText)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setCancelable(false)
+        builder.setView(ll)
+
+        val dialog = builder.create()
+        dialog.show()
+        val window = dialog.getWindow()
+        if (window != null) {
+            val layoutParams = WindowManager.LayoutParams()
+            layoutParams.copyFrom(dialog.getWindow().getAttributes())
+            layoutParams.width = 756
+            layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
+            dialog.getWindow().setAttributes(layoutParams)
+        }
+
+        return dialog
+    }
+
+    private inner class DownloadPhotoFromServer(val iv: TouchImageView, private val view: TextView, private val alertDialog: AlertDialog) : AsyncTask<String, Void, Bitmap?>(){
         private var bitmap: Bitmap? = null
         private var dataUrl: String? = null
         private var exception: Exception? = null
@@ -78,6 +123,8 @@ class ReceiveImageActivity : AppCompatActivity() {
 
         override fun onPostExecute(result: Bitmap?) {
             super.onPostExecute(result)
+
+            alertDialog.dismiss()
 
             try {
                 AppConfigurator.toastMessageBasedOnException(this.exception!!, applicationContext)

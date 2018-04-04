@@ -1,11 +1,22 @@
 package com.example.grycz.imageprocessor
 
 import android.content.Context
+import android.graphics.Color
 import android.widget.Toast
 import java.io.IOException
 import java.net.*
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLContext
+import android.widget.LinearLayout
+import android.view.WindowManager
+import android.graphics.Color.parseColor
+import android.support.v7.app.AlertDialog
+import android.widget.TextView
+import android.view.Gravity
+import android.view.ViewGroup
+import android.widget.ProgressBar
+import com.example.grycz.imageprocessor.R.styleable.AlertDialog
+
 
 /**
  * Created by grycz on 2/16/2018.

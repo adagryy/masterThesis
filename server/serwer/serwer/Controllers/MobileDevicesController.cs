@@ -100,14 +100,7 @@ namespace serwer.Controllers
             HttpContext.Response.TrySkipIisCustomErrors = true; // prevent IIS from displaying error pages for non-OK Http codes
             try
             {
-                //string test = Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + ServerConfigurator.afterProcessingDataFileName + ServerConfigurator.afterProcessingDataFileExtension);
-                //if (System.IO.File.Exists(Server.MapPath(ServerConfigurator.imageStoragePath + User.Identity.Name + "/" + ServerConfigurator.afterProcessingDataFileName + ServerConfigurator.afterProcessingDataFileExtension)))                    
-                string fileToDownload = new DirectoryInfo(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator)
-                                                        .GetFiles()
-                                                        .Select(s => s.Name)
-                                                        .Single(s => s.StartsWith(ServerConfigurator.processedImageName));
-
-                if (System.IO.File.Exists(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator + ServerConfigurator.afterProcessingDataFileName + ServerConfigurator.afterProcessingDataFileExtension))
+                if (Directory.GetFiles(ServerConfigurator.usersStorage + ServerConfigurator.directoryPathSeparator + User.Identity.Name).Count() >= 3) // User directory must contain at least three files when processing is finished: original image, processed image and processingResult.json. Otherwise processing is not finished
                 {
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
                     HttpContext.Response.Write("OK");
@@ -116,19 +109,11 @@ namespace serwer.Controllers
                 {
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
                     HttpContext.Response.Write("Not Found");
-                }                    
+                }
             }
             catch (Exception)
             {
-                if (System.IO.File.Exists(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator + ServerConfigurator.afterProcessingDataFileName + ServerConfigurator.afterProcessingDataFileExtension))
-                {
-                    HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                }
-                else
-                {
-                    HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                    HttpContext.Response.Write("Not Found");
-                }
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             }
         }
 
