@@ -18,6 +18,7 @@ import java.security.MessageDigest
 import android.content.IntentFilter
 import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 
@@ -68,18 +69,22 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
     private val mMessageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             // Get extra data included in the Intent
-            val message = intent.getStringExtra("responseCode")
+
+//            Toast.makeText(applicationContext, intent.getStringExtra("responseCode"), Toast.LENGTH_SHORT).show()
 
             val view: TextView = this@NavActivity.findViewById(R.id.progress_title)
 
             when (intent.getStringExtra("responseCode")){
                 "200" ->  {
+                    changeButtonsState(true)
                     view.text = "Status przetwarzania: \nZakończono"
                 }
                 "400" ->  {
+                    changeButtonsState(false)
                     view.text = "Status przetwarzania: \nBłędne żądanie"
                 }
                 "404" ->  {
+                    changeButtonsState(false)
                     view.text = "Status przetwarzania: \nW toku"
                 }
                 "error" -> {
@@ -87,6 +92,14 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
                 }
             }
         }
+    }
+
+    private fun changeButtonsState(state: Boolean){
+        val sendButton: Button = this@NavActivity.findViewById(R.id.receiving_activity)
+        val downloadButton: Button = this@NavActivity.findViewById(R.id.sending_activity)
+
+        sendButton.isEnabled = state
+        downloadButton.isEnabled = state
     }
 
     override fun onBackPressed() {

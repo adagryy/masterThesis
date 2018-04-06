@@ -85,7 +85,7 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         val spinner: Spinner = findViewById(R.id.spinner_algorithms)
         spinner.onItemSelectedListener = this
 
-        AlgorithmList(getString(R.string.server_domain) + "MobileDevices/getAlgorithms", spinner ).execute()
+        AlgorithmList(AppConfigurator.server_domain + "MobileDevices/getAlgorithms", spinner ).execute()
 
     }
 
@@ -204,6 +204,7 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
         storageDir.listFiles().forEach { item ->
+//            var ext = item.extension
             item.delete()
         }
 
@@ -212,8 +213,6 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
                 ".jpg", /* suffix */
                 storageDir      /* directory */
         )
-
-        val list = storageDir.list()
 
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = image.absolutePath
@@ -229,9 +228,11 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
     }
 
     private fun sendPhotoToServer(){
+        val alertDialog = setProgressDialog("Wysyłanie...")
         try {
-            ServerConnect(getString(R.string.server_domain), this.selectedAlgorithm, setProgressDialog("Wysyłanie...")).execute(persistImage(this.chosenBitmap!!, "output"))
+            ServerConnect(AppConfigurator.server_domain, this.selectedAlgorithm, alertDialog).execute(persistImage(this.chosenBitmap!!, "output"))
         }catch (e: Exception){
+            alertDialog.dismiss()
             Toast.makeText(applicationContext, "Najpierw wybierz zdjęcie", Toast.LENGTH_SHORT).show()
         }
     }

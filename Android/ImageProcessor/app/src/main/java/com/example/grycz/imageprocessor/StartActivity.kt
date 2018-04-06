@@ -11,6 +11,7 @@ import java.io.*
 import java.lang.Exception
 import java.net.*
 import java.nio.charset.StandardCharsets
+import java.nio.file.Paths
 import java.security.KeyStore
 import java.security.cert.Certificate
 import java.security.cert.CertificateFactory
@@ -26,6 +27,11 @@ class StartActivity : AppCompatActivity() {
 
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL)
         CookieHandler.setDefault(cookieManager)
+
+        val file = File(applicationContext.filesDir, applicationContext.getString(R.string.server_address_file))
+        if(!file.exists())
+            AppConfigurator.createOrUpdateServerAddressFile(applicationContext, getString(R.string.server_ip))
+        AppConfigurator.server_domain = "https://" + AppConfigurator.readAddressFromFile(applicationContext) + "/"
 
         // Load CAs from an InputStream
         // (could be from a resource or ByteArrayInputStream or ...)
@@ -82,10 +88,10 @@ class StartActivity : AppCompatActivity() {
 
         AppConfigurator.sslContext = context
 
-        TestLogging(getString(R.string.server_domain) + "/MobileDevices/checkIfMobileAppLoggedIn", cookieManager, applicationContext, this).execute()
+        TestLogging(AppConfigurator.server_domain + "/MobileDevices/checkIfMobileAppLoggedIn", cookieManager, applicationContext, this).execute()
 //        try {
 //            // Tell the URLConnection to use a SocketFactory from our SSLContext
-//            val url = URL(getString(R.string.server_domain) + "serwer/MobileDevices/checkIfMobileAppLoggedIn")
+//            val url = URL(AppConfigurator.server_domain + "serwer/MobileDevices/checkIfMobileAppLoggedIn")
 //            val urlConnection = url.openConnection() as HttpsURLConnection
 //            urlConnection.sslSocketFactory = (context.socketFactory)
 //            urlConnection.requestMethod = "POST"
@@ -135,13 +141,17 @@ class StartActivity : AppCompatActivity() {
                 context.startActivity(redirectIntent)
                 activity.finish()
             }else if(noRouteToHostException != null || connectException != null){
-                val toast: Toast = Toast.makeText(context, "Problem z połączniem z serwerem." + System.lineSeparator() + "Zamykanie aplikacji.", Toast.LENGTH_SHORT)
+                val toast: Toast = Toast.makeText(context, "Problem z połączniem z serwerem.", Toast.LENGTH_SHORT)
                 toast.show()
-                ExitApplicationOnConnectFailed().execute()
+                val redirectIntent = Intent(context, LoginActivity::class.java)
+                context.startActivity(redirectIntent)
+                activity.finish()
             }else{
-                val toast: Toast = Toast.makeText(context, "Nieznany błąd." + System.lineSeparator() + "Zamykanie aplikacji.", Toast.LENGTH_SHORT)
+                val toast: Toast = Toast.makeText(context, "Nieznany błąd.", Toast.LENGTH_SHORT)
                 toast.show()
-                ExitApplicationOnConnectFailed().execute()
+                val redirectIntent = Intent(context, LoginActivity::class.java)
+                context.startActivity(redirectIntent)
+                activity.finish()
             }
         }
         private class ExitApplicationOnConnectFailed : AsyncTask<Void, Void, Unit>(){

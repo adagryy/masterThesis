@@ -15,16 +15,13 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.LinearLayout
-import android.widget.ProgressBar
+import android.widget.*
 
 import kotlinx.android.synthetic.main.activity_login.*
-import android.widget.Toast
 import kotlinx.android.synthetic.main.progress_dialog.*
 import kotlinx.android.synthetic.main.progress_dialog.view.*
-import android.widget.TextView
-
-
+import java.net.ConnectException
+import java.net.NoRouteToHostException
 
 
 /**
@@ -45,6 +42,12 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
         btn_login.setOnClickListener{ _ ->
             Login()
         }
+
+        val addressEditText: EditText = findViewById(R.id._addressText)
+        var serverAddress = AppConfigurator.readAddressFromFile(applicationContext)
+
+        addressEditText.setText(serverAddress)
+
 //        populateAutoComplete()
 //        password.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
 //            if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
@@ -106,6 +109,10 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
 //            onLoginFailed()
 //            return
 //        }
+
+        AppConfigurator.createOrUpdateServerAddressFile(applicationContext, _addressText.text.toString())
+        AppConfigurator.server_domain = "https://" +  _addressText.text.toString() + "/"
+
         btn_login.setEnabled(false);
 
 //        val progressDialog = ProgressBar(this, null, R.style.AppTheme_Dark_Dialog)
@@ -124,7 +131,7 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
         map.put("Password", "RedKon,123")
         map.put("RememberMe", "true")
 
-        LoginClass(getString(R.string.server_domain) + "Account/MobileLogin   ", "UTF-8", ad).execute(map)
+        LoginClass(AppConfigurator.server_domain + "Account/MobileLogin   ", "UTF-8", ad).execute(map)
     }
 
     internal inner class LoginClass(val url: String, val charset: String, val progressDialog: Dialog) : AsyncTask<HashMap<String, String>, Void, Unit>(){
@@ -132,21 +139,26 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
 
 
         override fun doInBackground(vararg params: HashMap<String, String>?) {
-            val mobileMultipartUtility = MobileMultipartUtility(url, charset)
-            var map = params[0]
-            val c = map?.get("Password")
+            try {
+                val mobileMultipartUtility = MobileMultipartUtility(url, charset)
+                var map = params[0]
+                val c = map?.get("Password")
 
-            map?.forEach { (k, v) ->
-                // weird situation was here - ghost newline character appeared at "Password" key entry. Don't know why!!
-                mobileMultipartUtility.addFormField(k, v)
-            }
+                map?.forEach { (k, v) ->
+                    // weird situation was here - ghost newline character appeared at "Password" key entry. Don't know why!!
+                    mobileMultipartUtility.addFormField(k, v)
+                }
 //            mobileMultipartUtility.addFormField("Email", map?.get("Email"))
-            mobileMultipartUtility.addFormField("Password", map?.get("Password"))
+                mobileMultipartUtility.addFormField("Password", map?.get("Password"))
 //            mobileMultipartUtility.addFormField("RememberMe", map?.get("RememberMe"))
 
-            mobileMultipartUtility.mobileFinish()
+                mobileMultipartUtility.mobileFinish()
 
-            this.responseCode = mobileMultipartUtility.getResponseCode()
+                this.responseCode = mobileMultipartUtility.getResponseCode()
+            }catch (e: NoRouteToHostException) {
+            }catch (e: ConnectException){
+            }catch (e: Exception){
+            }
         }
 
         override fun onPostExecute(result: Unit?) {

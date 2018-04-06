@@ -5,6 +5,7 @@ import android.content.Intent
 import android.support.v4.content.LocalBroadcastManager
 import java.net.ConnectException
 import java.net.NoRouteToHostException
+import java.util.*
 
 
 /**
@@ -18,9 +19,24 @@ class ProcessingStatus : IntentService("ProcessingStatus") {
         intent.putExtra("responseCode", "error") // when user loses connection during application working
         intent.putExtra("errorMessage", "error")
 
+        val context = this
+
         try {
-            val httpsConn = AppConfigurator.createHttpsUrlConnectioObject(getString(R.string.server_domain) + "MobileDevices/checkIfProcessingIsFinished")
-            intent.putExtra("responseCode", httpsConn.responseCode.toString()) // 200 - processing finished, 404 - processing in progress, 400 - incorrect request or unknown error // 200 - processing finished, 404 - processing in progress, 400 - incorrect request or unknown error
+            val timer = Timer()
+            timer.scheduleAtFixedRate(object : TimerTask() { // check periodically if processing has been finished
+                override fun run() {
+                    val httpsConn = AppConfigurator.createHttpsUrlConnectioObject(AppConfigurator.server_domain + "MobileDevices/checkIfProcessingIsFinished")
+                    intent.putExtra("responseCode", httpsConn.responseCode.toString()) // 200 - processing finished, 404 - processing in progress, 400 - incorrect request or unknown error // 200 - processing finished, 404 - processing in progress, 400 - incorrect request or unknown error
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+                    if(httpsConn.responseCode == 200) {
+                        timer.cancel()
+                        timer.purge()
+                    }
+                    httpsConn.disconnect()
+                }
+            }, 0, 7000)
+
+
         }catch (e: NoRouteToHostException){
             intent.putExtra("errorMessage", "Brak połączenia")
         }catch (e: ConnectException){
@@ -28,7 +44,5 @@ class ProcessingStatus : IntentService("ProcessingStatus") {
         }catch (e: Exception){
             intent.putExtra("errorMessage", "Nieznany błąd")
         }
-
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 }

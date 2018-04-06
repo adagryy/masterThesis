@@ -43,8 +43,8 @@ class ReceiveImageActivity : AppCompatActivity() {
 
     private fun downloadImageFromServer(){
 
-        DownloadPhotoFromServer(downloaded_image_preview, afterProcessingData, setProgressDialog("Pobieranie obrazu")).execute(getString(R.string.server_domain) + "MobileDevices/GetFileFromDisk",
-                getString(R.string.server_domain) + "MobileDevices/getData")
+        DownloadPhotoFromServer(downloaded_image_preview, afterProcessingData, setProgressDialog("Pobieranie obrazu")).execute(AppConfigurator.server_domain + "MobileDevices/GetFileFromDisk",
+                AppConfigurator.server_domain + "MobileDevices/getData")
     }
 
     private fun setProgressDialog(message: String) : AlertDialog {

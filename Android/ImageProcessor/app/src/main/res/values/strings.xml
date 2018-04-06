@@ -11,6 +11,8 @@
     <!--<string name="server_domain">https://192.168.43.81:62000/serwer/</string>-->
     <!--<string name="server_domain">https://192.168.0.3:62000/serwer/</string>-->
     <string name="title_activity_login">Zaloguj się</string>
+    <string name="server_ip">192.168.0.3</string>
+    <string name="server_address_file">server_address.txt</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
