@@ -1,6 +1,7 @@
 package com.example.grycz.imageprocessor
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.res.Resources
 import android.graphics.Color
 import android.widget.Toast
@@ -31,6 +32,7 @@ class AppConfigurator {
         var cookieManager: CookieManager? = null
         var sslContext: SSLContext = SSLContext.getDefault()
         var server_domain: String = ""
+        var sharedpreferences: SharedPreferences? = null
 
         fun getSSLContext(): SSLContext{
             return this.sslContext

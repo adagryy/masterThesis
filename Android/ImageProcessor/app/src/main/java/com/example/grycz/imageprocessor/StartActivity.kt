@@ -10,8 +10,6 @@ import android.widget.Toast
 import java.io.*
 import java.lang.Exception
 import java.net.*
-import java.nio.charset.StandardCharsets
-import java.nio.file.Paths
 import java.security.KeyStore
 import java.security.cert.Certificate
 import java.security.cert.CertificateFactory
@@ -26,12 +24,34 @@ class StartActivity : AppCompatActivity() {
         setContentView(R.layout.activity_start)
 
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL)
-        CookieHandler.setDefault(cookieManager)
+//        CookieHandler.setDefault(cookieManager)
 
         val file = File(applicationContext.filesDir, applicationContext.getString(R.string.server_address_file))
         if(!file.exists())
             AppConfigurator.createOrUpdateServerAddressFile(applicationContext, getString(R.string.server_ip))
         AppConfigurator.server_domain = "https://" + AppConfigurator.readAddressFromFile(applicationContext) + "/"
+
+        AppConfigurator.sharedpreferences = getSharedPreferences("cookies", Context.MODE_PRIVATE)
+        val cookiesFromPrefs = AppConfigurator.sharedpreferences?.all
+
+        if(cookiesFromPrefs != null){
+            val dom = AppConfigurator.server_domain
+            val loginCookie = HttpCookie(cookiesFromPrefs.get("name").toString(), cookiesFromPrefs.get("value").toString())
+            loginCookie.domain = "192.168.0.3"//cookiesFromPrefs.get("domain").toString()
+            loginCookie.version = 0
+
+
+            cookieManager.cookieStore.add(URI(AppConfigurator.server_domain), loginCookie)
+
+
+//            AppConfigurator.cookieManager = cookieManager
+
+            cookieManager.cookieStore.cookies.forEach { item ->
+                println(item.name + ", MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM" + item.value)
+            }
+        }
+
+        CookieHandler.setDefault(cookieManager)
 
         // Load CAs from an InputStream
         // (could be from a resource or ByteArrayInputStream or ...)
@@ -88,7 +108,7 @@ class StartActivity : AppCompatActivity() {
 
         AppConfigurator.sslContext = context
 
-        TestLogging(AppConfigurator.server_domain + "/MobileDevices/checkIfMobileAppLoggedIn", cookieManager, applicationContext, this).execute()
+        TestLogging(AppConfigurator.server_domain + "MobileDevices/checkIfMobileAppLoggedIn", cookieManager, applicationContext, this).execute()
 //        try {
 //            // Tell the URLConnection to use a SocketFactory from our SSLContext
 //            val url = URL(AppConfigurator.server_domain + "serwer/MobileDevices/checkIfMobileAppLoggedIn")
@@ -105,7 +125,6 @@ class StartActivity : AppCompatActivity() {
     }
 
     private class TestLogging(val url: String, val cookieManager: CookieManager, val context: Context, val activity: Activity) : AsyncTask<String, Unit, Unit>(){
-        private var response: List<String>? = null
         private var noRouteToHostException: NoRouteToHostException? = null
         private var connectException: ConnectException? = null
         private var exception: Exception? = null
@@ -117,6 +136,8 @@ class StartActivity : AppCompatActivity() {
 
                 if(httpsConn.responseCode == 200)
                     loggedIn = true
+                else
+                    println()
             } catch (e: NoRouteToHostException) {
                 this.noRouteToHostException = e
             }catch (e: ConnectException){

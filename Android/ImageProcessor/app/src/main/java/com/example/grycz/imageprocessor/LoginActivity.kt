@@ -5,24 +5,19 @@ import android.support.v7.app.AppCompatActivity
 
 import android.os.AsyncTask
 import android.os.Bundle
-import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.os.Message
 import android.support.v7.app.AlertDialog
 import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
-
 import kotlinx.android.synthetic.main.activity_login.*
-import kotlinx.android.synthetic.main.progress_dialog.*
-import kotlinx.android.synthetic.main.progress_dialog.view.*
 import java.net.ConnectException
 import java.net.NoRouteToHostException
-
+import android.content.SharedPreferences
+import java.net.URLEncoder
 
 /**
  * A login screen that offers login via email/password.
@@ -33,7 +28,6 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
      * Keep track of the login task to ensure we can cancel it if requested.
      */
 //    private var mAuthTask: UserLoginTask? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -166,6 +160,18 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
 
             // Successfully logged in
             if (responseCode == 200) {
+                val cookies = AppConfigurator.cookieManager?.cookieStore?.cookies
+
+                val editor = AppConfigurator.sharedpreferences?.edit()
+                cookies?.forEach { item ->
+                    editor?.putString("name", URLEncoder.encode(item.name, "UTF-8"))
+                    editor?.putString("value", URLEncoder.encode(item.value, "UTF-8"))
+                    editor?.putString("domain", URLEncoder.encode(item.domain, "UTF-8"))
+                    println(item)
+//                    println(item.name + ", " + item.value)
+                    println()
+                }
+                editor?.commit()
                 val redirectIntent = Intent(applicationContext, NavActivity::class.java)
                 applicationContext.startActivity(redirectIntent)
                 progressDialog.dismiss()

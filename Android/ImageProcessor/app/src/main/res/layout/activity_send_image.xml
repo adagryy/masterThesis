@@ -70,7 +70,8 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="68dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/send_photo" />
+        app:layout_constraintTop_toBottomOf="@+id/send_photo"
+        app:cropInitialCropWindowPaddingRatio="0" />
 
     <Button
         android:id="@+id/left_rot"

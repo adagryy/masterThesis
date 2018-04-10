@@ -32,9 +32,9 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         setContentView(R.layout.activity_nav)
         setSupportActionBar(toolbar)
 
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show()
-        }
+//        fab.setOnClickListener { view ->
+//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show()
+//        }
 
         receiving_activity.setOnClickListener{view ->
             val intent = Intent(this, SendImageActivity::class.java)
@@ -147,6 +147,17 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
             R.id.nav_exit_app -> {
                 finish()
                 System.exit(0)
+            }
+            R.id.logOff -> {
+                finish()
+                val editor = AppConfigurator.sharedpreferences?.edit()
+                editor?.clear()
+                editor?.commit()
+
+                AppConfigurator.cookieManager = null
+
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
             }
         }
 

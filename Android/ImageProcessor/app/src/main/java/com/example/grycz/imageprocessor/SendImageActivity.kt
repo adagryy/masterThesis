@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Rect
 import android.net.Uri
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
@@ -28,6 +29,8 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
+import com.theartofdev.edmodo.cropper.CropImage
+import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.android.synthetic.main.nav_header_nav.view.*
 import java.lang.ref.WeakReference
 import java.net.ConnectException
@@ -75,6 +78,8 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         }
 
         crop_button.setOnClickListener { view ->
+            var cropImageView: CropImageView = findViewById(R.id.cropping)
+            CropImage.activity(cropImageView.imageUri).setInitialCropWindowPaddingRatio(0.0f)
             cropping.setImageBitmap(cropping.croppedImage)
         }
 
@@ -137,6 +142,9 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         if (resultCode == Activity. RESULT_OK && requestCode == RequestImageFromCamera) {
             chosenBitmap = MediaStore.Images.Media.getBitmap(contentResolver, photoURI)
             cropping.setImageBitmap(chosenBitmap)
+//            CropImage.activity(photoURI)
+//                    .setInitialCropWindowPaddingRatio(0f)
+//                    .start(this)
 //            val extras = data?.extras
 //            val imageBitmap = extras?.get("data") as Bitmap
         }
@@ -149,6 +157,9 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
 //                photo_preview.setImageBitmap(chosenBitmap)
 
                 cropping.setImageBitmap(chosenBitmap)
+//                CropImage.activity(photoURI)
+//                        .setInitialCropWindowPaddingRatio(0f)
+//                        .start(this)
                 } catch (e: IOException) {
                 e.printStackTrace()
             }

@@ -37,6 +37,9 @@
 
     <item android:title="Analizator obrazów">
         <menu>
+            <item android:id="@+id/logOff"
+                android:icon="@drawable/ic_launcher_background"
+                android:title="Wyloguj się"/>
             <item android:id="@+id/nav_exit_app"
                 android:icon="@drawable/ic_launcher_background"
                 android:title="Wyjście"/>

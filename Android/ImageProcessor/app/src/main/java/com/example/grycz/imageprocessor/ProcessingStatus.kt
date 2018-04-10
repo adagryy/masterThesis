@@ -6,6 +6,8 @@ import android.support.v4.content.LocalBroadcastManager
 import java.net.ConnectException
 import java.net.NoRouteToHostException
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
+import javax.net.ssl.HttpsURLConnection
 
 
 /**
@@ -20,29 +22,34 @@ class ProcessingStatus : IntentService("ProcessingStatus") {
         intent.putExtra("errorMessage", "error")
 
         val context = this
+        val timer = Timer()
 
-        try {
-            val timer = Timer()
-            timer.scheduleAtFixedRate(object : TimerTask() { // check periodically if processing has been finished
-                override fun run() {
-                    val httpsConn = AppConfigurator.createHttpsUrlConnectioObject(AppConfigurator.server_domain + "MobileDevices/checkIfProcessingIsFinished")
+        var counter = AtomicInteger() // thread safe counter started from 0
+
+        timer.scheduleAtFixedRate(object : TimerTask() { // check periodically if processing has been finished
+            override fun run() {
+                var httpsConn: HttpsURLConnection? = null
+                try {
+                    httpsConn = AppConfigurator.createHttpsUrlConnectioObject(AppConfigurator.server_domain + "MobileDevices/checkIfProcessingIsFinished")
                     intent.putExtra("responseCode", httpsConn.responseCode.toString()) // 200 - processing finished, 404 - processing in progress, 400 - incorrect request or unknown error // 200 - processing finished, 404 - processing in progress, 400 - incorrect request or unknown error
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
-                    if(httpsConn.responseCode == 200) {
+                    if (httpsConn.responseCode == 200 || counter.getAndIncrement() > 180) { // if response is correct or attempting more than half hour to checking if processing is finished, then finish
                         timer.cancel()
                         timer.purge()
                     }
-                    httpsConn.disconnect()
+                }catch (e: NoRouteToHostException){
+                    intent.putExtra("errorMessage", "Brak połączenia")
+                }catch (e: ConnectException){
+                    intent.putExtra("errorMessage", "Brak połączenia")
+                }catch (e: Exception){
+                    intent.putExtra("errorMessage", "Nieznany błąd")
                 }
-            }, 0, 7000)
+                finally {
+                    httpsConn?.disconnect()
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+                }
 
-
-        }catch (e: NoRouteToHostException){
-            intent.putExtra("errorMessage", "Brak połączenia")
-        }catch (e: ConnectException){
-            intent.putExtra("errorMessage", "Brak połączenia")
-        }catch (e: Exception){
-            intent.putExtra("errorMessage", "Nieznany błąd")
-        }
+                Thread.currentThread().interrupt() // stop current thread
+            }
+        }, 0, 7000)
     }
 }
