@@ -15,6 +15,7 @@ using System.Net;
 using serwer.Config;
 using System.Web.Security;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace serwer.Controllers
 {
@@ -124,7 +125,16 @@ namespace serwer.Controllers
                 switch (signInStatus) // signInStatus - object containing information about signing in status
                 {
                     case SignInStatus.Success:
-                        return new HttpStatusCodeResult(HttpStatusCode.OK); // 200 - sign in successful
+                        {
+                            Dictionary<string, string> userDetails = new Dictionary<string, string>(); // It will contain user email, name and surname
+                            userDetails.Add("firstName", applicationUser.Firstname);
+                            userDetails.Add("lastName", applicationUser.Lastname);
+                            userDetails.Add("email", applicationUser.Email);
+
+                            Response.Write(JsonConvert.SerializeObject(userDetails)); // write userDetails to the output stream
+
+                            return new HttpStatusCodeResult(HttpStatusCode.OK); // 200 - sign in successful
+                        }
                     //case SignInStatus.LockedOut:
                     //    return new HttpStatusCodeResult(HttpStatusCode.Forbidden); // 403 - account locked
                     //case SignInStatus.RequiresVerification:

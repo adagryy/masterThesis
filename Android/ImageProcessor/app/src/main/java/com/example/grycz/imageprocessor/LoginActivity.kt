@@ -38,7 +38,7 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
         }
 
         val addressEditText: EditText = findViewById(R.id._addressText)
-        var serverAddress = AppConfigurator.readAddressFromFile(applicationContext)
+        val serverAddress = AppConfigurator.readAddressFromFile(applicationContext)
 
         addressEditText.setText(serverAddress)
 
@@ -173,6 +173,7 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
                 }
                 editor?.commit()
                 val redirectIntent = Intent(applicationContext, NavActivity::class.java)
+                redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
                 applicationContext.startActivity(redirectIntent)
                 progressDialog.dismiss()
                 Toast.makeText(applicationContext, "Logowanie zakończone sukcesem", Toast.LENGTH_LONG).show()

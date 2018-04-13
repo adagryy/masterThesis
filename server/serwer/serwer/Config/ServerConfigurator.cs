@@ -17,8 +17,10 @@ namespace serwer.Config
 
         public const string adminRole = "Administrator"; // Name of admin role
 
-        public const string usersStorage = "C:\\Users\\grycz\\Desktop\\Storage\\users\\"; // storage for images (all users have their own directory) out of the IIS server
-        public const string matlabScripts = "C:\\Users\\grycz\\Desktop\\Storage\\matlabscripts\\"; // storage for matlab scripts; out of the IIS server
+        public const string rootStorage = @"C:\Users\grycz\Desktop\Storage\"; // root storage path for storing critical application data (matlab scripts and images)
+
+        public const string usersStorage = rootStorage + @"users\"; // storage for images (all users have their own directory) out of the IIS server
+        public const string matlabScripts = rootStorage + @"matlabscripts\"; // storage for matlab scripts; out of the IIS server
         public const string directoryPathSeparator = "\\"; // separates folders in path string. For example in physical path it is double backslash (for example "C:\\Example") and for virtual path it is single slash (for example "~/Example/")        
 
         public const string supportedImageExtensions = "(jpg|jpeg|png|gif|bmp)"; // image extensions supported by server in procesing. This is part of the regular expression

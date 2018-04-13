@@ -35,4 +35,11 @@
     <string name="non_ok_status">Serwer zwrtócił kod błędu</string>
     <string name="IOException">Niepoprawny format przesyłanych danych do serwera. Proszę ponownie załadować ten widok/aplikację</string>
     <string name="processedImageNotExistsOnServerException">Przetwarzanie obrazu w toku</string>
+
+    <!-- Strings related to action buttons-->
+    <string name="crop_action">Kadruj</string>
+    <string name="reset_action">Resetuj</string>
+    <string name="send_action">Send</string>
+    <string name="camera_action">Camera</string>
+    <string name="gallery_action">Gallery</string>
 </resources>

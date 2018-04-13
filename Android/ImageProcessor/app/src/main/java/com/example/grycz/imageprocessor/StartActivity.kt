@@ -108,7 +108,7 @@ class StartActivity : AppCompatActivity() {
 
         AppConfigurator.sslContext = context
 
-        TestLogging(AppConfigurator.server_domain + "MobileDevices/checkIfMobileAppLoggedIn", cookieManager, applicationContext, this).execute()
+        TestLogging(AppConfigurator.server_domain + "MobileDevices/checkIfMobileAppLoggedIn", cookieManager).execute()
 //        try {
 //            // Tell the URLConnection to use a SocketFactory from our SSLContext
 //            val url = URL(AppConfigurator.server_domain + "serwer/MobileDevices/checkIfMobileAppLoggedIn")
@@ -124,7 +124,8 @@ class StartActivity : AppCompatActivity() {
 //        }
     }
 
-    private class TestLogging(val url: String, val cookieManager: CookieManager, val context: Context, val activity: Activity) : AsyncTask<String, Unit, Unit>(){
+    internal inner class TestLogging(private val url: String, private val cookieManager: CookieManager) : AsyncTask<String, Unit, Unit>(){
+
         private var noRouteToHostException: NoRouteToHostException? = null
         private var connectException: ConnectException? = null
         private var exception: Exception? = null
@@ -154,32 +155,36 @@ class StartActivity : AppCompatActivity() {
             AppConfigurator.cookieManager = cookieManager
 
             if(loggedIn && noRouteToHostException == null && exception == null && connectException == null){
-                val redirectIntent = Intent(context, NavActivity::class.java)
-                context.startActivity(redirectIntent)
-                activity.finish()
+                val redirectIntent = Intent(applicationContext, NavActivity::class.java)
+                redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
+                applicationContext.startActivity(redirectIntent)
+                this@StartActivity.finish()
             }else if(!loggedIn && noRouteToHostException == null && exception == null && connectException == null){
-                val redirectIntent = Intent(context, LoginActivity::class.java)
-                context.startActivity(redirectIntent)
-                activity.finish()
+                val redirectIntent = Intent(applicationContext, LoginActivity::class.java)
+                redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
+                applicationContext.startActivity(redirectIntent)
+                this@StartActivity.finish()
             }else if(noRouteToHostException != null || connectException != null){
-                val toast: Toast = Toast.makeText(context, "Problem z połączniem z serwerem.", Toast.LENGTH_SHORT)
+                val toast: Toast = Toast.makeText(applicationContext, "Problem z połączniem z serwerem.", Toast.LENGTH_SHORT)
                 toast.show()
-                val redirectIntent = Intent(context, LoginActivity::class.java)
-                context.startActivity(redirectIntent)
-                activity.finish()
+                val redirectIntent = Intent(applicationContext, LoginActivity::class.java)
+                redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
+                applicationContext.startActivity(redirectIntent)
+                this@StartActivity.finish()
             }else{
-                val toast: Toast = Toast.makeText(context, "Nieznany błąd.", Toast.LENGTH_SHORT)
+                val toast: Toast = Toast.makeText(applicationContext, "Nieznany błąd.", Toast.LENGTH_SHORT)
                 toast.show()
-                val redirectIntent = Intent(context, LoginActivity::class.java)
-                context.startActivity(redirectIntent)
-                activity.finish()
+                val redirectIntent = Intent(applicationContext, LoginActivity::class.java)
+                redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
+                applicationContext.startActivity(redirectIntent)
+                this@StartActivity.finish()
             }
         }
-        private class ExitApplicationOnConnectFailed : AsyncTask<Void, Void, Unit>(){
-            override fun doInBackground(vararg params: Void?) {
-                Thread.sleep(3000)
-                System.exit(0)
-            }
-        }
+//        private class ExitApplicationOnConnectFailed : AsyncTask<Void, Void, Unit>(){
+//            override fun doInBackground(vararg params: Void?) {
+//                Thread.sleep(3000)
+//                System.exit(0)
+//            }
+//        }
     }
 }
