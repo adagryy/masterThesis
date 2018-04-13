@@ -3,28 +3,22 @@ package com.example.grycz.imageprocessor
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import java.net.HttpURLConnection
-import java.net.URL
 import android.graphics.BitmapFactory
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.os.Message
 import android.support.v7.app.AlertDialog
 import android.text.method.ScrollingMovementMethod
-import android.util.Log
-import android.view.Gravity
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
 import android.widget.*
+import com.example.grycz.imageprocessor.R.id.download
+import com.github.chrisbanes.photoview.PhotoView
 import kotlinx.android.synthetic.main.activity_receive_image.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.*
-import java.net.ConnectException
 import javax.net.ssl.HttpsURLConnection
 
-
-class ReceiveImageActivity : AppCompatActivity() {
+class ReceiveImageActivity : AppCompatActivity(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,9 +36,23 @@ class ReceiveImageActivity : AppCompatActivity() {
     }
 
     private fun downloadImageFromServer(){
-
         DownloadPhotoFromServer(downloaded_image_preview, afterProcessingData, setProgressDialog("Pobieranie obrazu")).execute(AppConfigurator.server_domain + "MobileDevices/GetFileFromDisk",
                 AppConfigurator.server_domain + "MobileDevices/getData")
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.reveiving_items, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        download -> {
+            true
+        }
+        else -> {
+            super.onOptionsItemSelected(item)
+        }
     }
 
     private fun setProgressDialog(message: String) : AlertDialog {
@@ -91,7 +99,7 @@ class ReceiveImageActivity : AppCompatActivity() {
         return dialog
     }
 
-    private inner class DownloadPhotoFromServer(val iv: TouchImageView, private val view: TextView, private val alertDialog: AlertDialog) : AsyncTask<String, Void, Bitmap?>(){
+    private inner class DownloadPhotoFromServer(val iv: PhotoView, private val view: TextView, private val alertDialog: AlertDialog) : AsyncTask<String, Void, Bitmap?>(){
         private var bitmap: Bitmap? = null
         private var dataUrl: String? = null
         private var exception: Exception? = null
@@ -133,6 +141,7 @@ class ReceiveImageActivity : AppCompatActivity() {
             }
 
             iv.setImageBitmap(bitmap)
+
             DownloadProcessingResults(view).execute(dataUrl)
         }
     }

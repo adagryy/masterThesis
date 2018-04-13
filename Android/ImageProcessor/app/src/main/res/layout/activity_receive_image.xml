@@ -9,25 +9,25 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar_receiving"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:layout_height="?android:attr/actionBarSize"
+        android:background="?android:attr/colorPrimary"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
-    <com.example.grycz.imageprocessor.TouchImageView
-        android:id="@+id/downloaded_image_preview"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="120dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/my_toolbar_receiving"
-        app:srcCompat="@drawable/ic_launcher_foreground" />
+    <!--<com.example.grycz.imageprocessor.TouchImageView-->
+        <!--android:id="@+id/downloaded_image_preview"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="0dp"-->
+        <!--android:layout_marginBottom="150dp"-->
+        <!--android:layout_marginEnd="8dp"-->
+        <!--android:layout_marginStart="8dp"-->
+        <!--android:layout_marginTop="8dp"-->
+        <!--app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--app:layout_constraintEnd_toEndOf="parent"-->
+        <!--app:layout_constraintStart_toStartOf="parent"-->
+        <!--app:layout_constraintTop_toBottomOf="@+id/my_toolbar_receiving"-->
+        <!--app:srcCompat="@drawable/ic_launcher_foreground" />-->
 
     <TextView
         android:id="@+id/afterProcessingData"
@@ -41,9 +41,23 @@
         android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.51"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/downloaded_image_preview" />
+
+    <com.github.chrisbanes.photoview.PhotoView
+        android:id="@+id/downloaded_image_preview"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="160dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/my_toolbar_receiving" />
 
 
 </android.support.constraint.ConstraintLayout>

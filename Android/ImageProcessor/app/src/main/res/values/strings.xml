@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">Analizator obrazów</string>
+    <string name="app_name">Analizator</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_nav">NavActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="welcome_screen_text">Analizator obrazów</string>
+    <string name="welcome_screen_text">Analizator</string>
     <string name="new_photo">Przesyłanie obrazów</string>
     <string name="send_photo">Pobieranie obrazów</string>
     <string name="server_domain">https://192.168.0.3/</string>
@@ -37,9 +37,12 @@
     <string name="processedImageNotExistsOnServerException">Przetwarzanie obrazu w toku</string>
 
     <!-- Strings related to action buttons-->
-    <string name="crop_action">Kadruj</string>
+    <string name="crop_action">Crop</string>
     <string name="reset_action">Resetuj</string>
-    <string name="send_action">Send</string>
-    <string name="camera_action">Camera</string>
-    <string name="gallery_action">Gallery</string>
+    <string name="send_action">Wyślij</string>
+    <string name="camera_action">Zrób zdjęcie</string>
+    <string name="gallery_action">Wybierz z galerii</string>
+    <string name="rotate_right_action">Rotate right</string>
+    <string name="rotate_left_action">Rotate left</string>
+    <string name="download_action">Download</string>
 </resources>

@@ -11,7 +11,6 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.support.media.ExifInterface
 import android.util.Log
 import kotlinx.android.synthetic.main.activity_send_image.*
 import org.json.JSONObject
@@ -29,10 +28,10 @@ import java.util.*
 
 
 class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener{
-    private val RequestImageFromCamera = 1
-    private val RequestPickImageFromGallery = 2
+    private val requestImageFromCamera = 1
+    private val requestPickImageFromGallery = 2
     private var chosenBitmap: Bitmap? = null
-    private var resetChodenBitmap: Bitmap? = null
+    private var resetChosenBitmap: Bitmap? = null
     private var selectedAlgorithm = ""
     private var mCurrentPhotoPath: String? = null
     private var photoURI: Uri? = null
@@ -41,20 +40,21 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_send_image)
 
+
         val actionBar: android.support.v7.widget.Toolbar? = findViewById(R.id.my_toolbar_sending)
-        actionBar?.title = "Wysyłanie"
+        actionBar?.title = ""
 
         setSupportActionBar(actionBar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
 
-        left_rot.setOnClickListener { _ ->
-            cropping.rotateImage(-1)
-        }
-
-        right_rot.setOnClickListener { _ ->
-            cropping.rotateImage(1)
-        }
+//        left_rot.setOnClickListener { _ ->
+//            cropping.rotateImage(-1)
+//        }
+//
+//        right_rot.setOnClickListener { _ ->
+//            cropping.rotateImage(1)
+//        }
 
         cropping.setOnCropImageCompleteListener { _, _ ->
             sendPhotoToServer()
@@ -96,7 +96,7 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
             }catch (nullPointerException: NullPointerException){}
 
 
-            val adapter: ArrayAdapter<String> = ArrayAdapter(applicationContext, android.R.layout.simple_list_item_1, algorithms)
+            val adapter: ArrayAdapter<String> = ArrayAdapter(baseContext, android.R.layout.simple_list_item_1, algorithms) // important to use "baseContext" instead of "applicationContext"
             spinner.adapter = adapter
         }
     }
@@ -112,10 +112,10 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity. RESULT_OK && requestCode == RequestImageFromCamera) {
+        if (resultCode == Activity. RESULT_OK && requestCode == requestImageFromCamera) {
 //            val exifInterface = ExifInterface(photoURI!!.path)
             chosenBitmap = MediaStore.Images.Media.getBitmap(contentResolver, photoURI)
-            chosenBitmap = RotateBitmap(chosenBitmap!!, 90f)
+            chosenBitmap = rotateBitmap(chosenBitmap!!, 90f)
 
 //            val bos = ByteArrayOutputStream()
 //            chosenBitmap?.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
@@ -129,13 +129,13 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
 //
 //            when(orientation){
 //                ExifInterface.ORIENTATION_ROTATE_90 -> {
-//                    chosenBitmap = RotateBitmap(chosenBitmap!!, 90f)
+//                    chosenBitmap = rotateBitmap(chosenBitmap!!, 90f)
 //                }
 //                ExifInterface.ORIENTATION_ROTATE_180 -> {
-//                    chosenBitmap = RotateBitmap(chosenBitmap!!, 180f)
+//                    chosenBitmap = rotateBitmap(chosenBitmap!!, 180f)
 //                }
 //                ExifInterface.ORIENTATION_ROTATE_270 -> {
-//                    chosenBitmap = RotateBitmap(chosenBitmap!!, 270f)
+//                    chosenBitmap = rotateBitmap(chosenBitmap!!, 270f)
 //                }
 //                ExifInterface.ORIENTATION_NORMAL -> {
 //
@@ -145,7 +145,7 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
 //                }
 //            }
 
-            resetChodenBitmap = chosenBitmap
+            resetChosenBitmap = chosenBitmap
             cropping.setImageBitmap(chosenBitmap)
 //            CropImage.activity(photoURI)
 //                    .setInitialCropWindowPaddingRatio(0f)
@@ -154,12 +154,11 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
 //            val imageBitmap = extras?.get("data") as Bitmap
         }
 
-        if (resultCode == Activity.RESULT_OK && requestCode == RequestPickImageFromGallery) {
+        if (resultCode == Activity.RESULT_OK && requestCode == requestPickImageFromGallery) {
             val uri = data?.data
-            var postImageSend = ""
             try {
                 chosenBitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
-                resetChodenBitmap = chosenBitmap
+                resetChosenBitmap = chosenBitmap
 
 //                photo_preview.setImageBitmap(chosenBitmap)
 
@@ -180,12 +179,12 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        camera -> {
-            dispatchTakePictureIntent()
+        rotate_left -> { // handle rotate left image selection
+            cropping.rotateImage(-1)
             true
         }
-        gallery -> {
-            pickGalleryImage()
+        rotate_right -> {
+            cropping.rotateImage(1)
             true
         }
         crop -> {
@@ -194,30 +193,39 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
             cropping.setImageBitmap(cropping.croppedImage)
             true
         }
-        reset -> { // user can restore original image when he mistakes during cropping
-            cropping.rotatedDegrees = 0
-            cropping.resetCropRect()
-            cropping.setImageBitmap(this.resetChodenBitmap)
-
+        camera -> {
+            dispatchTakePictureIntent()
+            true
+        }
+        gallery -> {
+            pickGalleryImage()
             true
         }
         send -> {
             this.chosenBitmap = cropping.croppedImage
             sendPhotoToServer()
             true
-        }else -> {
+        }
+        reset -> { // user can restore original image when he mistakes during cropping
+            cropping.rotatedDegrees = 0 // reset rotation
+            cropping.resetCropRect() // reset rotate rectangle marker
+            cropping.setImageBitmap(this.resetChosenBitmap) // reset initial image
+
+            true
+        }
+        else -> {
             super.onOptionsItemSelected(item)
         }
     }
 
-    private fun RotateBitmap(source: Bitmap, angle: Float): Bitmap {
+    private fun rotateBitmap(source: Bitmap, angle: Float): Bitmap {
         val matrix = Matrix()
         matrix.postRotate(angle)
         return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
     }
 
     private fun persistImage(bitmap: Bitmap, name: String) : File {
-        val filesDir = baseContext.getFilesDir()
+        val filesDir = baseContext.filesDir
         val imageFile = File(filesDir, name + ".jpg")
 
         val os: OutputStream
@@ -249,7 +257,7 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
                 try {
                     photoURI = FileProvider.getUriForFile(applicationContext,"com.example.android.fileprovider", photoFile)
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                    startActivityForResult(takePictureIntent, RequestImageFromCamera)
+                    startActivityForResult(takePictureIntent, requestImageFromCamera)
                 }catch (e: Exception){
                     println(e)
                 }
@@ -285,7 +293,7 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         intent.type = "image/*"
         intent.action = Intent.ACTION_GET_CONTENT
         intent.putExtra("return-data", true);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), RequestPickImageFromGallery)
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), requestPickImageFromGallery)
     }
 
     private fun sendPhotoToServer(){

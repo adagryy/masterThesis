@@ -9,21 +9,11 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar_sending"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:layout_height="?android:attr/actionBarSize"
+        android:background="?android:attr/colorPrimary"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-
-    <!--<ImageView-->
-    <!--android:id="@+id/photo_preview"-->
-    <!--android:layout_width="319dp"-->
-    <!--android:layout_height="69dp"-->
-    <!--android:layout_marginStart="20dp"-->
-    <!--android:layout_marginTop="28dp"-->
-    <!--app:layout_constraintStart_toStartOf="parent"-->
-    <!--app:layout_constraintTop_toBottomOf="@+id/send_photo"-->
-    <!--app:srcCompat="@drawable/ic_launcher_foreground" />-->
     <Spinner
         android:id="@+id/spinner_algorithms"
         android:layout_width="match_parent"
@@ -31,6 +21,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/my_toolbar_sending" />
@@ -42,32 +33,10 @@
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="52dp"
+        android:layout_marginTop="8dp"
         app:cropInitialCropWindowPaddingRatio="0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/spinner_algorithms" />
-
-    <Button
-        android:id="@+id/left_rot"
-        android:layout_width="67dp"
-        android:layout_height="37dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="-1 st"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinner_algorithms" />
-
-    <Button
-        android:id="@+id/right_rot"
-        android:layout_width="67dp"
-        android:layout_height="38dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="8dp"
-        android:text="+1 st"
-        app:layout_constraintStart_toEndOf="@+id/left_rot"
-        app:layout_constraintTop_toBottomOf="@+id/spinner_algorithms" />
-
-
 </android.support.constraint.ConstraintLayout>
