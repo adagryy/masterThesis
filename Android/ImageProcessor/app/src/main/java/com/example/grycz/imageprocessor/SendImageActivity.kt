@@ -1,6 +1,7 @@
 package com.example.grycz.imageprocessor
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -11,6 +12,7 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.support.media.ExifInterface
 import android.util.Log
 import kotlinx.android.synthetic.main.activity_send_image.*
 import org.json.JSONObject
@@ -23,6 +25,7 @@ import com.example.grycz.imageprocessor.R.id.*
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import java.io.*
+import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -35,26 +38,17 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
     private var selectedAlgorithm = ""
     private var mCurrentPhotoPath: String? = null
     private var photoURI: Uri? = null
+    private var imagePath: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_send_image)
-
 
         val actionBar: android.support.v7.widget.Toolbar? = findViewById(R.id.my_toolbar_sending)
         actionBar?.title = ""
 
         setSupportActionBar(actionBar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-
-//        left_rot.setOnClickListener { _ ->
-//            cropping.rotateImage(-1)
-//        }
-//
-//        right_rot.setOnClickListener { _ ->
-//            cropping.rotateImage(1)
-//        }
 
         cropping.setOnCropImageCompleteListener { _, _ ->
             sendPhotoToServer()
@@ -63,43 +57,81 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         val spinner: Spinner = findViewById(R.id.spinner_algorithms)
         spinner.onItemSelectedListener = this
 
-        AlgorithmList(AppConfigurator.server_domain + "MobileDevices/getAlgorithms", spinner ).execute()
+        AlgorithmList(AppConfigurator.server_domain + "MobileDevices/getAlgorithms", WeakReference(spinner), WeakReference(applicationContext), WeakReference(baseContext)).execute()
 
     }
 
-    private inner class AlgorithmList(private val url: String, private val spinner: Spinner) : AsyncTask<String, Void, Unit>(){
-        private var response: List<String>? = null
-        private var algorithms: MutableList<String> = ArrayList()
-        private var exception: Exception? = null
+    companion object {
+        private class AlgorithmList(private val url: String, private val spinnerWeak: WeakReference<Spinner>, private val contextWeak: WeakReference<Context>,private val baseContextWeak: WeakReference<Context> ) : AsyncTask<String, Void, Unit>(){
+            private var response: List<String>? = null
+            private var algorithms: MutableList<String> = ArrayList()
+            private var exception: Exception? = null
 
-        override fun doInBackground(vararg params: String?) {
-            try {
-                val mu = MultipartUtility(url, "UTF-8")
-                response = mu.finish()
+            override fun doInBackground(vararg params: String?) {
+                try {
+                    val mu = MultipartUtility(url, "UTF-8")
+                    response = mu.finish()
 
-                val json = JSONObject(response!![0])
+                    val json = JSONObject(response!![0])
 
-                val keys: Iterator<String> = json.keys()
-                while (keys.hasNext()){
-                    algorithms.add(json.get(keys.next()) as String)
+                    val keys: Iterator<String> = json.keys()
+                    while (keys.hasNext()){
+                        algorithms.add(json.get(keys.next()) as String)
+                    }
+                }catch (exception: Exception){
+                    this.exception = exception
                 }
-            }catch (exception: Exception){
-                this.exception = exception
+            }
+
+            override fun onPostExecute(result: Unit?) {
+                super.onPostExecute(result)
+
+                try {
+                    if(exception != null)
+                        AppConfigurator.toastMessageBasedOnException(this.exception!!, contextWeak.get()!!)
+                    val adapter: ArrayAdapter<String> = ArrayAdapter(baseContextWeak.get()!!, android.R.layout.simple_list_item_1, algorithms) // important to use "baseContext" instead of "applicationContext"
+                    spinnerWeak.get()!!.adapter = adapter
+                }catch (nullPointerException: NullPointerException){ }
             }
         }
 
-        override fun onPostExecute(result: Unit?) {
-            super.onPostExecute(result)
+        internal class ServerConnect( private val url: String, private val selectedAlgorithm: String, private val alertDialog: AlertDialog, private val activityWeak: WeakReference<SendImageActivity>) : AsyncTask<File, Void, String>() {
+            private var exception: java.lang.Exception? = null
 
-            try {
-                AppConfigurator.toastMessageBasedOnException(this.exception!!, applicationContext)
-            }catch (nullPointerException: NullPointerException){}
+            override fun doInBackground(vararg params: File): String {
+                try {
+                    val multiPartEntity = MultipartUtility(url + "MobileDevices/handleImageFromMobileApp", "UTF-8")
+                    multiPartEntity.addFormField("selectedAlgorithm", this.selectedAlgorithm)
+                    multiPartEntity.addFilePart("image", params[0])
 
+                    multiPartEntity.finish()
+                }
+                catch (exception: java.lang.Exception){
+                    this.exception = exception
+                }
+                return ""
+            }
 
-            val adapter: ArrayAdapter<String> = ArrayAdapter(baseContext, android.R.layout.simple_list_item_1, algorithms) // important to use "baseContext" instead of "applicationContext"
-            spinner.adapter = adapter
+            override fun onPostExecute(result: String?) {
+                super.onPostExecute(result)
+
+                try {
+                    if(exception != null)
+                        AppConfigurator.toastMessageBasedOnException(this.exception!!, activityWeak.get()!!.applicationContext)
+                    else
+                        Toast.makeText(activityWeak.get()!!.applicationContext, "Pomyślnie przesłano obraz do serwera", Toast.LENGTH_SHORT).show()
+                }catch (nullPointerException: NullPointerException){
+
+                }
+                alertDialog.dismiss()
+                try {
+                    NavUtils.navigateUpFromSameTask(activityWeak.get()!!)
+                    activityWeak.get()!!.finish()
+                }catch (e: NullPointerException){}
+            }
         }
     }
+
 
     override fun onItemSelected(parent: AdapterView<*>, view: View, pos: Int, id: Long) {
         // An item was selected. You can retrieve the selected item using
@@ -113,63 +145,56 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity. RESULT_OK && requestCode == requestImageFromCamera) {
-//            val exifInterface = ExifInterface(photoURI!!.path)
-            chosenBitmap = MediaStore.Images.Media.getBitmap(contentResolver, photoURI)
-            chosenBitmap = rotateBitmap(chosenBitmap!!, 90f)
-
-//            val bos = ByteArrayOutputStream()
-//            chosenBitmap?.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
-//            val bitmapdata  = bos.toByteArray()
-//            val bs = ByteArrayInputStream(bitmapdata)
-//
-//            val exifInterface = ExifInterface(bs)
-//            val orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
-//
-//            println("RRRRRRRRRRRRRRRRRRRRRRRRRRRRR " + orientation)
-//
-//            when(orientation){
-//                ExifInterface.ORIENTATION_ROTATE_90 -> {
-//                    chosenBitmap = rotateBitmap(chosenBitmap!!, 90f)
-//                }
-//                ExifInterface.ORIENTATION_ROTATE_180 -> {
-//                    chosenBitmap = rotateBitmap(chosenBitmap!!, 180f)
-//                }
-//                ExifInterface.ORIENTATION_ROTATE_270 -> {
-//                    chosenBitmap = rotateBitmap(chosenBitmap!!, 270f)
-//                }
-//                ExifInterface.ORIENTATION_NORMAL -> {
-//
-//                }
-//                else -> {
-//
-//                }
-//            }
-
-            resetChosenBitmap = chosenBitmap
-            cropping.setImageBitmap(chosenBitmap)
-//            CropImage.activity(photoURI)
-//                    .setInitialCropWindowPaddingRatio(0f)
-//                    .start(this)
-//            val extras = data?.extras
-//            val imageBitmap = extras?.get("data") as Bitmap
+            chosenBitmap = MediaStore.Images.Media.getBitmap(contentResolver, photoURI) // remember taken photo in "chosenBitmap" (global for this class)
+            rotateImageFromCameraIfNecessary() // rotate taken photo if it is not in the portrait orientation
+            resetChosenBitmap = chosenBitmap // save photo into temporary variable (it allows reset image without re-taking a new photo)
+            cropping.setImageBitmap(chosenBitmap) // set image in view
         }
 
         if (resultCode == Activity.RESULT_OK && requestCode == requestPickImageFromGallery) {
             val uri = data?.data
             try {
                 chosenBitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
-                resetChosenBitmap = chosenBitmap
-
-//                photo_preview.setImageBitmap(chosenBitmap)
+                resetChosenBitmap = chosenBitmap // save photo into temporary variable (it allows reset image without re-choosing a new photo from gallery)
 
                 cropping.setImageBitmap(chosenBitmap)
-//                CropImage.activity(photoURI)
-//                        .setInitialCropWindowPaddingRatio(0f)
-//                        .start(this)
-                } catch (e: IOException) {
-                e.printStackTrace()
-            }
+                } catch (e: IOException) { }
         }
+    }
+
+    // Some cameras take photo in landscape orientation, while others in portrait. So this method rotates all landscape-oriented photos into portrait-oriented ones
+    private fun rotateImageFromCameraIfNecessary(){
+        try{
+            val exifInterface = ExifInterface(this.imagePath!!) // read metadata of taken photo, throws NPE if "imagePath" is null
+
+            val orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED) // read orientation (it can be: not rotated(portrait orientation),
+                                                                                                                                // 90 degrees, 180 degrees or 270 degrees rotated)
+            // then rotate if needed
+            when(orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> {
+                    chosenBitmap = rotateBitmap(chosenBitmap!!, 90f)
+                }
+                ExifInterface.ORIENTATION_ROTATE_180 -> {
+                    chosenBitmap = rotateBitmap(chosenBitmap!!, 180f)
+                }
+                ExifInterface.ORIENTATION_ROTATE_270 -> {
+                    chosenBitmap = rotateBitmap(chosenBitmap!!, 270f)
+                }
+                ExifInterface.ORIENTATION_NORMAL -> {
+
+                }
+                else -> { }
+            }
+        }catch (e: IOException){} // do nothing, it can appear, when file already not exists for any reason (remind: photo is temp file).
+                                  // This approach was recommended in official Google documentation
+        catch (e: Exception){} // It handles NullPointerException, for instance when "imagePath" was not set for any reason
+    }
+
+    // rotates photo which is given in "source" parameter by angle given in "angle" parameter
+    private fun rotateBitmap(source: Bitmap, angle: Float): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(angle)
+        return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -218,10 +243,16 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         }
     }
 
-    private fun rotateBitmap(source: Bitmap, angle: Float): Bitmap {
-        val matrix = Matrix()
-        matrix.postRotate(angle)
-        return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
+    // Remove photo from internal memory when activity is finished
+    override fun onDestroy() {
+        super.onDestroy()
+
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+
+        // Remove all files from directory. It will free the space and facilitates process of managing photos during rotation
+        storageDir.listFiles().forEach { item ->
+            item.delete()
+        }
     }
 
     private fun persistImage(bitmap: Bitmap, name: String) : File {
@@ -248,6 +279,7 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
             var photoFile: File? = null
             try {
                 photoFile = createImageFile()
+                this.imagePath = photoFile.path // remember path to this image in string variable so later it can be read for rotating if photo was taken in landscape orientation
             } catch (ex: IOException) {
                 // Error occurred while creating the File
                 Toast.makeText(applicationContext, "Błąd. Nie można utworzyć pliku obrazu", Toast.LENGTH_SHORT).show()
@@ -272,8 +304,8 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         val imageFileName = "JPEG_" + timeStamp + "_"
         val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
+        // Remove all files from directory. It will free the space and facilitates process of managing photos during rotation
         storageDir.listFiles().forEach { item ->
-//            var ext = item.extension
             item.delete()
         }
 
@@ -292,48 +324,17 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         val intent = Intent()
         intent.type = "image/*"
         intent.action = Intent.ACTION_GET_CONTENT
-        intent.putExtra("return-data", true);
+        intent.putExtra("return-data", true)
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), requestPickImageFromGallery)
     }
 
     private fun sendPhotoToServer(){
         val alertDialog = setProgressDialog("Wysyłanie...")
         try {
-            ServerConnect(AppConfigurator.server_domain, this.selectedAlgorithm, alertDialog).execute(persistImage(this.chosenBitmap!!, "output"))
+            ServerConnect(AppConfigurator.server_domain, this.selectedAlgorithm, alertDialog, WeakReference(this)).execute(persistImage(this.chosenBitmap!!, "output"))
         }catch (e: Exception){
             alertDialog.dismiss()
             Toast.makeText(applicationContext, "Najpierw wybierz zdjęcie", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    internal inner class ServerConnect( private val url: String, private val selectedAlgorithm: String, private val alertDialog: AlertDialog) : AsyncTask<File, Void, String>() {
-        private var exception: java.lang.Exception? = null
-
-        override fun doInBackground(vararg params: File): String {
-            try {
-                val multiPartEntity = MultipartUtility(url + "MobileDevices/handleImageFromMobileApp", "UTF-8")
-                multiPartEntity.addFormField("selectedAlgorithm", this.selectedAlgorithm)
-                multiPartEntity.addFilePart("image", params[0])
-
-                multiPartEntity.finish()
-            }
-            catch (exception: java.lang.Exception){
-                this.exception = exception
-            }
-            return ""
-        }
-
-        override fun onPostExecute(result: String?) {
-            super.onPostExecute(result)
-
-            try {
-                AppConfigurator.toastMessageBasedOnException(this.exception!!, this@SendImageActivity.applicationContext)
-            }catch (nullPointerException: NullPointerException){
-                Toast.makeText(this@SendImageActivity.applicationContext, "Pomyślnie przesłano obraz do serwera", Toast.LENGTH_SHORT).show()
-            }
-            alertDialog.dismiss()
-            NavUtils.navigateUpFromSameTask(this@SendImageActivity)
-            this@SendImageActivity.finish()
         }
     }
 
@@ -369,13 +370,13 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
 
         val dialog = builder.create()
         dialog.show()
-        val window = dialog.getWindow()
+        val window = dialog.window
         if (window != null) {
             val layoutParams = WindowManager.LayoutParams()
-            layoutParams.copyFrom(dialog.getWindow().getAttributes())
+            layoutParams.copyFrom(dialog.window.attributes)
             layoutParams.width = 756
             layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
-            dialog.getWindow().setAttributes(layoutParams)
+            dialog.window.attributes = layoutParams
         }
 
         return dialog

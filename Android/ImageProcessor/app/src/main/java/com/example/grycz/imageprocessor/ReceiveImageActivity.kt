@@ -1,5 +1,6 @@
 package com.example.grycz.imageprocessor
 
+import android.content.Context
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -16,10 +17,10 @@ import kotlinx.android.synthetic.main.activity_receive_image.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.*
+import java.lang.ref.WeakReference
 import javax.net.ssl.HttpsURLConnection
 
 class ReceiveImageActivity : AppCompatActivity(){
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_receive_image)
@@ -36,7 +37,7 @@ class ReceiveImageActivity : AppCompatActivity(){
     }
 
     private fun downloadImageFromServer(){
-        DownloadPhotoFromServer(downloaded_image_preview, afterProcessingData, setProgressDialog("Pobieranie obrazu")).execute(AppConfigurator.server_domain + "MobileDevices/GetFileFromDisk",
+        DownloadPhotoFromServer(WeakReference(downloaded_image_preview), WeakReference(afterProcessingData), setProgressDialog("Pobieranie obrazu"), WeakReference(applicationContext)).execute(AppConfigurator.server_domain + "MobileDevices/GetFileFromDisk",
                 AppConfigurator.server_domain + "MobileDevices/getData")
     }
 
@@ -87,107 +88,115 @@ class ReceiveImageActivity : AppCompatActivity(){
 
         val dialog = builder.create()
         dialog.show()
-        val window = dialog.getWindow()
+        val window = dialog.window
         if (window != null) {
             val layoutParams = WindowManager.LayoutParams()
-            layoutParams.copyFrom(dialog.getWindow().getAttributes())
+            layoutParams.copyFrom(dialog.window.attributes)
             layoutParams.width = 756
             layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
-            dialog.getWindow().setAttributes(layoutParams)
+            dialog.window.attributes = layoutParams
         }
 
         return dialog
     }
+    companion object {
+        private class DownloadPhotoFromServer(val iv: WeakReference<PhotoView>, private val view: WeakReference<TextView>, private val alertDialog: AlertDialog, private val contextWeak: WeakReference<Context>) : AsyncTask<String, Void, Bitmap?>() {
+            private var bitmap: Bitmap? = null
+            private var dataUrl: String? = null
+            private var exception: Exception? = null
 
-    private inner class DownloadPhotoFromServer(val iv: PhotoView, private val view: TextView, private val alertDialog: AlertDialog) : AsyncTask<String, Void, Bitmap?>(){
-        private var bitmap: Bitmap? = null
-        private var dataUrl: String? = null
-        private var exception: Exception? = null
+            override fun doInBackground(vararg urls: String?): Bitmap? {
+                dataUrl = urls[1]
+                try {
+                    val httpsUrlConnection = AppConfigurator.createHttpsUrlConnectioObject(urls[0]!!)
+                    // expect HTTP 200 OK, so we don't mistakenly save error report
+                    // instead of the file
 
-        override fun doInBackground(vararg urls: String?): Bitmap? {
-            dataUrl = urls[1]
-            try {
-                val httpsUrlConnection = AppConfigurator.createHttpsUrlConnectioObject(urls[0]!!)
-                // expect HTTP 200 OK, so we don't mistakenly save error report
-                // instead of the file
-                val code = httpsUrlConnection.responseCode
-
-                when(httpsUrlConnection.responseCode){
-                    HttpsURLConnection.HTTP_OK -> {
-                        val input = httpsUrlConnection.inputStream
-                        bitmap = BitmapFactory.decodeStream(input)
-                        input.close()
-                        httpsUrlConnection.disconnect()
-                        return bitmap
+                    when (httpsUrlConnection.responseCode) {
+                        HttpsURLConnection.HTTP_OK -> {
+                            val input = httpsUrlConnection.inputStream
+                            bitmap = BitmapFactory.decodeStream(input)
+                            input.close()
+                            httpsUrlConnection.disconnect()
+                            return bitmap
+                        }
+                        HttpsURLConnection.HTTP_NOT_FOUND -> throw ProcessedImageNotExistsOnServerException()
                     }
-                    HttpsURLConnection.HTTP_NOT_FOUND -> throw ProcessedImageNotExistsOnServerException()
+                    httpsUrlConnection.disconnect()
+                    return null
+                } catch (exception: Exception) {
+                    this.exception = exception
                 }
                 return null
-            } catch (exception: Exception) {
-                this.exception = exception
             }
-            return null
+
+            override fun onPostExecute(result: Bitmap?) {
+                super.onPostExecute(result)
+
+                alertDialog.dismiss()
+
+                try {
+                    if(exception != null)
+                        AppConfigurator.toastMessageBasedOnException(this.exception!!, contextWeak.get()!!)
+                    else
+                        Toast.makeText(contextWeak.get()!!, "Pomyślnie odebrano obraz z serwera", Toast.LENGTH_SHORT).show()
+                } catch (nullPointerexception: NullPointerException) {
+
+                }
+
+                try {
+                    iv.get()!!.setImageBitmap(bitmap)
+
+                    DownloadProcessingResults(view).execute(dataUrl)
+                }catch(e: NullPointerException){}
+            }
         }
 
-        override fun onPostExecute(result: Bitmap?) {
-            super.onPostExecute(result)
+        private class DownloadProcessingResults(private val ivWeak: WeakReference<TextView>) : AsyncTask<String, Void, Unit>() {
+            private var afterProcessingData: String? = null
+            override fun doInBackground(vararg params: String?) {
 
-            alertDialog.dismiss()
+                try {
+                    val httpsURLConnection = AppConfigurator.createHttpsUrlConnectioObject(params[0]!!)
+                    val bufferedReader = BufferedReader(InputStreamReader(httpsURLConnection.inputStream))
 
-            try {
-                AppConfigurator.toastMessageBasedOnException(this.exception!!, applicationContext)
-            }catch (nullPointerexception: NullPointerException){
-                Toast.makeText(applicationContext, "Pomyślnie odebrano obraz z serwera", Toast.LENGTH_SHORT).show()
+                    if (httpsURLConnection.responseCode == HttpsURLConnection.HTTP_NOT_FOUND)
+                        throw ProcessedImageNotExistsOnServerException()
+                    afterProcessingData = bufferedReader.readLine()
+
+                    httpsURLConnection.disconnect()
+                } catch (e: Exception) {
+                    println(e)
+                }
             }
 
-            iv.setImageBitmap(bitmap)
+            override fun onPostExecute(result: Unit?) {
+                super.onPostExecute(result)
 
-            DownloadProcessingResults(view).execute(dataUrl)
+                try {
+                    val jsonObject = JSONObject(this.afterProcessingData)
+
+                    val keys: Iterator<String> = jsonObject.keys()
+
+                    val parsedAfterProcessingData = StringBuilder("")
+
+                    keys.forEach { item ->
+                        parsedAfterProcessingData
+                                .append(item)
+                                .append(": ")
+                                .append(jsonObject.get(item))
+                                .append(System.lineSeparator())
+                    }
+                    try{ivWeak.get()!!.text = parsedAfterProcessingData}catch (e: NullPointerException){}
+                } catch (e: JSONException) {
+                    try{ivWeak.get()!!.text = "Serwer zwrócił niepoprawne dane"}catch (e: NullPointerException){}
+                } catch (e: Exception) { }
+
+            }
         }
     }
 }
 
 class ProcessedImageNotExistsOnServerException : Exception()
 
-private class DownloadProcessingResults(val iv: TextView) : AsyncTask<String, Void, Unit>(){
-    private var afterProcessingData: String? = null
-    override fun doInBackground(vararg params: String?) {
 
-        try{
-            val httpsURLConnection = AppConfigurator.createHttpsUrlConnectioObject(params[0]!!)
-            val bufferedReader = BufferedReader(InputStreamReader(httpsURLConnection.inputStream))
-
-            if(httpsURLConnection.responseCode == HttpsURLConnection.HTTP_NOT_FOUND)
-                throw ProcessedImageNotExistsOnServerException()
-            afterProcessingData = bufferedReader.readLine()
-
-        }catch (e: Exception){
-            println(e)
-        }
-    }
-
-    override fun onPostExecute(result: Unit?) {
-        super.onPostExecute(result)
-
-        try {
-            val jsonObject = JSONObject(this.afterProcessingData)
-
-            val keys: Iterator<String> = jsonObject.keys()
-
-            val parsedAfterProcessingData = StringBuilder("")
-
-            keys.forEach { item -> parsedAfterProcessingData
-                    .append(item)
-                    .append(": ")
-                    .append(jsonObject.get(item))
-                    .append(System.lineSeparator())}
-
-            iv.text = parsedAfterProcessingData
-        }catch (e: JSONException){
-            iv.text = "Serwer zwrócił niepoprawne dane"
-        }catch (e: Exception){
-            println(e)
-        }
-
-    }
-}

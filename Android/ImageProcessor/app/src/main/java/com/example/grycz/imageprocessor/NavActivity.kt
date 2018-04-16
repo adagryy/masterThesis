@@ -2,7 +2,6 @@ package com.example.grycz.imageprocessor
 
 import android.content.Context
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
@@ -12,38 +11,29 @@ import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_nav.*
 import kotlinx.android.synthetic.main.app_bar_nav.*
 import android.content.Intent
-import android.os.BatteryManager
 import kotlinx.android.synthetic.main.content_nav.*
 import java.security.MessageDigest
 import android.content.IntentFilter
 import android.content.BroadcastReceiver
+import android.support.v4.content.ContextCompat
 import android.support.v4.content.LocalBroadcastManager
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 
 
 class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-    private val RequestImageFromCamera = 1
-    private val RequestPickImageFromGallery = 2
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_nav)
         setSupportActionBar(toolbar)
 
-//        fab.setOnClickListener { view ->
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show()
-//        }
-
-        receiving_activity.setOnClickListener{view ->
+        receiving_activity.setOnClickListener{_ ->
             val intent = Intent(this, SendImageActivity::class.java)
             intent.putExtra("napis", "test")
             startActivity(intent)
-//            dispatchTakePictureIntent()
         }
 
-        sending_activity.setOnClickListener { view ->
+        sending_activity.setOnClickListener { _ ->
             val intent = Intent(this, ReceiveImageActivity::class.java)
             intent.putExtra("napis", "test")
             startActivity(intent)
@@ -58,6 +48,15 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
 
         nav_view.setNavigationItemSelectedListener(this)
 
+        val navigationView = (findViewById<NavigationView>(R.id.nav_view)).getHeaderView(0)
+        navigationView.setBackgroundColor(ContextCompat.getColor(applicationContext, R.color.primary_darker))
+        val navUser = navigationView.findViewById(R.id.firstnameandlastname) as TextView
+        val navEmail = navigationView.findViewById(R.id.emailnavheader) as TextView
+
+        val cookiesFromPrefs = AppConfigurator.serverPreferences?.all
+
+        navUser.text = cookiesFromPrefs?.get("username").toString()
+        navEmail.text = cookiesFromPrefs?.get("useremail").toString()
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 IntentFilter("processingFinished"))
@@ -69,8 +68,6 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
     private val mMessageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             // Get extra data included in the Intent
-
-//            Toast.makeText(applicationContext, intent.getStringExtra("responseCode"), Toast.LENGTH_SHORT).show()
 
             val view: TextView = this@NavActivity.findViewById(R.id.progress_title)
 
@@ -115,22 +112,6 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         super.onDestroy()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.nav, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        when (item.itemId) {
-            R.id.action_settings -> return true
-            else -> return super.onOptionsItemSelected(item)
-        }
-    }
-
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         when (item.itemId) {
@@ -150,7 +131,7 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
             }
             R.id.logOff -> {
                 finish()
-                val editor = AppConfigurator.sharedpreferences?.edit()
+                val editor = AppConfigurator.loginPreferences?.edit()
                 editor?.clear()
                 editor?.commit()
 
@@ -163,27 +144,5 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
 
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
-    }
-
-    private fun getSHA_256sumOfString(s: String) : StringBuilder{
-        var messageDigest =  MessageDigest.getInstance("SHA-256")
-
-        messageDigest.update(s.toByteArray(Charsets.UTF_8))
-
-        var hash: ByteArray = messageDigest.digest()
-        val sb = StringBuilder()
-
-        for (b in hash) {
-            sb.append(Integer.toString((b.toInt() and 0xff) + 0x100, 16).substring(1))
-        }
-        return sb
-    }
-
-    private fun diagnostics(){
-
-        val cookieStore = AppConfigurator.cookieManager
-
-        for (eachCookie in cookieStore?.cookieStore!!.cookies)
-            println(( eachCookie.name + ",   " + eachCookie.getValue()))
     }
 }

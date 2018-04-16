@@ -1,6 +1,5 @@
 package com.example.grycz.imageprocessor
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
@@ -9,6 +8,7 @@ import android.os.Bundle
 import android.widget.Toast
 import java.io.*
 import java.lang.Exception
+import java.lang.ref.WeakReference
 import java.net.*
 import java.security.KeyStore
 import java.security.cert.Certificate
@@ -23,33 +23,7 @@ class StartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_start)
 
-        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL)
-//        CookieHandler.setDefault(cookieManager)
-
-        val file = File(applicationContext.filesDir, applicationContext.getString(R.string.server_address_file))
-        if(!file.exists())
-            AppConfigurator.createOrUpdateServerAddressFile(applicationContext, getString(R.string.server_ip))
-        AppConfigurator.server_domain = "https://" + AppConfigurator.readAddressFromFile(applicationContext) + "/"
-
-        AppConfigurator.sharedpreferences = getSharedPreferences("cookies", Context.MODE_PRIVATE)
-        val cookiesFromPrefs = AppConfigurator.sharedpreferences?.all
-
-        if(cookiesFromPrefs != null){
-            val dom = AppConfigurator.server_domain
-            val loginCookie = HttpCookie(cookiesFromPrefs.get("name").toString(), cookiesFromPrefs.get("value").toString())
-            loginCookie.domain = "192.168.0.3"//cookiesFromPrefs.get("domain").toString()
-            loginCookie.version = 0
-
-
-            cookieManager.cookieStore.add(URI(AppConfigurator.server_domain), loginCookie)
-
-
-//            AppConfigurator.cookieManager = cookieManager
-
-            cookieManager.cookieStore.cookies.forEach { item ->
-                println(item.name + ", MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM" + item.value)
-            }
-        }
+        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL) // accept all cookies
 
         CookieHandler.setDefault(cookieManager)
 
@@ -108,83 +82,94 @@ class StartActivity : AppCompatActivity() {
 
         AppConfigurator.sslContext = context
 
-        TestLogging(AppConfigurator.server_domain + "MobileDevices/checkIfMobileAppLoggedIn", cookieManager).execute()
-//        try {
-//            // Tell the URLConnection to use a SocketFactory from our SSLContext
-//            val url = URL(AppConfigurator.server_domain + "serwer/MobileDevices/checkIfMobileAppLoggedIn")
-//            val urlConnection = url.openConnection() as HttpsURLConnection
-//            urlConnection.sslSocketFactory = (context.socketFactory)
-//            urlConnection.requestMethod = "POST"
-//
-//            val code = urlConnection.responseCode
-//
-//            println(code)
-//        }catch (e: Exception){
-//            println(e)
-//        }
-    }
+        // Setup server preferences (ip address or domain name) and user-specific login preferences (remember password, user firstname and lastname)
+        AppConfigurator.serverPreferences = getSharedPreferences(getString(R.string.serverPreferences), Context.MODE_PRIVATE) // load serverPreferences into global variable
 
-    internal inner class TestLogging(private val url: String, private val cookieManager: CookieManager) : AsyncTask<String, Unit, Unit>(){
-
-        private var noRouteToHostException: NoRouteToHostException? = null
-        private var connectException: ConnectException? = null
-        private var exception: Exception? = null
-        private var loggedIn: Boolean = false
-
-        override fun doInBackground(vararg params: String?) {
-            try {
-                val httpsConn = AppConfigurator.createHttpsUrlConnectioObject(url)
-
-                if(httpsConn.responseCode == 200)
-                    loggedIn = true
-                else
-                    println()
-            } catch (e: NoRouteToHostException) {
-                this.noRouteToHostException = e
-            }catch (e: ConnectException){
-                this.connectException = e
-            }catch (e: Exception){
-                this.exception = e
-            }
+        val allServerPreferences = AppConfigurator.serverPreferences?.all // read from serverPreferences
+        if(allServerPreferences != null && allServerPreferences.isEmpty()){ // if serverPreferences are not null and empty, then redirect to serverAddressActivity to ask user for ip address for server
+            // Activity is filled with default serverAddress
+            val redirectIntent = Intent(applicationContext, ServerAddressActivity::class.java)
+            redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
+            applicationContext.startActivity(redirectIntent)
+            this.finish()
             return
         }
 
-        override fun onPostExecute(result: Unit?) {
-            super.onPostExecute(result)
+        AppConfigurator.server_domain = "https://" + allServerPreferences?.get("serveraddress").toString() + "/"
 
-            AppConfigurator.cookieManager = cookieManager
+        AppConfigurator.loginPreferences = getSharedPreferences("cookies", Context.MODE_PRIVATE)
+        val cookiesFromPrefs = AppConfigurator.loginPreferences?.all
 
-            if(loggedIn && noRouteToHostException == null && exception == null && connectException == null){
-                val redirectIntent = Intent(applicationContext, NavActivity::class.java)
-                redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
-                applicationContext.startActivity(redirectIntent)
-                this@StartActivity.finish()
-            }else if(!loggedIn && noRouteToHostException == null && exception == null && connectException == null){
-                val redirectIntent = Intent(applicationContext, LoginActivity::class.java)
-                redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
-                applicationContext.startActivity(redirectIntent)
-                this@StartActivity.finish()
-            }else if(noRouteToHostException != null || connectException != null){
-                val toast: Toast = Toast.makeText(applicationContext, "Problem z połączniem z serwerem.", Toast.LENGTH_SHORT)
-                toast.show()
-                val redirectIntent = Intent(applicationContext, LoginActivity::class.java)
-                redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
-                applicationContext.startActivity(redirectIntent)
-                this@StartActivity.finish()
-            }else{
-                val toast: Toast = Toast.makeText(applicationContext, "Nieznany błąd.", Toast.LENGTH_SHORT)
-                toast.show()
-                val redirectIntent = Intent(applicationContext, LoginActivity::class.java)
-                redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
-                applicationContext.startActivity(redirectIntent)
-                this@StartActivity.finish()
+        if(cookiesFromPrefs != null){
+            val loginCookie = HttpCookie(cookiesFromPrefs.get("name").toString(), cookiesFromPrefs.get("value").toString())
+            loginCookie.domain = cookiesFromPrefs.get("domain").toString()
+            loginCookie.version = 0
+
+            cookieManager.cookieStore.add(URI(AppConfigurator.server_domain), loginCookie)
+        }
+
+        TestLogging(AppConfigurator.server_domain + "MobileDevices/checkIfMobileAppLoggedIn", cookieManager, WeakReference(applicationContext), WeakReference(this)).execute()
+    }
+
+    companion object {
+        // Test if user is logged in or not
+        internal class TestLogging(private val url: String, private val cookieManager: CookieManager, private val contextWeak: WeakReference<Context>, private val activityWeak: WeakReference<StartActivity>) : AsyncTask<String, Unit, Unit>(){
+
+            private var noRouteToHostException: NoRouteToHostException? = null
+            private var connectException: ConnectException? = null
+            private var exception: Exception? = null
+            private var loggedIn: Boolean = false // false = user not logged in, true - user logged in
+
+            override fun doInBackground(vararg params: String?) {
+                try {
+                    val httpsConn = AppConfigurator.createHttpsUrlConnectioObject(url)
+
+                    if(httpsConn.responseCode == 200)
+                        loggedIn = true
+                    httpsConn.disconnect()
+                } catch (e: NoRouteToHostException) {
+                    this.noRouteToHostException = e
+                }catch (e: ConnectException){
+                    this.connectException = e
+                }catch (e: Exception){
+                    this.exception = e
+                }
+                return
+            }
+
+            override fun onPostExecute(result: Unit?) {
+                super.onPostExecute(result)
+
+                AppConfigurator.cookieManager = cookieManager
+
+                try {
+                    if (loggedIn && noRouteToHostException == null && exception == null && connectException == null) { // user logged in, no other errors. Redirect user to NavActivity
+                        val redirectIntent = Intent(contextWeak.get()!!, NavActivity::class.java)
+                        redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
+                        contextWeak.get()!!.startActivity(redirectIntent)
+                        activityWeak.get()!!.finish()
+                    } else if (!loggedIn && noRouteToHostException == null && exception == null && connectException == null) { // User not logged in, no other errors. Redirect user to LoginActivity
+                        val redirectIntent = Intent(contextWeak.get()!!, LoginActivity::class.java)
+                        redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
+                        contextWeak.get()!!.startActivity(redirectIntent)
+                        activityWeak.get()!!.finish()
+                    } else if (noRouteToHostException != null || connectException != null) { // No connection with server. Show user error in Toast
+                        val toast: Toast = Toast.makeText(contextWeak.get()!!, "Problem z połączniem z serwerem.", Toast.LENGTH_SHORT)
+                        toast.show()
+                        val redirectIntent = Intent(contextWeak.get()!!, LoginActivity::class.java)
+                        redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
+                        contextWeak.get()!!.startActivity(redirectIntent)
+                        activityWeak.get()!!.finish()
+                    } else { // Other error
+                        val toast: Toast = Toast.makeText(contextWeak.get()!!, "Nieznany błąd.", Toast.LENGTH_SHORT)
+                        toast.show()
+                        val redirectIntent = Intent(contextWeak.get()!!, LoginActivity::class.java)
+                        redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
+                        contextWeak.get()!!.startActivity(redirectIntent)
+                        activityWeak.get()!!.finish()
+                    }
+                }catch(e: NullPointerException){}
             }
         }
-//        private class ExitApplicationOnConnectFailed : AsyncTask<Void, Void, Unit>(){
-//            override fun doInBackground(vararg params: Void?) {
-//                Thread.sleep(3000)
-//                System.exit(0)
-//            }
-//        }
     }
 }

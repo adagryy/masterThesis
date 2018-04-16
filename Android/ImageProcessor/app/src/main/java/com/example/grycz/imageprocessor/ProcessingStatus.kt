@@ -24,7 +24,7 @@ class ProcessingStatus : IntentService("ProcessingStatus") {
         val context = this
         val timer = Timer()
 
-        var counter = AtomicInteger() // thread safe counter started from 0
+        val counter = AtomicInteger() // thread safe counter started from 0
 
         timer.scheduleAtFixedRate(object : TimerTask() { // check periodically if processing has been finished
             override fun run() {

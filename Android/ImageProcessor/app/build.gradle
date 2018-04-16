@@ -10,7 +10,8 @@ android {
         applicationId "com.example.grycz.imageprocessor"
         minSdkVersion 21
         targetSdkVersion 27 // updated from 26 - AG
-        multiDexEnabled true // added by AG 15.03.2018 in order to fix "error converting bytecode to dex multiple dex files define" error
+        multiDexEnabled true
+        // added by AG 15.03.2018 in order to fix "error converting bytecode to dex multiple dex files define" error
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
