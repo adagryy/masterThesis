@@ -51,16 +51,10 @@ class ReceiveImageActivity : AppCompatActivity(){
         downloadImageFromServer() // download image from server
 
         afterProcessingData.movementMethod = ScrollingMovementMethod() // enables "afterProcessingData" to scroll
-
-        // Needed to save photo in gallery
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            checkPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE)
-            checkPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
-        }
     }
 
     private fun downloadImageFromServer(){
-        DownloadPhotoFromServer(WeakReference(downloaded_image_preview), WeakReference(afterProcessingData), setProgressDialog("Pobieranie obrazu"), WeakReference(applicationContext)).execute(AppConfigurator.server_domain + "MobileDevices/GetFileFromDisk",
+        DownloadPhotoFromServer(WeakReference(downloaded_image_preview), WeakReference(afterProcessingData), setProgressDialog("Pobieranie obrazu"), WeakReference(applicationContext), WeakReference(this)).execute(AppConfigurator.server_domain + "MobileDevices/GetFileFromDisk",
                 AppConfigurator.server_domain + "MobileDevices/getData")
     }
 
@@ -102,10 +96,6 @@ class ReceiveImageActivity : AppCompatActivity(){
         }
     }
 
-//    override fun onDestroy() {
-//        super.onDestroy()
-//    }
-
     private fun checkIfHasPermissionToSave() : Boolean{
         // check permissions if device is Amdroid 6.0 (Marshmallow) or higher
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M)
@@ -121,27 +111,9 @@ class ReceiveImageActivity : AppCompatActivity(){
         if (ContextCompat.checkSelfPermission(this,
                         permission)
                 != PackageManager.PERMISSION_GRANTED) {
-
-//            // Should we show an explanation?
-//            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-//                            permission)) {
-//
-//                // Show an explanation to the user *asynchronously* -- don't block
-//                // this thread waiting for the user's response! After the user
-//                // sees the explanation, try again to request the permission.
-//
-//            } else {
-//
-//                // No explanation needed, we can request the permission.
-
-                ActivityCompat.requestPermissions(this,
-                        arrayOf(permission),
-                        id)
-
-//                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-//                // app-defined int constant. The callback method gets the
-//                // result of the request.
-//            }
+                    ActivityCompat.requestPermissions(this,
+                            arrayOf(permission),
+                            id)
         } else {
             // Permission has already been granted
             if(id == MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE)
@@ -231,7 +203,8 @@ class ReceiveImageActivity : AppCompatActivity(){
 
     companion object {
         private class DownloadPhotoFromServer(val iv: WeakReference<PhotoView>, private val view: WeakReference<TextView>,
-                                              private val alertDialog: AlertDialog, private val contextWeak: WeakReference<Context>
+                                              private val alertDialog: AlertDialog, private val contextWeak: WeakReference<Context>,
+                                              private val activityWeak: WeakReference<ReceiveImageActivity>
                                               ) : AsyncTask<String, Void, Bitmap?>() {
             private var bitmap: Bitmap? = null
             private var dataUrl: String? = null
@@ -279,7 +252,13 @@ class ReceiveImageActivity : AppCompatActivity(){
                 try {
                     iv.get()!!.setImageBitmap(bitmap) // set image into view
                     DownloadProcessingResults(view).execute(dataUrl)
+                    // Needed to save photo in gallery. Request permissions after image is loaded and alertDialob is dismissed
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                        activityWeak.get()!!.checkPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, activityWeak.get()!!.MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE)
+                        activityWeak.get()!!.checkPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, activityWeak.get()!!.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
+                    }
                 }catch(e: NullPointerException){}
+
             }
         }
 
@@ -322,6 +301,7 @@ class ReceiveImageActivity : AppCompatActivity(){
                 } catch (e: JSONException) {
                     try{ivWeak.get()!!.text = "Serwer zwrócił niepoprawne dane"}catch (e: NullPointerException){}
                 } catch (e: Exception) { }
+
 
             }
         }

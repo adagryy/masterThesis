@@ -20,7 +20,7 @@ class ServerAddressActivity : AppCompatActivity() {
             editor?.commit()
 
             // After saving server address redirect user to "LoginActivity"
-            val redirectIntent = Intent(applicationContext, LoginActivity::class.java)
+            val redirectIntent = Intent(applicationContext, StartActivity::class.java)
             redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
             applicationContext.startActivity(redirectIntent)
             this.finish() // finish (kill) this activity
