@@ -3,6 +3,7 @@ package com.example.grycz.imageprocessor
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Matrix
@@ -255,9 +256,20 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         }
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+
+        // Checks the orientation of the screen
+        if (newConfig?.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Toast.makeText(this, "Układ poziomy", Toast.LENGTH_SHORT).show()
+        } else if (newConfig?.orientation == Configuration.ORIENTATION_PORTRAIT){
+            Toast.makeText(this, "Układ pionowy", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun persistImage(bitmap: Bitmap, name: String) : File {
         val filesDir = baseContext.filesDir
-        val imageFile = File(filesDir, name + ".jpg")
+        val imageFile = File(filesDir, "$name.jpg")
 
         val os: OutputStream
         try {

@@ -1,12 +1,18 @@
 package com.example.grycz.imageprocessor
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.graphics.BitmapFactory
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
+import android.media.MediaScannerConnection
+import android.os.Environment
 import android.support.v7.app.AlertDialog
 import android.text.method.ScrollingMovementMethod
 import android.view.*
@@ -19,8 +25,19 @@ import org.json.JSONObject
 import java.io.*
 import java.lang.ref.WeakReference
 import javax.net.ssl.HttpsURLConnection
+import android.support.v4.app.ActivityCompat
+import android.support.v4.app.NavUtils
+import android.support.v4.content.ContextCompat
+import java.text.SimpleDateFormat
+import java.util.*
+
 
 class ReceiveImageActivity : AppCompatActivity(){
+    private val MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: Int = 1
+    private val MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: Int = 2
+    private var hasUserAllowedWriteExternalStorage = false
+    private var hasUserAllowedReadExternalStorage = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_receive_image)
@@ -34,6 +51,12 @@ class ReceiveImageActivity : AppCompatActivity(){
         downloadImageFromServer() // download image from server
 
         afterProcessingData.movementMethod = ScrollingMovementMethod() // enables "afterProcessingData" to scroll
+
+        // Needed to save photo in gallery
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            checkPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE)
+            checkPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
+        }
     }
 
     private fun downloadImageFromServer(){
@@ -48,11 +71,117 @@ class ReceiveImageActivity : AppCompatActivity(){
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        download -> {
+        download -> { // Handle saving image button (saves image into public gallery)
+            if(checkIfHasPermissionToSave()) {
+                val bitmap: Bitmap = (downloaded_image_preview.drawable as BitmapDrawable).bitmap // read bitmap from view
+//            MediaStore.Images.Media.insertImage(contentResolver, bitmap ,"test.JPG" , "Testowy opis")
+                val root = Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_PICTURES).toString()
+                val saveDir = File("$root/AnalizatorObrazow")
+                if (!saveDir.exists())
+                    saveDir.mkdirs()
+                // Collision-resistant filename
+                val fileToSave = File(saveDir, "processedImage" + SimpleDateFormat("yyyyMMdd_HHmmss").format(Date()) + ".JPG")
+                val imageOutputStream = FileOutputStream(fileToSave)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, imageOutputStream)
+
+                // Tell the mediascanner to be saved image available in gallery immediately
+                MediaScannerConnection.scanFile(this, arrayOf(fileToSave.toString()), null, null)
+
+                NavUtils.navigateUpFromSameTask(this) // return to home (prevents multiple downloads)
+
+                Toast.makeText(applicationContext, "Pomyślnie zapisano obraz w galerii", Toast.LENGTH_SHORT).show()
+            }else{
+                NavUtils.navigateUpFromSameTask(this) // return to home (prevents multiple downloads)
+                Toast.makeText(applicationContext, "Odmowa dostępu do zapisu", Toast.LENGTH_SHORT).show()
+            }
             true
         }
         else -> {
             super.onOptionsItemSelected(item)
+        }
+    }
+
+//    override fun onDestroy() {
+//        super.onDestroy()
+//    }
+
+    private fun checkIfHasPermissionToSave() : Boolean{
+        // check permissions if device is Amdroid 6.0 (Marshmallow) or higher
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M)
+            return ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        else
+            // If Android version is below Android 6.0 (Marshmallow), then this is always true, because the only way to install app is to grant all its permissions
+            return true
+    }
+
+    private fun checkPermissions(permission: String, id: Int) {
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(this,
+                        permission)
+                != PackageManager.PERMISSION_GRANTED) {
+
+//            // Should we show an explanation?
+//            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                            permission)) {
+//
+//                // Show an explanation to the user *asynchronously* -- don't block
+//                // this thread waiting for the user's response! After the user
+//                // sees the explanation, try again to request the permission.
+//
+//            } else {
+//
+//                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this,
+                        arrayOf(permission),
+                        id)
+
+//                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+//                // app-defined int constant. The callback method gets the
+//                // result of the request.
+//            }
+        } else {
+            // Permission has already been granted
+            if(id == MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE)
+                this.hasUserAllowedWriteExternalStorage = true // write permission granted
+            else if(id == MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
+                this.hasUserAllowedReadExternalStorage = true // read permission granted
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE -> {
+                // If request is cancelled, the result arrays are empty.
+                this.hasUserAllowedWriteExternalStorage = (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                return
+            }
+            MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE -> {
+                // If request is cancelled, the result arrays are empty.
+                this.hasUserAllowedReadExternalStorage = (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                return
+            }
+
+        // Add other 'when' lines to check for other
+        // permissions this app might request.
+
+            else -> {
+                // Ignore all other requests.
+            }
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+
+        // Checks the orientation of the screen
+        if (newConfig?.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Toast.makeText(this, "Układ poziomy", Toast.LENGTH_SHORT).show()
+        } else if (newConfig?.orientation == Configuration.ORIENTATION_PORTRAIT){
+            Toast.makeText(this, "Układ pionowy", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -99,8 +228,11 @@ class ReceiveImageActivity : AppCompatActivity(){
 
         return dialog
     }
+
     companion object {
-        private class DownloadPhotoFromServer(val iv: WeakReference<PhotoView>, private val view: WeakReference<TextView>, private val alertDialog: AlertDialog, private val contextWeak: WeakReference<Context>) : AsyncTask<String, Void, Bitmap?>() {
+        private class DownloadPhotoFromServer(val iv: WeakReference<PhotoView>, private val view: WeakReference<TextView>,
+                                              private val alertDialog: AlertDialog, private val contextWeak: WeakReference<Context>
+                                              ) : AsyncTask<String, Void, Bitmap?>() {
             private var bitmap: Bitmap? = null
             private var dataUrl: String? = null
             private var exception: Exception? = null
@@ -145,8 +277,7 @@ class ReceiveImageActivity : AppCompatActivity(){
                 }
 
                 try {
-                    iv.get()!!.setImageBitmap(bitmap)
-
+                    iv.get()!!.setImageBitmap(bitmap) // set image into view
                     DownloadProcessingResults(view).execute(dataUrl)
                 }catch(e: NullPointerException){}
             }
