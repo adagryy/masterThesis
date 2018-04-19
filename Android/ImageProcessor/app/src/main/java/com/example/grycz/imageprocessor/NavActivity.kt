@@ -6,19 +6,19 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_nav.*
 import kotlinx.android.synthetic.main.app_bar_nav.*
 import android.content.Intent
 import kotlinx.android.synthetic.main.content_nav.*
-import java.security.MessageDigest
 import android.content.IntentFilter
 import android.content.BroadcastReceiver
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.LocalBroadcastManager
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
+import java.net.*
 
 
 class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -46,6 +46,8 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
 
         supportActionBar?.title = "Start"
 
+        changeButtonsState(false) // disable buttons in activity until checking of processing status isn't finished
+
         nav_view.setNavigationItemSelectedListener(this)
 
         val navigationView = (findViewById<NavigationView>(R.id.nav_view)).getHeaderView(0)
@@ -53,7 +55,40 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         val navUser = navigationView.findViewById(R.id.firstnameandlastname) as TextView
         val navEmail = navigationView.findViewById(R.id.emailnavheader) as TextView
 
-        val cookiesFromPrefs = AppConfigurator.serverPreferences?.all
+        // --------------
+        // Sometimes there was a problems with running "StartActivity" at the beginning, So that "AppConfigurator.domain" wasn't set and then app show message to the user to restart it
+        // This prevents from this by check if address is set and - if not - then reset it again
+        // Setup server preferences (ip address or domain name) and user-specific login preferences (remember password, user firstname and lastname)
+        AppConfigurator.serverPreferences = getSharedPreferences(getString(R.string.serverPreferences), Context.MODE_PRIVATE) // load serverPreferences into global variable
+
+        val allServerPreferences = AppConfigurator.serverPreferences?.all // read from serverPreferences
+
+        if(AppConfigurator.server_domain.isEmpty()) {
+            AppConfigurator.setSelSignedCertificate()
+            AppConfigurator.server_domain = "https://" + allServerPreferences?.get("serveraddress").toString() + "/"
+        }
+
+        AppConfigurator.loginPreferences = getSharedPreferences("cookies", Context.MODE_PRIVATE)
+
+        val cookiesFromPrefs = AppConfigurator.loginPreferences?.all
+
+        if(AppConfigurator.cookieManager == null) {
+            val cookieManager = CookieManager()
+            val loginCookie = HttpCookie(cookiesFromPrefs?.get("name").toString(), cookiesFromPrefs?.get("value").toString())
+            loginCookie.domain = cookiesFromPrefs?.get("domain").toString()
+            loginCookie.version = 0
+
+            cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL) // accept all cookies
+
+            CookieHandler.setDefault(cookieManager)
+
+            cookieManager.cookieStore.add(URI(AppConfigurator.server_domain), loginCookie)
+
+            Toast.makeText(applicationContext, cookieManager.cookieStore.cookies.count().toString() , Toast.LENGTH_SHORT).show()
+
+            AppConfigurator.cookieManager = cookieManager
+        }
+        // --------------
 
         navUser.text = cookiesFromPrefs?.get("username").toString()
         navEmail.text = cookiesFromPrefs?.get("useremail").toString()

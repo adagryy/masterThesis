@@ -6,15 +6,9 @@ import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
-import java.io.*
 import java.lang.Exception
 import java.lang.ref.WeakReference
 import java.net.*
-import java.security.KeyStore
-import java.security.cert.Certificate
-import java.security.cert.CertificateFactory
-import java.security.cert.X509Certificate
-import javax.net.ssl.*
 
 private val cookieManager = CookieManager()
 
@@ -27,60 +21,7 @@ class StartActivity : AppCompatActivity() {
 
         CookieHandler.setDefault(cookieManager)
 
-        // Load CAs from an InputStream
-        // (could be from a resource or ByteArrayInputStream or ...)
-        val cf = CertificateFactory.getInstance("X.509")
-
-        val certificate = String(StringBuilder(
-                "-----BEGIN CERTIFICATE-----\n" +
-                "MIIC/jCCAeagAwIBAgIQV8I5rY1IzI5LPy+HxSpjXTANBgkqhkiG9w0BAQsFADAa\n" +
-                "MRgwFgYDVQQDEw9ERVNLVE9QLVNUUTRJNDQwHhcNMTcxMjA3MjEyNzEyWhcNMTgx\n" +
-                "MjA3MDAwMDAwWjAaMRgwFgYDVQQDEw9ERVNLVE9QLVNUUTRJNDQwggEiMA0GCSqG\n" +
-                "SIb3DQEBAQUAA4IBDwAwggEKAoIBAQDZ2TiAhneH5xRYj7NyCLEAPu2hL4FhqYA7\n" +
-                "vD8JVbnutQZQW4cnaK9x86WKR32bfRPUv7XFTv7B0o3RYga1XLMoeaGFz54lyO6D\n" +
-                "8V3mK7fLJYKxBjifaGxh6qKtKFXxl4WrRbPqJkqbiITonJL279yjjNo/KQh8B7Hw\n" +
-                "wP2pWS6J7ZByMLjU1mny7I+a59JMmXoCBwDDbI0DEoKtZZ1a32Hdo8+2iYkXNq6n\n" +
-                "CCVc5pLW2KFypajeb/dGqHGpFytx/gOGCr88Eb6FiXR+iFytp5MzcwyKZOijmSIr\n" +
-                "EQoSe9SfHybi0OizDMyMJYvJH37PMcpQ8x6DKggDzN9+djlGN9rtAgMBAAGjQDA+\n" +
-                "MAsGA1UdDwQEAwIEMDATBgNVHSUEDDAKBggrBgEFBQcDATAaBgNVHREEEzARgg9E\n" +
-                "RVNLVE9QLVNUUTRJNDQwDQYJKoZIhvcNAQELBQADggEBAKacbqrEZwNr1zqQF3wU\n" +
-                "8/sFr9bBBb1yxZQ9uZfTD2Jj5/kAQSERMfFyRu7ZpQJxo6mfa1roodYVmXtyY+bo\n" +
-                "npuZQGbPIjxkP0Vk8kdDMW9cQZKH0ktlgNZ6DbHnxAgl4oQo+7l+rXChP9qT7o0d\n" +
-                "LRlQBhfSCm2KClElQ1TB4e//0Z9cam71+b7QYDeDZKGuOVw/L4zB7Bof4v4rijRq\n" +
-                "/I7mN1PtHe8jXNtmSP8ageSsQOV5EF3tygJBupw/uOe6lmz4KXRAKEXplkvm7a3W\n" +
-                "NjwDqftWTkAlYbmbMt0x/P+JXs3nkh4GWrqyAkvfpfBwAH0d2YmDWKorNgFmab+t\n" +
-                "Jkg=\n" +
-                "-----END CERTIFICATE-----\n"))
-
-        // From https://www.washington.edu/itconnect/security/ca/load-der.crt
-        val caInput = BufferedInputStream(ByteArrayInputStream(certificate.toByteArray()))
-        var ca: Certificate? = null
-        try {
-            ca = cf.generateCertificate(caInput)
-            System.out.println("ca=" + (ca as X509Certificate).subjectDN)
-        }catch (e: Exception){
-            println(e)
-        }
-        finally {
-            caInput.close()
-        }
-
-        // Create a KeyStore containing our trusted CAs
-        val keyStoreType = KeyStore.getDefaultType()
-        val keyStore = KeyStore.getInstance(keyStoreType)
-        keyStore.load(null, null)
-        keyStore.setCertificateEntry("ca", ca)
-
-        // Create a TrustManager that trusts the CAs in our KeyStore
-        val tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm()
-        val tmf = TrustManagerFactory.getInstance(tmfAlgorithm)
-        tmf.init(keyStore)
-
-        // Create an SSLContext that uses our TrustManager
-        val context = SSLContext.getInstance("TLS")
-        context.init(null, tmf.trustManagers, null)
-
-        AppConfigurator.sslContext = context
+        AppConfigurator.setSelSignedCertificate() // prepare app to use self-signed certificate
 
         // Setup server preferences (ip address or domain name) and user-specific login preferences (remember password, user firstname and lastname)
         AppConfigurator.serverPreferences = getSharedPreferences(getString(R.string.serverPreferences), Context.MODE_PRIVATE) // load serverPreferences into global variable

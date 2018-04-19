@@ -67,24 +67,32 @@ class ReceiveImageActivity : AppCompatActivity(){
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         download -> { // Handle saving image button (saves image into public gallery)
             if(checkIfHasPermissionToSave()) {
-                val bitmap: Bitmap = (downloaded_image_preview.drawable as BitmapDrawable).bitmap // read bitmap from view
-//            MediaStore.Images.Media.insertImage(contentResolver, bitmap ,"test.JPG" , "Testowy opis")
-                val root = Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_PICTURES).toString()
-                val saveDir = File("$root/AnalizatorObrazow")
-                if (!saveDir.exists())
-                    saveDir.mkdirs()
-                // Collision-resistant filename
-                val fileToSave = File(saveDir, "processedImage" + SimpleDateFormat("yyyyMMdd_HHmmss").format(Date()) + ".JPG")
-                val imageOutputStream = FileOutputStream(fileToSave)
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, imageOutputStream)
+                try {
+                    item.isEnabled = false // disable action button to prevent multi-click
 
-                // Tell the mediascanner to be saved image available in gallery immediately
-                MediaScannerConnection.scanFile(this, arrayOf(fileToSave.toString()), null, null)
+                    val bitmap: Bitmap = (downloaded_image_preview.drawable as BitmapDrawable).bitmap // read bitmap from view
+                                        ?: throw NullPointerException() // or throw exception if bitmap is null
 
-                NavUtils.navigateUpFromSameTask(this) // return to home (prevents multiple downloads)
+                    val root = Environment.getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_PICTURES).toString()
+                    val saveDir = File("$root/AnalizatorObrazow")
+                    if (!saveDir.exists())
+                        saveDir.mkdirs()
+                    // Collision-resistant filename
+                    val fileToSave = File(saveDir, "processedImage" + SimpleDateFormat("yyyyMMdd_HHmmss").format(Date()) + ".JPG")
+                    val imageOutputStream = FileOutputStream(fileToSave)
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, imageOutputStream)
 
-                Toast.makeText(applicationContext, "Pomyślnie zapisano obraz w galerii", Toast.LENGTH_SHORT).show()
+                    // Tell the mediascanner to be saved image available in gallery immediately
+                    MediaScannerConnection.scanFile(this, arrayOf(fileToSave.toString()), null, null)
+
+                    NavUtils.navigateUpFromSameTask(this) // return to home (prevents multiple downloads)
+
+                    Toast.makeText(applicationContext, "Pomyślnie zapisano obraz w galerii", Toast.LENGTH_SHORT).show()
+                }catch (e: NullPointerException){ // image does not exist in
+                    NavUtils.navigateUpFromSameTask(this) // return to home (prevents multiple downloads)
+                    Toast.makeText(applicationContext, "Brak obrazu do zapisania!", Toast.LENGTH_SHORT).show()
+                }
             }else{
                 NavUtils.navigateUpFromSameTask(this) // return to home (prevents multiple downloads)
                 Toast.makeText(applicationContext, "Odmowa dostępu do zapisu", Toast.LENGTH_SHORT).show()
@@ -209,9 +217,12 @@ class ReceiveImageActivity : AppCompatActivity(){
             private var bitmap: Bitmap? = null
             private var dataUrl: String? = null
             private var exception: Exception? = null
+            private var debugMsg = ""
+            private var url0 = ""
 
             override fun doInBackground(vararg urls: String?): Bitmap? {
                 dataUrl = urls[1]
+                url0 = urls[0]!!
                 try {
                     val httpsUrlConnection = AppConfigurator.createHttpsUrlConnectioObject(urls[0]!!)
                     // expect HTTP 200 OK, so we don't mistakenly save error report
@@ -230,6 +241,7 @@ class ReceiveImageActivity : AppCompatActivity(){
                     httpsUrlConnection.disconnect()
                     return null
                 } catch (exception: Exception) {
+                    debugMsg = exception.toString()
                     this.exception = exception
                 }
                 return null
@@ -241,6 +253,7 @@ class ReceiveImageActivity : AppCompatActivity(){
                 alertDialog.dismiss()
 
                 try {
+//                    Toast.makeText(contextWeak.get()!!, url0 + ", test: $debugMsg", Toast.LENGTH_SHORT).show()
                     if(exception != null)
                         AppConfigurator.toastMessageBasedOnException(this.exception!!, contextWeak.get()!!)
                     else
@@ -257,7 +270,9 @@ class ReceiveImageActivity : AppCompatActivity(){
                         activityWeak.get()!!.checkPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, activityWeak.get()!!.MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE)
                         activityWeak.get()!!.checkPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, activityWeak.get()!!.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
                     }
-                }catch(e: NullPointerException){}
+                }catch(e: NullPointerException){
+//                    Toast.makeText(contextWeak.get()!!, e.toString(), Toast.LENGTH_SHORT).show()
+                }
 
             }
         }
