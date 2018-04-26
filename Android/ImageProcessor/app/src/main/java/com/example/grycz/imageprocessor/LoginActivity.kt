@@ -41,6 +41,13 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
             login()
         }
 
+        btn_edit_certificate.setOnClickListener {
+            val redirectIntent = Intent(applicationContext, CertificateActivity::class.java)
+            redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
+            applicationContext.startActivity(redirectIntent)
+            this.finish() // finish (kill) this activity
+        }
+
         val addressEditText: EditText = findViewById(R.id._addressText)
 
         val allServerPreferences = AppConfigurator.serverPreferences?.all // read from serverPreferences
@@ -115,12 +122,13 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
 //        map.put("Password", "RedKon,123")
 //        map.put("RememberMe", "true")
 
-        LoginClass(AppConfigurator.server_domain + "Account/MobileLogin   ", "UTF-8", ad, WeakReference(applicationContext), WeakReference(this)).execute(map)
+        LoginClass(AppConfigurator.server_domain + "Account/MobileLogin", "UTF-8", ad, WeakReference(applicationContext), WeakReference(this)).execute(map)
     }
     companion object {
 
         class LoginClass(private val url: String, private val charset: String, private val progressDialog: Dialog, private val contextWeak: WeakReference<Context>, private val activityWeak: WeakReference<LoginActivity>) : AsyncTask<HashMap<String, String>, Void, Unit>(){
             private var responseCode: Int? = null
+            private var exception: Exception? = null
 
             override fun doInBackground(vararg params: HashMap<String, String>?) {
                 try {
@@ -157,10 +165,8 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
                         }catch (e: JSONException){ }
 
                     }
-                }catch (e: NoRouteToHostException) {
-                }catch (e: ConnectException){
                 }catch (e: Exception){
-                    println()
+                    this.exception = e
                 }
             }
 
@@ -179,7 +185,7 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
                     }
                     editor?.commit()
                     try {
-                        val redirectIntent = Intent(contextWeak.get()!!, NavActivity::class.java)
+                        val redirectIntent = Intent(contextWeak.get()!!, StartActivity::class.java)
                         redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
                         contextWeak.get()!!.startActivity(redirectIntent)
                         progressDialog.dismiss()
@@ -191,7 +197,9 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
                 } else { // else login failed
                     progressDialog.dismiss()
                     try {
-                        activityWeak.get()!!.onLoginFailed()
+//                        activityWeak.get()!!.onLoginFailed()
+                        AppConfigurator.toastMessageBasedOnException(this.exception!!, contextWeak.get()!!)
+                        activityWeak.get()!!.btn_login.isEnabled = (true)
                     }catch (e: NullPointerException){}
                 }
             }
@@ -204,9 +212,9 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
         moveTaskToBack(true)
     }
 
-    private fun onLoginFailed() {
-        Toast.makeText(baseContext, "Błąd logowania", Toast.LENGTH_LONG).show()
-
-        btn_login.isEnabled = (true)
-    }
+//    private fun onLoginFailed() {
+//        Toast.makeText(baseContext, "Błąd logowania", Toast.LENGTH_LONG).show()
+//
+//        btn_login.isEnabled = (true)
+//    }
 }

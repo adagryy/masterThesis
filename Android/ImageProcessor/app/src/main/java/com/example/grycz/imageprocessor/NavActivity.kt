@@ -64,7 +64,7 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         val allServerPreferences = AppConfigurator.serverPreferences?.all // read from serverPreferences
 
         if(AppConfigurator.server_domain.isEmpty()) {
-            AppConfigurator.setSelSignedCertificate()
+            AppConfigurator.setSelSignedCertificate() // prepare app to use self-signed certificate
             AppConfigurator.server_domain = "https://" + allServerPreferences?.get("serveraddress").toString() + "/"
         }
 
@@ -90,8 +90,8 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         }
         // --------------
 
-        navUser.text = cookiesFromPrefs?.get("username").toString()
-        navEmail.text = cookiesFromPrefs?.get("useremail").toString()
+        navUser.text = allServerPreferences?.get("username").toString()
+        navEmail.text = allServerPreferences?.get("useremail").toString()
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 IntentFilter("processingFinished"))
@@ -105,6 +105,7 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
             // Get extra data included in the Intent
 
             val view: TextView = this@NavActivity.findViewById(R.id.progress_title)
+            Toast.makeText(applicationContext, intent.getStringExtra("responseCode"), Toast.LENGTH_SHORT).show()
 
             when (intent.getStringExtra("responseCode")){
                 "200" ->  {
@@ -166,12 +167,17 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
             }
             R.id.logOff -> {
                 finish()
-                val editor = AppConfigurator.loginPreferences?.edit()
+                var editor = AppConfigurator.loginPreferences?.edit()
                 editor?.clear()
                 editor?.commit()
 
                 AppConfigurator.cookieManager = null
 
+//                // Restart whole app
+//                val i = baseContext.packageManager
+//                        .getLaunchIntentForPackage(baseContext.packageName)
+//                i!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+//                startActivity(i)
                 val intent = Intent(this, LoginActivity::class.java)
                 startActivity(intent)
             }

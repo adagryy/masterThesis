@@ -35,6 +35,7 @@
     <string name="non_ok_status">Serwer zwrtócił kod błędu</string>
     <string name="IOException">Niepoprawny format przesyłanych danych do serwera. Proszę ponownie załadować ten widok/aplikację</string>
     <string name="processedImageNotExistsOnServerException">Przetwarzanie obrazu w toku</string>
+    <string name="SSLHandshakeException">Nieprawidłowy samopodpisany certyfikat. Sprawdź czy masz zapisany poprawny certyfikat w aplikacji lub skontaktuj się z administratorem</string>
 
     <!-- Strings related to action buttons-->
     <string name="crop_action">Crop</string>
@@ -50,4 +51,23 @@
     <string name="serverPreferences">serverPreferences</string>
     <string name="loginPreferences">loginPreferences</string>
     <string name="firstLaunchMessage">Pierwsze uruchomienie aplikacji Analizator Obrazów! Proszę wprowadzić prawidłowy adres serwera lub pozostawić domyślny.</string>
+    <string name="defaultCertificate">-----BEGIN CERTIFICATE-----
+MIIC/jCCAeagAwIBAgIQV8I5rY1IzI5LPy+HxSpjXTANBgkqhkiG9w0BAQsFADAa
+MRgwFgYDVQQDEw9ERVNLVE9QLVNUUTRJNDQwHhcNMTcxMjA3MjEyNzEyWhcNMTgx
+MjA3MDAwMDAwWjAaMRgwFgYDVQQDEw9ERVNLVE9QLVNUUTRJNDQwggEiMA0GCSqG
+SIb3DQEBAQUAA4IBDwAwggEKAoIBAQDZ2TiAhneH5xRYj7NyCLEAPu2hL4FhqYA7
+vD8JVbnutQZQW4cnaK9x86WKR32bfRPUv7XFTv7B0o3RYga1XLMoeaGFz54lyO6D
+8V3mK7fLJYKxBjifaGxh6qKtKFXxl4WrRbPqJkqbiITonJL279yjjNo/KQh8B7Hw
+wP2pWS6J7ZByMLjU1mny7I+a59JMmXoCBwDDbI0DEoKtZZ1a32Hdo8+2iYkXNq6n
+CCVc5pLW2KFypajeb/dGqHGpFytx/gOGCr88Eb6FiXR+iFytp5MzcwyKZOijmSIr
+EQoSe9SfHybi0OizDMyMJYvJH37PMcpQ8x6DKggDzN9+djlGN9rtAgMBAAGjQDA+
+MAsGA1UdDwQEAwIEMDATBgNVHSUEDDAKBggrBgEFBQcDATAaBgNVHREEEzARgg9E
+RVNLVE9QLVNUUTRJNDQwDQYJKoZIhvcNAQELBQADggEBAKacbqrEZwNr1zqQF3wU
+8/sFr9bBBb1yxZQ9uZfTD2Jj5/kAQSERMfFyRu7ZpQJxo6mfa1roodYVmXtyY+bo
+npuZQGbPIjxkP0Vk8kdDMW9cQZKH0ktlgNZ6DbHnxAgl4oQo+7l+rXChP9qT7o0d
+LRlQBhfSCm2KClElQ1TB4e//0Z9cam71+b7QYDeDZKGuOVw/L4zB7Bof4v4rijRq
+/I7mN1PtHe8jXNtmSP8ageSsQOV5EF3tygJBupw/uOe6lmz4KXRAKEXplkvm7a3W
+NjwDqftWTkAlYbmbMt0x/P+JXs3nkh4GWrqyAkvfpfBwAH0d2YmDWKorNgFmab+t
+Jkg=
+-----END CERTIFICATE-----</string>
 </resources>
