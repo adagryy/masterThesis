@@ -98,8 +98,15 @@ namespace serwer.Controllers
         // Returns an image which is out of the server webroot
         [HttpGet]
         public FileResult DownloadImage(string ImageName)
-        {         
-            return File(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator + ImageName, System.Net.Mime.MediaTypeNames.Application.Octet, ImageName);
+        {
+            try
+            {
+                return File(ServerConfigurator.usersStorage + User.Identity.Name + ServerConfigurator.directoryPathSeparator + ImageName, System.Net.Mime.MediaTypeNames.Application.Octet, ImageName);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
 

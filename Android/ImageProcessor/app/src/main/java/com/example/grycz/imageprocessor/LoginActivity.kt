@@ -109,18 +109,15 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
 
         val ad = setProgressDialog("Logowanie...")
 
-//        val email = _emailText.getText().toString()
-//        val password = _passwordText.getText().toString()
+        val email = _emailText.getText().toString()
+        val password = _passwordText.getText().toString()
 
         val map: HashMap<String, String> = HashMap<String, String>()
-//        map.set("Email", email)
-//        map.set("Password", password)
-        map["Email"] = "a@b.d"
-        map["Password"] = "RedKon,123"
+        map.set("Email", email)
+        map.set("Password", password)
+//        map["Email"] = "a@b.d"
+//        map["Password"] = "RedKon,123"
         map["RememberMe"] = "true"
-//        map.put("Email", "a@b.d")
-//        map.put("Password", "RedKon,123")
-//        map.put("RememberMe", "true")
 
         LoginClass(AppConfigurator.server_domain + "Account/MobileLogin", "UTF-8", ad, WeakReference(applicationContext), WeakReference(this)).execute(map)
     }
@@ -129,6 +126,7 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
         class LoginClass(private val url: String, private val charset: String, private val progressDialog: Dialog, private val contextWeak: WeakReference<Context>, private val activityWeak: WeakReference<LoginActivity>) : AsyncTask<HashMap<String, String>, Void, Unit>(){
             private var responseCode: Int? = null
             private var exception: Exception? = null
+
 
             override fun doInBackground(vararg params: HashMap<String, String>?) {
                 try {
@@ -142,9 +140,9 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
                     mobileMultipartUtility.addFormField("Password", map?.get("Password"))
 
                     mobileMultipartUtility.mobileFinish()
-                    val response = mobileMultipartUtility.finish()
-
                     this.responseCode = mobileMultipartUtility.getResponseCode()
+
+                    val response = mobileMultipartUtility.finish()
 
                     if(response.size > 0){
                         try {
@@ -197,8 +195,10 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
                 } else { // else login failed
                     progressDialog.dismiss()
                     try {
-//                        activityWeak.get()!!.onLoginFailed()
-                        AppConfigurator.toastMessageBasedOnException(this.exception!!, contextWeak.get()!!)
+                        if (responseCode == 404)
+                            Toast.makeText(contextWeak.get()!!, "Błąd logowania - użytkownik nie istnieje", Toast.LENGTH_SHORT).show()
+                        else if (responseCode == 403)
+                            Toast.makeText(contextWeak.get()!!, "Błąd logowania - niepoprawne hasło", Toast.LENGTH_SHORT).show()
                         activityWeak.get()!!.btn_login.isEnabled = (true)
                     }catch (e: NullPointerException){}
                 }

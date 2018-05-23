@@ -41,7 +41,8 @@ class ProcessingStatus : IntentService("ProcessingStatus") {
                 }catch (e: ConnectException){
                     intent.putExtra("errorMessage", "Brak połączenia")
                 }catch (e: Exception){
-                    intent.putExtra("errorMessage", "Nieznany błąd")
+                    intent.putExtra("errorMessage", "Nieznany błąd ")
+//                    intent.putExtra("glupiError", e.toString())
                 }
                 finally {
                     httpsConn?.disconnect()

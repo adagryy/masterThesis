@@ -116,7 +116,15 @@ namespace serwer.Controllers
         [AllowAnonymous]
         public async Task<HttpStatusCodeResult> MobileLogin(LoginViewModel model)
         {
-            ApplicationUser applicationUser = UserManager.FindByEmail(model.Email); // try to find user in database
+            HttpContext.Response.TrySkipIisCustomErrors = true; // prevent IIS from displaying error pages for non-OK Http codes
+
+            if (model.Email == null)
+            {
+                Thread.Sleep(1000); // for security reasons sleep thread for one second
+                return new HttpStatusCodeResult(HttpStatusCode.NotFound); // 401 - user not found in the database
+            }
+
+            ApplicationUser applicationUser = UserManager.FindByEmail(model.Email); // try to find user in database            
 
             if (!(applicationUser is null)) // if user was found...
             {
@@ -146,7 +154,7 @@ namespace serwer.Controllers
                 }
             }
 
-            return new HttpStatusCodeResult(HttpStatusCode.Unauthorized); // 401 - user not found in the database
+            return new HttpStatusCodeResult(HttpStatusCode.NotFound); // 401 - user not found in the database
 
         }
 
@@ -397,7 +405,7 @@ namespace serwer.Controllers
                     if(applicationUser == null) // user not found in the database
                         return RedirectToAction("UsersList");
 
-                    if (UserManager.FindByEmail(userEdit.Email) != null) // if Administrator tries to change email new one and new email already exists in database, then...
+                    if (UserManager.FindByEmail(userEdit.Email) != null && !applicationUser.Email.Equals(userEdit.Email)) // if Administrator tries to change email new one and new email already exists in database, then...
                     {
                         return RedirectToAction("UsersList", new { message = Message.emailAlreadyExists });
                     }

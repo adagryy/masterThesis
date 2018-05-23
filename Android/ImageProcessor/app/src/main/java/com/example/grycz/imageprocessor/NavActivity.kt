@@ -63,8 +63,12 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
 
         val allServerPreferences = AppConfigurator.serverPreferences?.all // read from serverPreferences
 
-        if(AppConfigurator.server_domain.isEmpty()) {
+        if(AppConfigurator.cert.isEmpty()){
+            AppConfigurator.cert = AppConfigurator.certificatePersistent?.all?.get("certificate").toString()
             AppConfigurator.setSelSignedCertificate() // prepare app to use self-signed certificate
+        }
+
+        if(AppConfigurator.server_domain.isEmpty()) {
             AppConfigurator.server_domain = "https://" + allServerPreferences?.get("serveraddress").toString() + "/"
         }
 
@@ -105,7 +109,7 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
             // Get extra data included in the Intent
 
             val view: TextView = this@NavActivity.findViewById(R.id.progress_title)
-            Toast.makeText(applicationContext, intent.getStringExtra("responseCode"), Toast.LENGTH_SHORT).show()
+//            Toast.makeText(applicationContext, intent.getStringExtra("glupiError"), Toast.LENGTH_SHORT).show()
 
             when (intent.getStringExtra("responseCode")){
                 "200" ->  {
@@ -131,7 +135,7 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         val sendButton: Button = this@NavActivity.findViewById(R.id.receiving_activity)
         val downloadButton: Button = this@NavActivity.findViewById(R.id.sending_activity)
 
-        sendButton.isEnabled = state
+//        sendButton.isEnabled = state
         downloadButton.isEnabled = state
     }
 
