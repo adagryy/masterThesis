@@ -175,7 +175,7 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
                 editor?.clear()
                 editor?.commit()
 
-                AppConfigurator.cookieManager = null
+                AppConfigurator.cookieManager?.cookieStore?.removeAll()
 
 //                // Restart whole app
 //                val i = baseContext.packageManager

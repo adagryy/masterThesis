@@ -53,13 +53,15 @@ class StartActivity : AppCompatActivity() {
         AppConfigurator.loginPreferences = getSharedPreferences("cookies", Context.MODE_PRIVATE)
         val cookiesFromPrefs = AppConfigurator.loginPreferences?.all
 
-        if(cookiesFromPrefs != null){
-            val loginCookie = HttpCookie(cookiesFromPrefs.get("name").toString(), cookiesFromPrefs.get("value").toString())
-            loginCookie.domain = cookiesFromPrefs.get("domain").toString()
-            loginCookie.version = 0
+        try {
+            if (cookiesFromPrefs!!.isNotEmpty()) {
+                val loginCookie = HttpCookie(cookiesFromPrefs.get("name").toString(), cookiesFromPrefs.get("value").toString())
+                loginCookie.domain = cookiesFromPrefs.get("domain").toString()
+                loginCookie.version = 0
 
-            cookieManager.cookieStore.add(URI(AppConfigurator.server_domain), loginCookie)
-        }
+                cookieManager.cookieStore.add(URI(AppConfigurator.server_domain), loginCookie)
+            }
+        }catch (e: NullPointerException){}
 
         TestLogging(AppConfigurator.server_domain + "MobileDevices/checkIfMobileAppLoggedIn", cookieManager, WeakReference(applicationContext), WeakReference(this)).execute()
     }
@@ -103,31 +105,6 @@ class StartActivity : AppCompatActivity() {
 
                         AppConfigurator.toastMessageBasedOnException(exception!!, contextWeak.get()!!) // if "exception" is null, then NPE will be thrown
                     }
-//                    if (loggedIn && noRouteToHostException == null && exception == null && connectException == null) { // user logged in, no other errors. Redirect user to NavActivity
-//                        val redirectIntent = Intent(contextWeak.get()!!, NavActivity::class.java)
-//                        redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
-//                        contextWeak.get()!!.startActivity(redirectIntent)
-//                        activityWeak.get()!!.finish()
-//                    } else if (!loggedIn && noRouteToHostException == null && exception == null && connectException == null) { // User not logged in, no other errors. Redirect user to LoginActivity
-//                        val redirectIntent = Intent(contextWeak.get()!!, LoginActivity::class.java)
-//                        redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
-//                        contextWeak.get()!!.startActivity(redirectIntent)
-//                        activityWeak.get()!!.finish()
-//                    } else if (noRouteToHostException != null || connectException != null) { // No connection with server. Show user error in Toast
-//                        val toast: Toast = Toast.makeText(contextWeak.get()!!, "Problem z połączniem z serwerem.", Toast.LENGTH_SHORT)
-//                        toast.show()
-//                        val redirectIntent = Intent(contextWeak.get()!!, LoginActivity::class.java)
-//                        redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
-//                        contextWeak.get()!!.startActivity(redirectIntent)
-//                        activityWeak.get()!!.finish()
-//                    } else { // Other error
-//                        val toast: Toast = Toast.makeText(contextWeak.get()!!, "Nieznany błąd.", Toast.LENGTH_SHORT)
-//                        toast.show()
-//                        val redirectIntent = Intent(contextWeak.get()!!, LoginActivity::class.java)
-//                        redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
-//                        contextWeak.get()!!.startActivity(redirectIntent)
-//                        activityWeak.get()!!.finish()
-//                    }
                 }catch(e: NullPointerException){}
             }
         }

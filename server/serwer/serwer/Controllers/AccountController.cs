@@ -118,10 +118,18 @@ namespace serwer.Controllers
         {
             HttpContext.Response.TrySkipIisCustomErrors = true; // prevent IIS from displaying error pages for non-OK Http codes
 
+            // No email supplied is the same as if the user not found
             if (model.Email == null)
             {
+                Thread.Sleep(1000); // for security reasons sleep thread for one second 
+                return new HttpStatusCodeResult(HttpStatusCode.NotFound); // 404 - user not found in the database
+            }
+
+            // No password supplied is the same as if wrong password
+            if (model.Password == null)
+            {
                 Thread.Sleep(1000); // for security reasons sleep thread for one second
-                return new HttpStatusCodeResult(HttpStatusCode.NotFound); // 401 - user not found in the database
+                return new HttpStatusCodeResult(HttpStatusCode.Forbidden); // 403 - user not found in the database
             }
 
             ApplicationUser applicationUser = UserManager.FindByEmail(model.Email); // try to find user in database            
@@ -154,7 +162,7 @@ namespace serwer.Controllers
                 }
             }
 
-            return new HttpStatusCodeResult(HttpStatusCode.NotFound); // 401 - user not found in the database
+            return new HttpStatusCodeResult(HttpStatusCode.NotFound); // 404 - user not found in the database
 
         }
 
