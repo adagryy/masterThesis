@@ -21,6 +21,7 @@ import java.net.URLEncoder
 import org.json.JSONObject
 import android.widget.TextView
 import java.lang.ref.WeakReference
+import javax.net.ssl.SSLHandshakeException
 
 
 /**
@@ -193,8 +194,11 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
                         progressDialog.dismiss()
                     }
                 } else { // else login failed
+
                     progressDialog.dismiss()
                     try {
+                        if(this.exception is SSLHandshakeException)
+                            AppConfigurator.toastMessageBasedOnException(this.exception!!, contextWeak.get()!!)
                         if (responseCode == 404)
                             Toast.makeText(contextWeak.get()!!, "Błąd logowania - użytkownik nie istnieje", Toast.LENGTH_SHORT).show()
                         else if (responseCode == 403)

@@ -156,6 +156,7 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
             val uri = data?.data
             try {
                 chosenBitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
+
                 resetChosenBitmap = chosenBitmap // save photo into temporary variable (it allows reset image without re-choosing a new photo from gallery)
 
                 cropping.setImageBitmap(chosenBitmap)
