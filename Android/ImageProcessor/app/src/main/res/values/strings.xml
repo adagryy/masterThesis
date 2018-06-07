@@ -70,4 +70,5 @@ LRlQBhfSCm2KClElQ1TB4e//0Z9cam71+b7QYDeDZKGuOVw/L4zB7Bof4v4rijRq
 NjwDqftWTkAlYbmbMt0x/P+JXs3nkh4GWrqyAkvfpfBwAH0d2YmDWKorNgFmab+t
 Jkg=
 -----END CERTIFICATE-----</string>
+    <string name="algorithmReturnTypeNotification">Uwaga - algorytm "całe szkiełko" zwraca długość próbki w milimetrach. Pozostałe zwracają procentową długość w stosunku do całego obrazu</string>
 </resources>

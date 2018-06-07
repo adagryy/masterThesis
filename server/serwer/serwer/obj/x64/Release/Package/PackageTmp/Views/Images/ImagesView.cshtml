@@ -110,8 +110,26 @@
                                 dynamic stuff = Newtonsoft.Json.JsonConvert.DeserializeObject(Model.processedImageDataInJSON);
                                 foreach (var stuffItem in stuff)
                                 {
-                                    <div><strong>@stuffItem.Name: </strong>@stuffItem.Value</div>
+
+                                    if (stuffItem.Name.Equals("dlugosciPaleczek"))
+                                    {
+                                        dynamic stuffInternal = Newtonsoft.Json.JsonConvert.DeserializeObject(Model.processedImageDataInJSON);
+                                        foreach (var internalItem in stuffInternal["dlugosciPaleczek"])
+                                        {                                    
+                                            <div style="color: rgb(@internalItem[2], @internalItem[3], @internalItem[4])">
+                                                <strong>
+                                                    Pałeczka nr @internalItem[0] - @internalItem[1]
+                                                </strong>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div><strong>@stuffItem.Name: </strong>@stuffItem.Value</div>
+                                    }
                                 }
+                                <strong>Uwaga - algorytm "całe szkiełko" zwraca długość próbki w milimetrach. Pozostałe zwracają procentową długość w stosunku do całego obrazu</strong>
+                                <br />
                             }
                             <br />
                             @Html.ActionLink("Pobierz dane", "DownloadImage", "Images", routeValues: new { ImageName = @file.ToString() }, htmlAttributes: new { @class = "btn btn-success btn-lg" })
