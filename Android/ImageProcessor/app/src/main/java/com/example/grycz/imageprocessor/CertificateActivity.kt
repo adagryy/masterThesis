@@ -2,10 +2,9 @@ package com.example.grycz.imageprocessor
 
 import android.content.Context
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.EditText
-import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_certificate.*
 
 class CertificateActivity : AppCompatActivity() {

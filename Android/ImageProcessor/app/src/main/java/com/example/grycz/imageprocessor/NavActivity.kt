@@ -2,10 +2,6 @@ package com.example.grycz.imageprocessor
 
 import android.content.Context
 import android.os.Bundle
-import android.support.design.widget.NavigationView
-import android.support.v4.view.GravityCompat
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_nav.*
 import kotlinx.android.synthetic.main.app_bar_nav.*
@@ -13,11 +9,15 @@ import android.content.Intent
 import kotlinx.android.synthetic.main.content_nav.*
 import android.content.IntentFilter
 import android.content.BroadcastReceiver
-import android.support.v4.content.ContextCompat
-import android.support.v4.content.LocalBroadcastManager
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.material.navigation.NavigationView
 import java.net.*
 
 

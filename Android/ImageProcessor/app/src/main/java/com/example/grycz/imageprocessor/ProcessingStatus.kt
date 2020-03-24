@@ -2,7 +2,7 @@ package com.example.grycz.imageprocessor
 
 import android.app.IntentService
 import android.content.Intent
-import android.support.v4.content.LocalBroadcastManager
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import java.net.ConnectException
 import java.net.NoRouteToHostException
 import java.util.*
@@ -15,7 +15,7 @@ import javax.net.ssl.HttpsURLConnection
  */
 class ProcessingStatus : IntentService("ProcessingStatus") {
 
-    override fun onHandleIntent(workIntent: Intent) {
+    override fun onHandleIntent(workIntent: Intent?) {
         // Send proper intent
         val intent = Intent("processingFinished")
         intent.putExtra("responseCode", "error") // when user loses connection during application working

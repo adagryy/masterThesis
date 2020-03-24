@@ -4,9 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.content.res.Resources
 import android.os.AsyncTask
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.graphics.BitmapFactory
 import android.graphics.Bitmap
@@ -14,7 +12,6 @@ import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.media.MediaScannerConnection
 import android.os.Environment
-import android.support.v7.app.AlertDialog
 import android.text.method.ScrollingMovementMethod
 import android.view.*
 import android.widget.*
@@ -26,13 +23,14 @@ import org.json.JSONObject
 import java.io.*
 import java.lang.ref.WeakReference
 import javax.net.ssl.HttpsURLConnection
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.NavUtils
-import android.support.v4.content.ContextCompat
-import android.text.Spannable
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NavUtils
+import androidx.core.content.ContextCompat
 import org.json.JSONArray
 import java.text.SimpleDateFormat
 import java.util.*
@@ -48,7 +46,7 @@ class ReceiveImageActivity : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_receive_image)
 
-        val actionBar: android.support.v7.widget.Toolbar? = findViewById(R.id.my_toolbar_receiving)
+        val actionBar: androidx.appcompat.widget.Toolbar? = findViewById(R.id.my_toolbar_receiving)
         actionBar?.title = "Odbiór obrazu"
 
         setSupportActionBar(actionBar)
@@ -160,7 +158,7 @@ class ReceiveImageActivity : AppCompatActivity(){
         }
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration?) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 
         // Checks the orientation of the screen
@@ -206,10 +204,10 @@ class ReceiveImageActivity : AppCompatActivity(){
         val window = dialog.window
         if (window != null) {
             val layoutParams = WindowManager.LayoutParams()
-            layoutParams.copyFrom(dialog.window.attributes)
+            layoutParams.copyFrom(dialog.window!!.attributes)
             layoutParams.width = 756
             layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
-            dialog.window.attributes = layoutParams
+            dialog.window!!.attributes = layoutParams
         }
 
         return dialog

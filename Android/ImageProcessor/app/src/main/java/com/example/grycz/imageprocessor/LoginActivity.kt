@@ -2,24 +2,22 @@ package com.example.grycz.imageprocessor
 
 import android.app.Dialog
 import android.content.Context
-import android.support.v7.app.AppCompatActivity
 
 import android.os.AsyncTask
 import android.os.Bundle
 import android.content.Intent
 import android.graphics.Color
-import android.support.v7.app.AlertDialog
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
-import kotlinx.android.synthetic.main.activity_login.*
 import org.json.JSONException
-import java.net.ConnectException
-import java.net.NoRouteToHostException
 import java.net.URLEncoder
 import org.json.JSONObject
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import kotlinx.android.synthetic.main.activity_login.*
 import java.lang.ref.WeakReference
 import javax.net.ssl.SSLHandshakeException
 
@@ -91,10 +89,10 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
         val window = dialog.window
         if (window != null) {
             val layoutParams = WindowManager.LayoutParams()
-            layoutParams.copyFrom(dialog.window.attributes)
+            layoutParams.copyFrom(dialog.window!!.attributes)
             layoutParams.width = 756
             layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
-            dialog.window.attributes = layoutParams
+            dialog.window!!.attributes = layoutParams
         }
 
         return dialog

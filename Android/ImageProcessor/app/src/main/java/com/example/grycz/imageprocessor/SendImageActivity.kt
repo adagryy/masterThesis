@@ -9,19 +9,19 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.net.Uri
 import android.os.AsyncTask
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.support.media.ExifInterface
 import android.util.Log
-import kotlinx.android.synthetic.main.activity_send_image.*
 import org.json.JSONObject
-import android.support.v4.app.NavUtils
-import android.support.v4.content.FileProvider
-import android.support.v7.app.AlertDialog
 import android.view.*
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.app.NavUtils
+import androidx.core.content.FileProvider
+import androidx.exifinterface.media.ExifInterface
 import com.example.grycz.imageprocessor.R.id.*
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
@@ -40,22 +40,25 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
     private var mCurrentPhotoPath: String? = null
     private var photoURI: Uri? = null
     private var imagePath: String? = null
+    private lateinit var mCropImageView: CropImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_send_image)
 
-        val actionBar: android.support.v7.widget.Toolbar? = findViewById(R.id.my_toolbar_sending)
+        val actionBar: Toolbar? = findViewById(my_toolbar_sending)
         actionBar?.title = ""
 
         setSupportActionBar(actionBar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        cropping.setOnCropImageCompleteListener { _, _ ->
+        mCropImageView = findViewById(cropping) as CropImageView
+
+        mCropImageView.setOnCropImageCompleteListener { _, _ ->
             sendPhotoToServer()
         }
 
-        val spinner: Spinner = findViewById(R.id.spinner_algorithms)
+        val spinner: Spinner = findViewById(spinner_algorithms)
         spinner.onItemSelectedListener = this
 
         AlgorithmList(AppConfigurator.server_domain + "MobileDevices/getAlgorithms", WeakReference(spinner), WeakReference(applicationContext), WeakReference(baseContext)).execute()
@@ -145,11 +148,12 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity. RESULT_OK && requestCode == requestImageFromCamera) {
             chosenBitmap = MediaStore.Images.Media.getBitmap(contentResolver, photoURI) // remember taken photo in "chosenBitmap" (global for this class)
             rotateImageFromCameraIfNecessary() // rotate taken photo if it is not in the portrait orientation
             resetChosenBitmap = chosenBitmap // save photo into temporary variable (it allows reset image without re-taking a new photo)
-            cropping.setImageBitmap(chosenBitmap) // set image in view
+            mCropImageView.setImageBitmap(chosenBitmap) // set image in view
         }
 
         if (resultCode == Activity.RESULT_OK && requestCode == requestPickImageFromGallery) {
@@ -159,7 +163,7 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
 
                 resetChosenBitmap = chosenBitmap // save photo into temporary variable (it allows reset image without re-choosing a new photo from gallery)
 
-                cropping.setImageBitmap(chosenBitmap)
+                mCropImageView.setImageBitmap(chosenBitmap)
                 } catch (e: IOException) { }
         }
     }
@@ -207,17 +211,17 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         rotate_left -> { // handle rotate left image selection
-            cropping.rotateImage(-1)
+            mCropImageView.rotateImage(-1)
             true
         }
         rotate_right -> {
-            cropping.rotateImage(1)
+            mCropImageView.rotateImage(1)
             true
         }
         crop -> {
             val cropImageView: CropImageView = findViewById(R.id.cropping)
             CropImage.activity(cropImageView.imageUri).setInitialCropWindowPaddingRatio(0.0f)
-            cropping.setImageBitmap(cropping.croppedImage)
+            mCropImageView.setImageBitmap(mCropImageView.croppedImage)
             true
         }
         camera -> {
@@ -229,14 +233,14 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
             true
         }
         send -> {
-            this.chosenBitmap = cropping.croppedImage
+            this.chosenBitmap = mCropImageView.croppedImage
             sendPhotoToServer()
             true
         }
         reset -> { // user can restore original image when he mistakes during cropping
-            cropping.rotatedDegrees = 0 // reset rotation
-            cropping.resetCropRect() // reset rotate rectangle marker
-            cropping.setImageBitmap(this.resetChosenBitmap) // reset initial image
+            mCropImageView.rotatedDegrees = 0 // reset rotation
+            mCropImageView.resetCropRect() // reset rotate rectangle marker
+            mCropImageView.setImageBitmap(this.resetChosenBitmap) // reset initial image
 
             true
         }
@@ -252,12 +256,12 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
         // Remove all files from directory. It will free the space and facilitates process of managing photos during rotation
-        storageDir.listFiles().forEach { item ->
+        storageDir?.listFiles()?.forEach { item ->
             item.delete()
         }
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration?) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 
         // Checks the orientation of the screen
@@ -318,7 +322,7 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
         // Remove all files from directory. It will free the space and facilitates process of managing photos during rotation
-        storageDir.listFiles().forEach { item ->
+        storageDir?.listFiles()?.forEach { item ->
             item.delete()
         }
 
@@ -386,10 +390,10 @@ class SendImageActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         val window = dialog.window
         if (window != null) {
             val layoutParams = WindowManager.LayoutParams()
-            layoutParams.copyFrom(dialog.window.attributes)
+            layoutParams.copyFrom(dialog.window!!.attributes)
             layoutParams.width = 756
             layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
-            dialog.window.attributes = layoutParams
+            dialog.window!!.attributes = layoutParams
         }
 
         return dialog

@@ -3,8 +3,8 @@ package com.example.grycz.imageprocessor
 import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import java.lang.Exception
 import java.lang.ref.WeakReference
 import java.net.*
