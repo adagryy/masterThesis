@@ -51,6 +51,7 @@ class AppConfigurator {
             when(exception) {
 //                null -> Toast.makeText(context, context.getString(R.string.image_sent), Toast.LENGTH_SHORT).show() // everything is fine
                 is SocketTimeoutException -> Toast.makeText(context, context.getString(R.string.socket_exception), Toast.LENGTH_SHORT).show() // for example serwer computer is running, but server application is not
+                is NoRouteToHostException -> Toast.makeText(context, context.getString(R.string.no_route_to_host_exception), Toast.LENGTH_SHORT).show() // no connection with server / internet
                 is ConnectException -> Toast.makeText(context, context.getString(R.string.connect_exception), Toast.LENGTH_SHORT).show() // no connection with server / internet
                 is SSLHandshakeException -> Toast.makeText(context, context.getString(R.string.SSLHandshakeException), Toast.LENGTH_SHORT).show() // Self signed certificate problem (SSLHandshakeException is subclass of IOException, so it must be first in this "when" clause)
 //                is SSLHandshakeException -> Toast.makeText(context, cert, Toast.LENGTH_SHORT).show() // Self signed certificate problem (SSLHandshakeException is subclass of IOException, so it must be first in this "when" clause)

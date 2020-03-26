@@ -30,6 +30,7 @@
     <!-- strings related with messages-->
     <string name="socket_exception">Błąd komunikacji z serwerem. Skontaktuj się z Administratorem.</string>
     <string name="connect_exception">Brak połączenia z serwerem. Sprawdź połączenie z Internetem.</string>
+    <string name="no_route_to_host_exception">Nie można się połączyć z serwerem. Sprawdź, czy adres serwera jest poprawny</string>
     <string name="unknown_error">Nieznany błąd</string>
     <string name="image_sent">Przesłano obraz do serwera</string>
     <string name="non_ok_status">Serwer zwrtócił kod błędu</string>
@@ -52,23 +53,23 @@
     <string name="loginPreferences">loginPreferences</string>
     <string name="firstLaunchMessage">Pierwsze uruchomienie aplikacji Analizator Obrazów! Proszę wprowadzić prawidłowy adres serwera lub pozostawić domyślny.</string>
     <string name="defaultCertificate">-----BEGIN CERTIFICATE-----
-MIIC/jCCAeagAwIBAgIQV8I5rY1IzI5LPy+HxSpjXTANBgkqhkiG9w0BAQsFADAa
-MRgwFgYDVQQDEw9ERVNLVE9QLVNUUTRJNDQwHhcNMTcxMjA3MjEyNzEyWhcNMTgx
-MjA3MDAwMDAwWjAaMRgwFgYDVQQDEw9ERVNLVE9QLVNUUTRJNDQwggEiMA0GCSqG
-SIb3DQEBAQUAA4IBDwAwggEKAoIBAQDZ2TiAhneH5xRYj7NyCLEAPu2hL4FhqYA7
-vD8JVbnutQZQW4cnaK9x86WKR32bfRPUv7XFTv7B0o3RYga1XLMoeaGFz54lyO6D
-8V3mK7fLJYKxBjifaGxh6qKtKFXxl4WrRbPqJkqbiITonJL279yjjNo/KQh8B7Hw
-wP2pWS6J7ZByMLjU1mny7I+a59JMmXoCBwDDbI0DEoKtZZ1a32Hdo8+2iYkXNq6n
-CCVc5pLW2KFypajeb/dGqHGpFytx/gOGCr88Eb6FiXR+iFytp5MzcwyKZOijmSIr
-EQoSe9SfHybi0OizDMyMJYvJH37PMcpQ8x6DKggDzN9+djlGN9rtAgMBAAGjQDA+
+MIIC/jCCAeagAwIBAgIQNWCgYxO7lJhPgiaI3oEvjjANBgkqhkiG9w0BAQsFADAa
+MRgwFgYDVQQDEw9ERVNLVE9QLVQzSjlKRzIwHhcNMTgwNDI1MTEzNDE1WhcNMTkw
+NDI1MDAwMDAwWjAaMRgwFgYDVQQDEw9ERVNLVE9QLVQzSjlKRzIwggEiMA0GCSqG
+SIb3DQEBAQUAA4IBDwAwggEKAoIBAQDNqQZwwF+q6A7w8IzBMxOpSPAabwLk+7Vk
+q2Di3FCT+G/dy3SPB9+guvWddrJ5hxXU0c/S4dd9BmDlIy+occn0G8LHyJ79V6HS
+HYZjHAk+qAMxRGcUZ0zKe6/h/mFok2+55lIHGVvfsiViTI/8Fj/oK0plRkwCBoTx
+bMvhm8IhINpEt8Dl9bUpIMij6KZJ5+jfZu5+BW86VWPQayAlQ/5NT7JJshYy98FB
+nU08o4/THtMFLUnaEbM93WirNJncwSe8dwMWoe1UOt8wC30k6QcwexDTXC0KE04A
+FcHwxIxtsGQ1JgmRXff854OlnQnUP5Nx+MXIQH9JEXSbAvjZxWrZAgMBAAGjQDA+
 MAsGA1UdDwQEAwIEMDATBgNVHSUEDDAKBggrBgEFBQcDATAaBgNVHREEEzARgg9E
-RVNLVE9QLVNUUTRJNDQwDQYJKoZIhvcNAQELBQADggEBAKacbqrEZwNr1zqQF3wU
-8/sFr9bBBb1yxZQ9uZfTD2Jj5/kAQSERMfFyRu7ZpQJxo6mfa1roodYVmXtyY+bo
-npuZQGbPIjxkP0Vk8kdDMW9cQZKH0ktlgNZ6DbHnxAgl4oQo+7l+rXChP9qT7o0d
-LRlQBhfSCm2KClElQ1TB4e//0Z9cam71+b7QYDeDZKGuOVw/L4zB7Bof4v4rijRq
-/I7mN1PtHe8jXNtmSP8ageSsQOV5EF3tygJBupw/uOe6lmz4KXRAKEXplkvm7a3W
-NjwDqftWTkAlYbmbMt0x/P+JXs3nkh4GWrqyAkvfpfBwAH0d2YmDWKorNgFmab+t
-Jkg=
+RVNLVE9QLVQzSjlKRzIwDQYJKoZIhvcNAQELBQADggEBAHukb302DhLgJm441BZM
+QIPHGAvT1HpygrUZCXRrqsBZ1On2p/nOPx5w/cxHvkt3M+xcrhZCqllffSnV41Fb
+P+SnlLdqBTsBcXJNs5fmfvQGxNKEnIF4lYdUYbbc5exB0/IshB0SHqcJmz6aN4g5
+fkvTAF3tCxqdVcE5Aknfa4Wfayu6AgsHqB64MRF9/oeFHRgmwyf7kcAd9o9R7aQo
+sWpQjvtmyCxgXbAKbmo4/cFmatWdxwyylNZe51HhDmmqXp6sEArT7NijYfVePG9p
+tVz1Ka5aArFvCqGkwu3mG+x6jO/aFkOlhfl3Qxta4posOflEgWgV5ePRA/oNEbAm
+ja4=
 -----END CERTIFICATE-----</string>
     <string name="algorithmReturnTypeNotification">Uwaga - algorytm "całe szkiełko" zwraca długość próbki w milimetrach. Pozostałe zwracają procentową długość w stosunku do całego obrazu</string>
 </resources>

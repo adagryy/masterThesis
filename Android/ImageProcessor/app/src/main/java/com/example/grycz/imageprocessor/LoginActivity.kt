@@ -19,6 +19,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_login.*
 import java.lang.ref.WeakReference
+import java.net.NoRouteToHostException
 import javax.net.ssl.SSLHandshakeException
 
 
@@ -108,18 +109,25 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
 
         val ad = setProgressDialog("Logowanie...")
 
-        val email = _emailText.getText().toString()
-        val password = _passwordText.getText().toString()
-
-        val map: HashMap<String, String> = HashMap<String, String>()
-        map.set("Email", email)
-        map.set("Password", password)
+        val email = _emailText.getText().toString().trim()
+        val password = _passwordText.getText().toString().trim()
+        if (!email.isNullOrEmpty() && !password.isNullOrEmpty()) {
+            val map: HashMap<String, String> = HashMap<String, String>()
+            map.set("Email", email)
+            map.set("Password", password)
 //        map["Email"] = "a@b.d"
 //        map["Password"] = "RedKon,123"
-        map["RememberMe"] = "true"
+            map["RememberMe"] = "true"
 
-        LoginClass(AppConfigurator.server_domain + "Account/MobileLogin", "UTF-8", ad, WeakReference(applicationContext), WeakReference(this)).execute(map)
+            LoginClass(AppConfigurator.server_domain + "Account/MobileLogin", "UTF-8", ad, WeakReference(applicationContext), WeakReference(this)).execute(map)
+        } else {
+            Toast.makeText(this, "Wprowadź adres e-mail oraz hasło", Toast.LENGTH_LONG).show()
+            btn_login.isEnabled = (true)
+            ad.dismiss()
+        }
+
     }
+
     companion object {
 
         class LoginClass(private val url: String, private val charset: String, private val progressDialog: Dialog, private val contextWeak: WeakReference<Context>, private val activityWeak: WeakReference<LoginActivity>) : AsyncTask<HashMap<String, String>, Void, Unit>(){
@@ -195,7 +203,7 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
 
                     progressDialog.dismiss()
                     try {
-                        if(this.exception is SSLHandshakeException)
+                        if(this.exception != null)
                             AppConfigurator.toastMessageBasedOnException(this.exception!!, contextWeak.get()!!)
                         if (responseCode == 404)
                             Toast.makeText(contextWeak.get()!!, "Błąd logowania - użytkownik nie istnieje", Toast.LENGTH_SHORT).show()
