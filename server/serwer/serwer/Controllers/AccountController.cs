@@ -116,6 +116,7 @@ namespace serwer.Controllers
         [AllowAnonymous]
         public async Task<HttpStatusCodeResult> MobileLogin(LoginViewModel model)
         {
+            HttpContext.Response.TrySkipIisCustomErrors = true; // prevent IIS from displaying error pages for non-OK Http codes
             ApplicationUser applicationUser = UserManager.FindByEmail(model.Email); // try to find user in database
 
             if (!(applicationUser is null)) // if user was found...
@@ -146,7 +147,7 @@ namespace serwer.Controllers
                 }
             }
 
-            return new HttpStatusCodeResult(HttpStatusCode.Unauthorized); // 401 - user not found in the database
+            return new HttpStatusCodeResult(HttpStatusCode.NotFound); // 404 - user not found in the database
 
         }
 

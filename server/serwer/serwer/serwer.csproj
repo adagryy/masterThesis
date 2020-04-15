@@ -203,17 +203,9 @@
     <Compile Include="Helpers\Core.cs" />
     <Compile Include="Helpers\MatlabProcessingDataThreaded.cs" />
     <Compile Include="Helpers\Mobile.cs" />
-    <Compile Include="Migrations\201802271938148_Initial.cs" />
-    <Compile Include="Migrations\201802271938148_Initial.Designer.cs">
-      <DependentUpon>201802271938148_Initial.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201802271941572_Initial2.cs" />
-    <Compile Include="Migrations\201802271941572_Initial2.Designer.cs">
-      <DependentUpon>201802271941572_Initial2.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201803261427133_Firstname_lastname_pesel.cs" />
-    <Compile Include="Migrations\201803261427133_Firstname_lastname_pesel.Designer.cs">
-      <DependentUpon>201803261427133_Firstname_lastname_pesel.cs</DependentUpon>
+    <Compile Include="Migrations\201804251258027_Initial.cs" />
+    <Compile Include="Migrations\201804251258027_Initial.Designer.cs">
+      <DependentUpon>201804251258027_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -334,17 +326,6 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201802271938148_Initial.resx">
-      <DependentUpon>201802271938148_Initial.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201802271941572_Initial2.resx">
-      <DependentUpon>201802271941572_Initial2.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201803261427133_Firstname_lastname_pesel.resx">
-      <DependentUpon>201803261427133_Firstname_lastname_pesel.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <TypeScriptCompile Include="Scripts\index.d.ts" />
   </ItemGroup>
   <ItemGroup>
@@ -360,6 +341,11 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201804251258027_Initial.resx">
+      <DependentUpon>201804251258027_Initial.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -400,7 +386,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>62685</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>https://192.168.0.3:62000</IISUrl>
+          <IISUrl>http://192.168.0.11:62000</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

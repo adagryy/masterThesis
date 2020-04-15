@@ -29,7 +29,6 @@ namespace serwer.Migrations
             //      new Person { FullName = "Rowan Miller" }
             //    );
             //
-
             if (!context.Roles.Any(r => r.Name == "Administrator"))
             {
                 var store = new RoleStore<IdentityRole>(context);
