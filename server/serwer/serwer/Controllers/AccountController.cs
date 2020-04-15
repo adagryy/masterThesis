@@ -117,7 +117,22 @@ namespace serwer.Controllers
         public async Task<HttpStatusCodeResult> MobileLogin(LoginViewModel model)
         {
             HttpContext.Response.TrySkipIisCustomErrors = true; // prevent IIS from displaying error pages for non-OK Http codes
-            ApplicationUser applicationUser = UserManager.FindByEmail(model.Email); // try to find user in database
+
+            // No email supplied is the same as if the user not found
+            if (model.Email == null)
+            {
+                Thread.Sleep(1000); // for security reasons sleep thread for one second 
+                return new HttpStatusCodeResult(HttpStatusCode.NotFound); // 404 - user not found in the database
+            }
+
+            // No password supplied is the same as if wrong password
+            if (model.Password == null)
+            {
+                Thread.Sleep(1000); // for security reasons sleep thread for one second
+                return new HttpStatusCodeResult(HttpStatusCode.Forbidden); // 403 - user not found in the database
+            }
+
+            ApplicationUser applicationUser = UserManager.FindByEmail(model.Email); // try to find user in database            
 
             if (!(applicationUser is null)) // if user was found...
             {
@@ -398,7 +413,7 @@ namespace serwer.Controllers
                     if(applicationUser == null) // user not found in the database
                         return RedirectToAction("UsersList");
 
-                    if (UserManager.FindByEmail(userEdit.Email) != null) // if Administrator tries to change email new one and new email already exists in database, then...
+                    if (UserManager.FindByEmail(userEdit.Email) != null && !applicationUser.Email.Equals(userEdit.Email)) // if Administrator tries to change email new one and new email already exists in database, then...
                     {
                         return RedirectToAction("UsersList", new { message = Message.emailAlreadyExists });
                     }

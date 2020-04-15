@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.AsyncTask
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.graphics.BitmapFactory
 import android.graphics.Bitmap
@@ -13,7 +12,6 @@ import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.media.MediaScannerConnection
 import android.os.Environment
-import android.support.v7.app.AlertDialog
 import android.text.method.ScrollingMovementMethod
 import android.view.*
 import android.widget.*
@@ -25,9 +23,15 @@ import org.json.JSONObject
 import java.io.*
 import java.lang.ref.WeakReference
 import javax.net.ssl.HttpsURLConnection
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.NavUtils
-import android.support.v4.content.ContextCompat
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NavUtils
+import androidx.core.content.ContextCompat
+import org.json.JSONArray
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -42,7 +46,7 @@ class ReceiveImageActivity : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_receive_image)
 
-        val actionBar: android.support.v7.widget.Toolbar? = findViewById(R.id.my_toolbar_receiving)
+        val actionBar: androidx.appcompat.widget.Toolbar? = findViewById(R.id.my_toolbar_receiving)
         actionBar?.title = "Odbiór obrazu"
 
         setSupportActionBar(actionBar)
@@ -154,7 +158,7 @@ class ReceiveImageActivity : AppCompatActivity(){
         }
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration?) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 
         // Checks the orientation of the screen
@@ -200,10 +204,10 @@ class ReceiveImageActivity : AppCompatActivity(){
         val window = dialog.window
         if (window != null) {
             val layoutParams = WindowManager.LayoutParams()
-            layoutParams.copyFrom(dialog.window.attributes)
+            layoutParams.copyFrom(dialog.window!!.attributes)
             layoutParams.width = 756
             layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
-            dialog.window.attributes = layoutParams
+            dialog.window!!.attributes = layoutParams
         }
 
         return dialog
@@ -279,6 +283,7 @@ class ReceiveImageActivity : AppCompatActivity(){
 
         private class DownloadProcessingResults(private val ivWeak: WeakReference<TextView>) : AsyncTask<String, Void, Unit>() {
             private var afterProcessingData: String? = null
+            private val colorText = SpannableStringBuilder("")
             override fun doInBackground(vararg params: String?) {
 
                 try {
@@ -305,19 +310,46 @@ class ReceiveImageActivity : AppCompatActivity(){
 
                     val parsedAfterProcessingData = StringBuilder("")
 
+                    var n: Int = 0
+
                     keys.forEach { item ->
-                        parsedAfterProcessingData
-                                .append(item)
-                                .append(": ")
-                                .append(jsonObject.get(item))
-                                .append(System.lineSeparator())
+                        if(item.contentEquals("dlugosciPaleczek")){
+                            var coloredItems = JSONArray(jsonObject.get(item).toString())
+                            for (index in 0 until coloredItems.length()){
+                                val oneItem = JSONArray(coloredItems[index].toString())
+                                buildSpannable(
+                                        "Pałeczka nr " +  oneItem[0].toString() + ": " + oneItem[1].toString() + System.lineSeparator(),
+                                        ForegroundColorSpan(Color.rgb((oneItem[2]) as Int, oneItem[3] as Int, oneItem[4] as Int))
+                                )
+                            }
+                        }else {
+                            buildSpannable(
+                                    item + ": " + jsonObject.get(item).toString() + System.lineSeparator(),
+                                    ForegroundColorSpan(Color.rgb(0, 0, 0))
+                            )
+                        }
                     }
-                    try{ivWeak.get()!!.text = parsedAfterProcessingData}catch (e: NullPointerException){}
+                    try{
+                        buildSpannable(
+                                System.lineSeparator() +
+                                "Uwaga - algorytm \"całe szkiełko\" zwraca długość próbki w milimetrach. Pozostałe zwracają procentową długość w stosunku do całego obrazu",
+                                ForegroundColorSpan(Color.rgb(0, 0, 0))
+                        )
+                        ivWeak.get()!!.text = colorText
+                    }catch (e: NullPointerException){}
                 } catch (e: JSONException) {
                     try{ivWeak.get()!!.text = "Serwer zwrócił niepoprawne dane"}catch (e: NullPointerException){}
-                } catch (e: Exception) { }
+                } catch (e: Exception) {
+                    println()
+                }
 
 
+            }
+
+            private fun buildSpannable(text: String, color: ForegroundColorSpan){
+                val spannableString = SpannableString(text)
+                spannableString.setSpan(color,0, spannableString.length,0)
+                colorText.append(spannableString)
             }
         }
     }

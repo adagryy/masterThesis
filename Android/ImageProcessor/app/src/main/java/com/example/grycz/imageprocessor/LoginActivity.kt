@@ -2,25 +2,25 @@ package com.example.grycz.imageprocessor
 
 import android.app.Dialog
 import android.content.Context
-import android.support.v7.app.AppCompatActivity
 
 import android.os.AsyncTask
 import android.os.Bundle
 import android.content.Intent
 import android.graphics.Color
-import android.support.v7.app.AlertDialog
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
-import kotlinx.android.synthetic.main.activity_login.*
 import org.json.JSONException
-import java.net.ConnectException
-import java.net.NoRouteToHostException
 import java.net.URLEncoder
 import org.json.JSONObject
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import kotlinx.android.synthetic.main.activity_login.*
 import java.lang.ref.WeakReference
+import java.net.NoRouteToHostException
+import javax.net.ssl.SSLHandshakeException
 
 
 /**
@@ -39,6 +39,13 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
         // Set up the login form.
         btn_login.setOnClickListener{ _ ->
             login()
+        }
+
+        btn_edit_certificate.setOnClickListener {
+            val redirectIntent = Intent(applicationContext, CertificateActivity::class.java)
+            redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
+            applicationContext.startActivity(redirectIntent)
+            this.finish() // finish (kill) this activity
         }
 
         val addressEditText: EditText = findViewById(R.id._addressText)
@@ -83,10 +90,10 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
         val window = dialog.window
         if (window != null) {
             val layoutParams = WindowManager.LayoutParams()
-            layoutParams.copyFrom(dialog.window.attributes)
+            layoutParams.copyFrom(dialog.window!!.attributes)
             layoutParams.width = 756
             layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
-            dialog.window.attributes = layoutParams
+            dialog.window!!.attributes = layoutParams
         }
 
         return dialog
@@ -102,25 +109,31 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
 
         val ad = setProgressDialog("Logowanie...")
 
-//        val email = _emailText.getText().toString()
-//        val password = _passwordText.getText().toString()
+        val email = _emailText.getText().toString().trim()
+        val password = _passwordText.getText().toString().trim()
+        if (!email.isNullOrEmpty() && !password.isNullOrEmpty()) {
+            val map: HashMap<String, String> = HashMap<String, String>()
+            map.set("Email", email)
+            map.set("Password", password)
+//        map["Email"] = "a@b.d"
+//        map["Password"] = "RedKon,123"
+            map["RememberMe"] = "true"
 
-        val map: HashMap<String, String> = HashMap<String, String>()
-//        map.set("Email", email)
-//        map.set("Password", password)
-        map["Email"] = "a@b.d"
-        map["Password"] = "RedKon,123"
-        map["RememberMe"] = "true"
-//        map.put("Email", "a@b.d")
-//        map.put("Password", "RedKon,123")
-//        map.put("RememberMe", "true")
+            LoginClass(AppConfigurator.server_domain + "Account/MobileLogin", "UTF-8", ad, WeakReference(applicationContext), WeakReference(this)).execute(map)
+        } else {
+            Toast.makeText(this, "Wprowadź adres e-mail oraz hasło", Toast.LENGTH_LONG).show()
+            btn_login.isEnabled = (true)
+            ad.dismiss()
+        }
 
-        LoginClass(AppConfigurator.server_domain + "Account/MobileLogin   ", "UTF-8", ad, WeakReference(applicationContext), WeakReference(this)).execute(map)
     }
+
     companion object {
 
         class LoginClass(private val url: String, private val charset: String, private val progressDialog: Dialog, private val contextWeak: WeakReference<Context>, private val activityWeak: WeakReference<LoginActivity>) : AsyncTask<HashMap<String, String>, Void, Unit>(){
             private var responseCode: Int? = null
+            private var exception: Exception? = null
+
 
             override fun doInBackground(vararg params: HashMap<String, String>?) {
                 try {
@@ -134,9 +147,9 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
                     mobileMultipartUtility.addFormField("Password", map?.get("Password"))
 
                     mobileMultipartUtility.mobileFinish()
-                    val response = mobileMultipartUtility.finish()
-
                     this.responseCode = mobileMultipartUtility.getResponseCode()
+
+                    val response = mobileMultipartUtility.finish()
 
                     if(response.size > 0){
                         try {
@@ -157,10 +170,8 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
                         }catch (e: JSONException){ }
 
                     }
-                }catch (e: NoRouteToHostException) {
-                }catch (e: ConnectException){
                 }catch (e: Exception){
-                    println()
+                    this.exception = e
                 }
             }
 
@@ -179,7 +190,7 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
                     }
                     editor?.commit()
                     try {
-                        val redirectIntent = Intent(contextWeak.get()!!, NavActivity::class.java)
+                        val redirectIntent = Intent(contextWeak.get()!!, StartActivity::class.java)
                         redirectIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK)
                         contextWeak.get()!!.startActivity(redirectIntent)
                         progressDialog.dismiss()
@@ -189,9 +200,16 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
                         progressDialog.dismiss()
                     }
                 } else { // else login failed
+
                     progressDialog.dismiss()
                     try {
-                        activityWeak.get()!!.onLoginFailed()
+                        if(this.exception != null)
+                            AppConfigurator.toastMessageBasedOnException(this.exception!!, contextWeak.get()!!)
+                        if (responseCode == 404)
+                            Toast.makeText(contextWeak.get()!!, "Błąd logowania - użytkownik nie istnieje", Toast.LENGTH_SHORT).show()
+                        else if (responseCode == 403)
+                            Toast.makeText(contextWeak.get()!!, "Błąd logowania - niepoprawne hasło", Toast.LENGTH_SHORT).show()
+                        activityWeak.get()!!.btn_login.isEnabled = (true)
                     }catch (e: NullPointerException){}
                 }
             }
@@ -204,9 +222,9 @@ class LoginActivity : AppCompatActivity() //, LoaderCallbacks<Cursor>
         moveTaskToBack(true)
     }
 
-    private fun onLoginFailed() {
-        Toast.makeText(baseContext, "Błąd logowania", Toast.LENGTH_LONG).show()
-
-        btn_login.isEnabled = (true)
-    }
+//    private fun onLoginFailed() {
+//        Toast.makeText(baseContext, "Błąd logowania", Toast.LENGTH_LONG).show()
+//
+//        btn_login.isEnabled = (true)
+//    }
 }

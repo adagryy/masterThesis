@@ -2,10 +2,6 @@ package com.example.grycz.imageprocessor
 
 import android.content.Context
 import android.os.Bundle
-import android.support.design.widget.NavigationView
-import android.support.v4.view.GravityCompat
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_nav.*
 import kotlinx.android.synthetic.main.app_bar_nav.*
@@ -13,11 +9,15 @@ import android.content.Intent
 import kotlinx.android.synthetic.main.content_nav.*
 import android.content.IntentFilter
 import android.content.BroadcastReceiver
-import android.support.v4.content.ContextCompat
-import android.support.v4.content.LocalBroadcastManager
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.material.navigation.NavigationView
 import java.net.*
 
 
@@ -63,8 +63,12 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
 
         val allServerPreferences = AppConfigurator.serverPreferences?.all // read from serverPreferences
 
+        if(AppConfigurator.cert.isEmpty()){
+            AppConfigurator.cert = AppConfigurator.certificatePersistent?.all?.get("certificate").toString()
+            AppConfigurator.setSelSignedCertificate() // prepare app to use self-signed certificate
+        }
+
         if(AppConfigurator.server_domain.isEmpty()) {
-            AppConfigurator.setSelSignedCertificate()
             AppConfigurator.server_domain = "https://" + allServerPreferences?.get("serveraddress").toString() + "/"
         }
 
@@ -90,8 +94,8 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         }
         // --------------
 
-        navUser.text = cookiesFromPrefs?.get("username").toString()
-        navEmail.text = cookiesFromPrefs?.get("useremail").toString()
+        navUser.text = allServerPreferences?.get("username").toString()
+        navEmail.text = allServerPreferences?.get("useremail").toString()
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 IntentFilter("processingFinished"))
@@ -105,6 +109,7 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
             // Get extra data included in the Intent
 
             val view: TextView = this@NavActivity.findViewById(R.id.progress_title)
+//            Toast.makeText(applicationContext, intent.getStringExtra("glupiError"), Toast.LENGTH_SHORT).show()
 
             when (intent.getStringExtra("responseCode")){
                 "200" ->  {
@@ -130,7 +135,7 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
         val sendButton: Button = this@NavActivity.findViewById(R.id.receiving_activity)
         val downloadButton: Button = this@NavActivity.findViewById(R.id.sending_activity)
 
-        sendButton.isEnabled = state
+//        sendButton.isEnabled = state
         downloadButton.isEnabled = state
     }
 
@@ -166,12 +171,17 @@ class NavActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelected
             }
             R.id.logOff -> {
                 finish()
-                val editor = AppConfigurator.loginPreferences?.edit()
+                var editor = AppConfigurator.loginPreferences?.edit()
                 editor?.clear()
                 editor?.commit()
 
-                AppConfigurator.cookieManager = null
+                AppConfigurator.cookieManager?.cookieStore?.removeAll()
 
+//                // Restart whole app
+//                val i = baseContext.packageManager
+//                        .getLaunchIntentForPackage(baseContext.packageName)
+//                i!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+//                startActivity(i)
                 val intent = Intent(this, LoginActivity::class.java)
                 startActivity(intent)
             }

@@ -18,6 +18,7 @@ namespace serwer.Config
         public const string adminRole = "Administrator"; // Name of admin role
 
         public const string rootStorage = @"C:\analizatorObrazow\storage\"; // root storage path for storing critical application data (matlab scripts and images)
+        //public const string rootStorage = @"C:\Users\serwer\Documents\Storage\"; // root storage path for storing critical application data (matlab scripts and images)        
 
         public const string usersStorage = rootStorage + @"users\"; // storage for images (all users have their own directory) out of the IIS server
         public const string matlabScripts = rootStorage + @"matlabscripts\"; // storage for matlab scripts; out of the IIS server
