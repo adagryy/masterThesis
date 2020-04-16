@@ -75,10 +75,10 @@ namespace serwer.Helpers
             try
             {
                 // For more information see official MathWorks doccumentation on how to use MLApp Matlab object reference
-                MLApp.MLApp matlab = new MLApp.MLApp();
-                matlab.Execute("cd " + matlabProcessingDataThreaded.MatlabScriptsDirectory); // move Matlab shell context to the directory specified here, e. g. "cd F:\\Resources\\processImage.m"
+                // MLApp.MLApp matlab = new MLApp.MLApp();
+                ServerConfigurator.matlabReference.Execute("cd " + matlabProcessingDataThreaded.MatlabScriptsDirectory); // move Matlab shell context to the directory specified here, e. g. "cd F:\\Resources\\processImage.m"
                 object result = null; // output data
-                matlab.Feval(
+                ServerConfigurator.matlabReference.Feval(
                         matlabProcessingDataThreaded.SelectedProcessingAlgorithm, // The name of algoritm which will be used for processing
                         0, // Number of output arguments
                         out result, // Output data
@@ -86,7 +86,6 @@ namespace serwer.Helpers
                         matlabProcessingDataThreaded.ImageDestination + matlabProcessingDataThreaded.ProcessedFileName, // Parameter #2 to matlab algorithm (destination image path with filename)
                         matlabProcessingDataThreaded.AfterProcessingFileDestination + matlabProcessingDataThreaded.AfterProcessingFileName + matlabProcessingDataThreaded.AfterProcessingFileExtension // Parameter #3 to matlab algorithm (full destination path where to save JSON data)
                     );
-                matlab.Quit();
             }
             catch (System.Runtime.InteropServices.COMException)
             {
